@@ -1,0 +1,10 @@
+.DS_Store
+dist
+build
+__pycache__
+*.pyc
+*.egg-info
+.coverage
+.mypy_cache/
+node_modules/
+package-lock.json

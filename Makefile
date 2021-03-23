@@ -1,0 +1,84 @@
+VERSION=0.0.1
+MAIN=things3
+SRC_CORE=things3
+SRC_TEST=tests
+PYTHON=python3
+PYDOC=pydoc3
+PIP=pip3
+PIPENV=pipenv
+
+help: ## Print help for each target
+	$(info Things3 low-level Python API.)
+	$(info =============================)
+	$(info )
+	$(info Available commands:)
+	$(info )
+	@grep '^[[:alnum:]_-]*:.* ##' $(MAKEFILE_LIST) \
+		| sort | awk 'BEGIN {FS=":.* ## "}; {printf "%-25s %s\n", $$1, $$2};'
+
+run: ## Run the code
+	@$(PYTHON) -m $(SRC_CORE).$(MAIN)
+
+install: ## Install the code
+	@$(PYTHON) setup.py install
+	@echo "You can now use 'things3' API library.
+
+uninstall: ## Uninstall the code
+	@$(PIP) uninstall -y things3
+
+test: ## Test the code
+	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
+	@coverage erase
+	@coverage run -a -m $(SRC_TEST).test_things3
+	@coverage report
+
+.PHONY: doc
+doc: ## Document the code
+	@$(PYDOC) $(SRC_CORE).things3
+
+.PHONY: clean
+clean: ## Cleanup
+	@rm -f $(DEST)
+	@find . -name \*.pyc -delete
+	@find . -name __pycache__ -delete
+	@rm -rf htmlcov
+	@rm -rf build dist *.egg-info
+	@rm -rf .mypy_cache/
+	@rm -f .coverage
+
+auto-style: ## Style the code
+	@if type autopep8 >/dev/null 2>&1 ; then autopep8 -i -r $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install autopep8' first." >&2 ; fi
+
+code-style: ## Test the code style
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=80 $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
+
+code-count: ## Count the code
+	@if type cloc >/dev/null 2>&1 ; then cloc $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run 'brew install cloc' first." >&2 ; fi
+
+code-lint: ## Lint the code
+	@if type pyflakes >/dev/null 2>&1 ; then pyflakes $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install pyflakes' first." >&2 ; fi
+	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
+	@if type flake8 >/dev/null 2>&1 ; then flake8 --max-complexity 10 $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
+	@if type pyright >/dev/null 2>&1 ; then pyright $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
+	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
+
+lint: code-style code-lint  ## Lint everything
+
+deps-install: ## Install the dependencies
+	@type $(PIPENV) >/dev/null 2>&1 || (echo "Run e.g. 'brew install pipenv' first." >&2 ; exit 1)
+	@$(PIPENV) install
+
+feedback: ## Give feedback
+	@open https://github.com/thingsapi/things.py/issues
+
+upload: clean ## Upload the code
+	@python3 setup.py sdist bdist_wheel
+	@python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/things3*
