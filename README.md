@@ -65,7 +65,7 @@ $ pip install things.py
   'type': 'tag',
   'title': 'Home',
   'shortcut': None}
-```
+
 
 >>> things.get_all()
 {
@@ -74,7 +74,7 @@ $ pip install things.py
   'tasks': [...],     # tasks not contained in any project or area
   'tags': [...]
 }
-
+```
 
 ## Technical Background
 
