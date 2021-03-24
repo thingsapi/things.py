@@ -1,11 +1,26 @@
-A simple library to get your Things app data into a Python dict.
+# Things Python API
+
+A simple read-only Python 3 library to get access to your [Things app](https://culturedcode.com/things) data. Implementations for other lanuages might be available [here](https://github.com/thingsapi).
+
+## Table of Contents
+
+- [Things Python API](#things-python-api)
+  - [Table of Contents](#table-of-contents)
+  - [Install](#install)
+  - [Examples](#examples)
+  - [Background](#background)
+  - [Things URLs](#things-urls)
 
 ## Install
+
 ```sh
-$ pip install things.py
+$ pip3 install things.py
+# or
+$ git clone https://github.com/thingsapi/things.py && cd things.py && make install
 ```
 
 ## Examples
+
 ```python
 >>> import things
 >>> things.tasks()
@@ -31,6 +46,7 @@ $ pip install things.py
 [{'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
   'type': 'area',
   'title': 'Family',
+  'status': 'open',
   'tasks': [],
   'projects': [
     {'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
@@ -76,7 +92,7 @@ $ pip install things.py
 }
 ```
 
-## Technical Background
+## Background
 
 The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL Joins and transformations to aid understanding of the data.
 
