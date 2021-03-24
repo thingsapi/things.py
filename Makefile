@@ -1,6 +1,6 @@
 VERSION=0.0.1
-MAIN=things3
-SRC_CORE=things3
+MAIN=things
+SRC_CORE=things
 SRC_TEST=tests
 PYTHON=python3
 PYDOC=pydoc3
@@ -8,8 +8,8 @@ PIP=pip3
 PIPENV=pipenv
 
 help: ## Print help for each target
-	$(info Things3 low-level Python API.)
-	$(info =============================)
+	$(info Things low-level Python API.)
+	$(info ============================)
 	$(info )
 	$(info Available commands:)
 	$(info )
@@ -21,20 +21,20 @@ run: ## Run the code
 
 install: ## Install the code
 	@$(PYTHON) setup.py install
-	@echo "You can now use 'things3' API library.
+	@echo "You can now use 'things' API library.
 
 uninstall: ## Uninstall the code
-	@$(PIP) uninstall -y things3
+	@$(PIP) uninstall -y things
 
 test: ## Test the code
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
 	@coverage erase
-	@coverage run -a -m $(SRC_TEST).test_things3
+	@coverage run -a -m $(SRC_TEST).test_things
 	@coverage report
 
 .PHONY: doc
 doc: ## Document the code
-	@$(PYDOC) $(SRC_CORE).things3
+	@$(PYDOC) $(SRC_CORE).things
 
 .PHONY: clean
 clean: ## Cleanup
@@ -81,4 +81,4 @@ feedback: ## Give feedback
 
 upload: clean ## Upload the code
 	@python3 setup.py sdist bdist_wheel
-	@python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/things3*
+	@python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/things*

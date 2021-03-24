@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Simple read-only API for Things 3."""
+"""Simple read-only API for Things."""
 
 from __future__ import print_function
 
@@ -24,8 +24,8 @@ from pathlib import Path
 
 
 # pylint: disable=R0904,R0902
-class Things3():
-    """Simple read-only API for Things 3."""
+class Things():
+    """Simple read-only API for Things."""
 
     # Database info
     FILE_CONFIG = str(Path.home()) + '/.kanbanviewrc'
@@ -766,7 +766,7 @@ class Things3():
         try:
             connection = sqlite3.connect(
                 'file:' + self.database + '?mode=ro', uri=True)
-            connection.row_factory = Things3.dict_factory
+            connection.row_factory = Things.dict_factory
             cursor = connection.cursor()
             cursor.execute(sql)
             tasks = cursor.fetchall()
