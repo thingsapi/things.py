@@ -1,7 +1,7 @@
 A simple library to get your Things app data into a Python dict.
 
 ## Install
-```python
+```sh
 $ pip install things.py
 ```
 
