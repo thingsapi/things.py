@@ -1,12 +1,12 @@
-Get your Things app data into a Python dict.
+A simple library to get your Things app data into a Python dict.
 
 ## Install
 ```python
 $ pip install things.py
 ```
 
-## Run
-```pycon
+## Examples
+```python
 >>> import things
 >>> things.tasks()
 [{'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
@@ -18,7 +18,7 @@ $ pip install things.py
   'type': 'task',
   'title': 'Buy a whiteboard and accessories',
   'project': {'title': 'Set Up Home Office', 'uuid': 'w8oSP1HjWstPin8RMaJOtB'},
-  'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.',
+  'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'tags': [],
   'checklist': [
       {'title': 'Cleaning Spray', 'status': 'done', ...},
