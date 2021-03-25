@@ -1,6 +1,7 @@
 # Things Python API
 
-A simple read-only Python 3 library to get access to your [Things app](https://culturedcode.com/things) data. Implementations for other lanuages might be available [here](https://github.com/thingsapi).
+A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data.
+Implementations for some other languages are found [here](https://github.com/thingsapi).
 
 ## Table of Contents
 
@@ -76,11 +77,17 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'shortcut': None},
  ...
 
->>> things.get('hIo1FJlAYGKt1Yj38vzKc3')
+>>> things.get(uuid='hIo1FJlAYGKt1Yj38vzKc3')
 {'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
   'type': 'tag',
   'title': 'Home',
   'shortcut': None}
+
+>>> things.get(title='Home', status=things.STATUS_OPEN)
+{'uuid': 'rOo4DGdR6SgH18l2aCz5T3',
+  'type': 'project',
+  'title': 'Home',
+  'status': 'open'}
 
 
 >>> things.get_all()
