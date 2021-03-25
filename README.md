@@ -47,7 +47,6 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 [{'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
   'type': 'area',
   'title': 'Family',
-  'status': 'open',
   'tasks': [],
   'projects': [
     {'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
