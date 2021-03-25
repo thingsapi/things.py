@@ -8,7 +8,8 @@ Module implementing Things API
 from .database import Database
 
 
-def tasks(type="task", status="open", area=None, project=None, heading=None, **kwargs):
+def tasks(type="task", status="open", area=None,
+          project=None, heading=None, **kwargs):
     """
     Read tasks into a list of dicts.
 

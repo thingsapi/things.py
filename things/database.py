@@ -211,7 +211,8 @@ class Database:
             for task in tasks:
                 task["title"] = self.anonymize_string(task["title"])
                 task["context"] = (
-                    self.anonymize_string(task["context"]) if "context" in task else ""
+                    self.anonymize_string(
+                        task["context"]) if "context" in task else ""
                 )
         return tasks
 
@@ -761,7 +762,7 @@ class Database:
         result.extend(self.get_lint())
         result.extend(self.get_empty_projects())
         result.extend(self.get_tag(self.tag_cleanup))
-        result = [i for n, i in enumerate(result) if i not in result[n + 1 :]]
+        result = [i for n, i in enumerate(result) if i not in result[n + 1:]]
         return result
 
     @staticmethod
@@ -844,7 +845,8 @@ class Database:
             print(self.filepath)
             print(sql)
         try:
-            connection = sqlite3.connect(f"file:{self.filepath}?mode=ro", uri=True)
+            connection = sqlite3.connect(
+                f"file:{self.filepath}?mode=ro", uri=True)
             connection.row_factory = Database.dict_factory
             cursor = connection.cursor()
             cursor.execute(sql)
