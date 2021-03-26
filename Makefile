@@ -47,8 +47,8 @@ clean: ## Cleanup
 	@rm -f .coverage
 
 auto-style: ## Style the code
-	@if type autopep8 >/dev/null 2>&1 ; then autopep8 -i -r $(SRC_CORE) ; \
-	 else echo "SKIPPED. Run '$(PIP) install autopep8' first." >&2 ; fi
+	@if type black >/dev/null 2>&1 ; then black $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
 	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=80 $(SRC_CORE) ; \
