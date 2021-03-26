@@ -26,14 +26,14 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 >>> import things
 >>> things.tasks()
 [{'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
-  'type': 'task',
   'title': 'Make reservation for dinner',
-  'project': {'title': 'Throw Birthday Party', 'uuid': 'bNj6TPdKYhY6fScvXWVRDX'},
+  'type': 'task',
+  'project': 'bNj6TPdKYhY6fScvXWVRDX',
   ...},
  {'uuid': 'RLZroza3jz0XPs3uAlynS7',
-  'type': 'task',
   'title': 'Buy a whiteboard and accessories',
-  'project': {'title': 'Set Up Home Office', 'uuid': 'w8oSP1HjWstPin8RMaJOtB'},
+  'type': 'task',
+  'project': 'w8oSP1HjWstPin8RMaJOtB',
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'tags': [],
   'checklist': [
@@ -43,57 +43,50 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   ],
   ...
 
+>>> things.projects()
+[{'uuid': 'bNj6TPdKYhY6fScvXWVRDX',
+  'title': 'Throw Birthday Party',
+  'type': 'project',
+  'area': 'bNj6TPdKYhY6fScvXWVRDX',
+  ...},
+ {'uuid': 'w8oSP1HjWstPin8RMaJOtB',
+  'title': 'Set Up Home Office',
+  'type': 'project',
+  'area': 'Gw9QefIdgR6nPEoY5hBNSh',
+  ...
+
 >>> things.areas()
-[{'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
-  'type': 'area',
+[{'uuid': 'ToLxnnBrWkfHC3tkx4vxdV',
   'title': 'Family',
-  'tasks': [],
-  'projects': [
-    {'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
-     'type': 'project',
-     'title': 'Vacation in Rome',
-     'tasks': [
-       {'uuid': 'jqBQAmQJOdnqVJRCuwaXcU',
-        'type': 'task',
-        'title': "Borrow Sarah's travel guide",
-        ...}],
-     'headings': [
-       {'uuid': 'gln1iLefjDXKkKIQLTqiWE',
-        'type': 'heading',
-        'title': 'Pack',
-        'tasks': [...]
-        ...},
- ...
+  'type': 'area',
+  ...},
+ {'uuid': 'Gw9QefIdgR6nPEoY5hBNSh',
+  'title': 'Apartment',
+  'type': 'area',
+  ...
 
 >>> things.tags()
-[{'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
+[{'uuid': 'CKILg3kKF2jlCRisNFcqOj',
   'type': 'tag',
   'title': 'Home',
   'shortcut': None},
- {'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
+ {'uuid': 'gfmpz8zxnyfqMDvRi3E8vo',
   'type': 'tag',
   'title': 'Office',
   'shortcut': None},
  ...
 
->>> things.get(uuid='hIo1FJlAYGKt1Yj38vzKc3')
-{'uuid': 'hIo1FJlAYGKt1Yj38vzKc3',
+>>> things.get(uuid='CKILg3kKF2jlCRisNFcqOj')
+{'uuid': 'CKILg3kKF2jlCRisNFcqOj',
   'type': 'tag',
   'title': 'Home',
   'shortcut': None}
 
->>> things.get(title='Home', status=things.STATUS_OPEN)
-{'uuid': 'rOo4DGdR6SgH18l2aCz5T3',
-  'type': 'project',
-  'title': 'Home',
-  'status': 'open'}
-
-
->>> things.get_all()
+>>> things.get()
 {
-  'areas': [...],     # areas include contained projects and tasks
-  'projects': [...],  # projects not contained in any area
-  'tasks': [...],     # tasks not contained in any project or area
+  'areas': [...],
+  'projects': [...],
+  'tasks': [...],
   'tags': [...]
 }
 ```
