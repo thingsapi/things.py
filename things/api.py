@@ -154,7 +154,7 @@ def tags(**kwargs):
 
 
 def inbox(**kwargs):
-    return tasks(start="inbox", **kwargs)
+    return tasks(start="Inbox", **kwargs)
 
 
 def projects(**kwargs):
