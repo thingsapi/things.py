@@ -14,10 +14,7 @@ class ThingsCase(unittest.TestCase):
         """Test all tasks."""
         tasks = api.tasks(filepath='tests/demo.sqlite3')
         self.assertEqual(37, len(tasks))
-        tasks = api.tasks(status="done", filepath='tests/demo.sqlite3')
-        self.assertEqual(1, len(tasks))
-        # todo: should this be valid?
-        tasks = api.tasks(status="asdfasdf", filepath='tests/demo.sqlite3')
+        tasks = api.tasks(status="closed", filepath='tests/demo.sqlite3')
         self.assertEqual(39, len(tasks))
 
     def test_tags(self):
