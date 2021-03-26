@@ -153,5 +153,9 @@ def tags(**kwargs):
 # Utility functions derived from above
 
 
+def inbox(**kwargs):
+    return tasks(start="inbox", **kwargs)
+
+
 def projects(**kwargs):
     return tasks(type="project", **kwargs)

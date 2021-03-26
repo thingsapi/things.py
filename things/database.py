@@ -32,7 +32,6 @@ START_TO_QUERY = {
     "Someday": "start = 2",
 }
 
-
 STATUS_TO_QUERY = {
     "incomplete": "status = 0",
     "canceled": "status = 2",
@@ -166,7 +165,7 @@ class Database:
         pfilter = make_filter("project", project)
         hfilter = make_filter("actionGroup", heading)
 
-        start_query = START_TO_QUERY.get(start)
+        start_query = START_TO_QUERY.get(start and start.title())
         status_query = STATUS_TO_QUERY.get(status)
 
         query = f"""
@@ -391,7 +390,7 @@ class Database:
     def get_projects(self, status="incomplete", start=None, area=None):
         """Get projects."""
         afilter = f'AND TASK.area = "{area}"' if area is not None else ""
-        start_query = START_TO_QUERY.get(start)
+        start_query = START_TO_QUERY.get(start and start.title())
         status_query = STATUS_TO_QUERY.get(status)
         query = f"""
                 SELECT
