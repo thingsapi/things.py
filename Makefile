@@ -51,7 +51,7 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=80 $(SRC_CORE) ; \
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --ignore=E203 --max-line-length=88 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 
 code-count: ## Count the code
