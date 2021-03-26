@@ -7,7 +7,7 @@ Module implementing Things API
 
 from .database import Database
 
-
+# todo: type validation or similar (avoid invalid stroings)
 def tasks(type="task", status="open", area=None,
           project=None, heading=None, **kwargs):
     """
