@@ -37,9 +37,9 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'tags': [],
   'checklist': [
-      {'title': 'Cleaning Spray', 'status': 'done', ...},
-      {'title': 'Magnetic Eraser', 'status': 'open', ...},
-      {'title': 'Round magnets', 'status': 'open', ...}
+      {'title': 'Cleaning Spray', 'status': 'completed', ...},
+      {'title': 'Magnetic Eraser', 'status': 'incomplete', ...},
+      {'title': 'Round magnets', 'status': 'incomplete', ...}
   ],
   ...
 
@@ -101,10 +101,10 @@ Here's the terminology used involving the database:
 - Tag
 - Task
   - type
-    - `"task"`: task within a project or a standalone task; can link to an area, tags, and a checklist
-    - `"project"`: a supertask; can link to an area, tags, (sub)tasks, and headings.
+    - `"task"`: task within a project or a standalone task; can include a checklist; can also link to an area and tags.
+    - `"project"`: a large task; can include (sub)tasks and headings; can also link to an area and tags.
     - `"heading"`: contained within a project in order to group tasks
-  - status:  `"open"`,  `"cancelled"`, or `"done"`
+  - status:  `"incomplete"`,  `"canceled"`, or `"completed"`
   - trashed: `True` or `False`
 - Checklist Item (contained within a task)
 
