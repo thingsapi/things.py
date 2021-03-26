@@ -14,7 +14,6 @@ __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
-import configparser
 import os
 from pathlib import Path
 import sqlite3
@@ -27,10 +26,16 @@ DEFAULT_DATABASE_FILEPATH = os.path.expanduser(
     "/Things Database.thingsdatabase/main.sqlite"
 )
 
+START_TO_QUERY = {
+    "Inbox": "start = 0",
+    "Anytime": "start = 1",
+    "Someday": "start = 2",
+}
+
 STATUS_TO_QUERY = {
-    "open": "status = 0",
+    "incomplete": "status = 0",
     "canceled": "status = 2",
-    "done": "status = 3",
+    "completed": "status = 3",
 }
 
 
@@ -47,7 +52,6 @@ class Database:
     """
 
     # Database info
-    FILE_CONFIG = str(Path.home()) + "/.kanbanviewrc"  # TK: remove
     TABLE_TASK = "TMTask"
     TABLE_AREA = "TMArea"
     TABLE_TAG = "TMTag"
@@ -57,9 +61,9 @@ class Database:
     DATE_DUE = "dueDate"
     DATE_START = "startDate"
     DATE_STOP = "stopDate"
-    IS_INBOX = "start = 0"
-    IS_ANYTIME = "start = 1"
-    IS_SOMEDAY = "start = 2"
+    IS_INBOX = START_TO_QUERY["Inbox"]
+    IS_ANYTIME = START_TO_QUERY["Anytime"]
+    IS_SOMEDAY = START_TO_QUERY["Someday"]
     IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
     IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
     IS_DUE = f"{DATE_DUE} IS NOT NULL"
@@ -70,85 +74,21 @@ class Database:
     IS_HEADING = "type = 2"
     IS_TRASHED = "trashed = 1"
     IS_NOT_TRASHED = "trashed = 0"
-    IS_OPEN = STATUS_TO_QUERY["open"]
+    IS_INCOMPLETE = STATUS_TO_QUERY["incomplete"]
     IS_CANCELED = STATUS_TO_QUERY["canceled"]
-    IS_DONE = STATUS_TO_QUERY["done"]
+    IS_COMPLETED = STATUS_TO_QUERY["completed"]
     RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
     RECURRING_HAS_NEXT_STARTDATE = "nextInstanceStartDate IS NOT NULL"
-    MODE_TASK = "type = 0"
-    MODE_PROJECT = "type = 1"
 
     # Variables
     debug = False
-    filepath = DEFAULT_DATABASE_FILEPATH
     filter = ""
-    tag_waiting = "Waiting"
-    tag_mit = "MIT"
-    tag_cleanup = "Cleanup"
-    tag_a = "A"
-    tag_b = "B"
-    tag_c = "C"
-    tag_d = "D"
     stat_days = 365
-    anonymize = False
-
-    # TK: remove below two lines
-    config = configparser.ConfigParser()
-    # config.read(FILE_CONFIG)
 
     # pylint: disable=R0913
-    def __init__(
-        self,
-        filepath=None,
-        tag_waiting=None,
-        tag_mit=None,
-        tag_cleanup=None,
-        tag_a=None,
-        tag_b=None,
-        tag_c=None,
-        tag_d=None,
-        stat_days=None,
-        anonymize=None,
-    ):
+    def __init__(self, filepath=None, stat_days=None):
+        self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
 
-        cfg = self.get_from_config(tag_waiting, "TAG_WAITING")
-        self.tag_waiting = cfg if cfg else self.tag_waiting
-        self.set_config("TAG_WAITING", self.tag_waiting)
-
-        cfg = self.get_from_config(anonymize, "ANONYMIZE")
-        self.anonymize = (cfg == "True") if (cfg == "True") else self.anonymize
-        self.set_config("ANONYMIZE", self.anonymize)
-
-        cfg = self.get_from_config(tag_mit, "TAG_MIT")
-        self.tag_mit = cfg if cfg else self.tag_mit
-        self.set_config("TAG_MIT", self.tag_mit)
-
-        cfg = self.get_from_config(tag_cleanup, "TAG_CLEANUP")
-        self.tag_cleanup = cfg if cfg else self.tag_cleanup
-        self.set_config("TAG_CLEANUP", self.tag_cleanup)
-
-        cfg = self.get_from_config(tag_a, "TAG_A")
-        self.tag_a = cfg if cfg else self.tag_a
-        self.set_config("TAG_A", self.tag_a)
-
-        cfg = self.get_from_config(tag_b, "TAG_B")
-        self.tag_b = cfg if cfg else self.tag_b
-        self.set_config("TAG_B", self.tag_b)
-
-        cfg = self.get_from_config(tag_c, "TAG_C")
-        self.tag_c = cfg if cfg else self.tag_c
-        self.set_config("TAG_C", self.tag_c)
-
-        cfg = self.get_from_config(tag_d, "TAG_D")
-        self.tag_d = cfg if cfg else self.tag_d
-        self.set_config("TAG_D", self.tag_d)
-
-        cfg = self.get_from_config(stat_days, "STAT_DAYS")
-        self.stat_days = cfg if cfg else self.stat_days
-        self.set_config("STAT_DAYS", self.stat_days)
-
-        cfg = self.get_from_config(filepath, "THINGSDB")
-        self.filepath = cfg if cfg else self.filepath
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
         try:
@@ -158,44 +98,6 @@ class Database:
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
             pass  # binary file (old database) or doesn't exist
         # --------------------------------
-        self.set_config("THINGSDB", self.filepath)
-
-    def set_config(self, key, value, domain="DATABASE"):
-        """Write variable to config."""
-        if domain not in self.config:
-            self.config.add_section(domain)
-        if value is not None and key is not None:
-            self.config.set(domain, str(key), str(value))
-            with open(self.FILE_CONFIG, "w+") as configfile:
-                self.config.write(configfile)
-
-    def get_config(self, key, domain="DATABASE"):
-        """Get variable from config."""
-        result = None
-        if domain in self.config and key in self.config[domain]:
-            result = os.path.expanduser(self.config[domain][key])
-        return result
-
-    def get_from_config(self, variable, key, domain="DATABASE"):
-        """Set variable. Priority: input, environment, config"""
-        result = None
-        if variable is not None:
-            result = variable
-        elif os.environ.get(key):
-            result = os.environ.get(key)
-        elif domain in self.config and key in self.config[domain]:
-            result = os.path.expanduser(self.config[domain][key])
-        return result
-
-    @staticmethod
-    def anonymize_string(string):
-        """Scramble text."""
-        if string is None:
-            return None
-        string = list(string)
-        shuffle(string)
-        string = "".join(string)
-        return string
 
     @staticmethod
     def dict_factory(cursor, row):
@@ -205,23 +107,12 @@ class Database:
             dictionary[col[0]] = row[idx]
         return dictionary
 
-    def anonymize_tasks(self, tasks):
-        """Scramble output for screenshots."""
-        if self.anonymize:
-            for task in tasks:
-                task["title"] = self.anonymize_string(task["title"])
-                task["context"] = (
-                    self.anonymize_string(
-                        task["context"]) if "context" in task else ""
-                )
-        return tasks
-
     def get_inbox(self):
         """Get all tasks from the inbox."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_INBOX}
                 ORDER BY TASK.duedate DESC , TASK.todayIndex
                 """
@@ -232,7 +123,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 (TASK.{self.IS_ANYTIME} OR (
                      TASK.{self.IS_SOMEDAY} AND
                      TASK.{self.DATE_START} <= strftime('%s', 'now')
@@ -253,7 +144,9 @@ class Database:
                 """
         return self.get_rows(query)
 
-    def get_task(self, status="open", area=None, project=None, heading=None):
+    def get_tasks(
+        self, status="incomplete", start=None, area=None, project=None, heading=None
+    ):
         """Get tasks."""
 
         # TK: might consider executing SQL with parameters instead.
@@ -271,12 +164,16 @@ class Database:
         afilter = make_filter("area", area)
         pfilter = make_filter("project", project)
         hfilter = make_filter("actionGroup", heading)
+
+        start_query = START_TO_QUERY.get(start and start.title())
         status_query = STATUS_TO_QUERY.get(status)
+
         query = f"""
-                TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
-                TASK.{self.IS_ANYTIME} AND
-                TASK.{self.IS_NOT_RECURRING} AND (
+                TASK.{self.IS_NOT_TRASHED}
+                AND TASK.{self.IS_TASK}
+                {f"AND TASK.{start_query}" if start_query else ""}
+                {f"AND TASK.{status_query}" if status_query else ""}
+                AND TASK.{self.IS_NOT_RECURRING} AND (
                     (
                         PROJECT.title IS NULL OR (
                             PROJECT.{self.IS_NOT_TRASHED}
@@ -287,7 +184,6 @@ class Database:
                         )
                     )
                 )
-                {f"AND TASK.{status_query}" if status_query else ""}
                 {afilter}
                 {pfilter}
                 {hfilter}
@@ -300,7 +196,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_SOMEDAY} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND
                 TASK.{self.IS_NOT_RECURRING} AND (
@@ -323,7 +219,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_SOMEDAY} AND
                 TASK.{self.IS_SCHEDULED} AND
                 TASK.{self.IS_NOT_RECURRING} AND (
@@ -354,7 +250,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_NOT_RECURRING} AND
                 TAGS.tags=(SELECT uuid FROM {self.TABLE_TAG}
                              WHERE title='{tag}'
@@ -393,7 +289,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 (TASK.{self.IS_ANYTIME} OR (
                      TASK.{self.IS_SOMEDAY} AND
                      TASK.{self.DATE_START} <= strftime('%s', 'now')
@@ -421,7 +317,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_ANYTIME} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND (
                     (
@@ -445,7 +341,7 @@ class Database:
             query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_ANYTIME} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND (
                     (
@@ -467,7 +363,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_DONE}
+                TASK.{self.IS_COMPLETED}
                 ORDER BY TASK.{self.DATE_STOP}
                 """
         return self.get_rows(query)
@@ -491,9 +387,10 @@ class Database:
                 """
         return self.get_rows(query)
 
-    def get_projects(self, status="open", area=None):
+    def get_projects(self, status="incomplete", start=None, area=None):
         """Get projects."""
         afilter = f'AND TASK.area = "{area}"' if area is not None else ""
+        start_query = START_TO_QUERY.get(start and start.title())
         status_query = STATUS_TO_QUERY.get(status)
         query = f"""
                 SELECT
@@ -508,16 +405,22 @@ class Database:
                        {f"PROJECT_TASK.{status_query}" if status_query else ""}
                     ) AS size,
                     CASE
-                        WHEN TASK.{self.IS_OPEN} THEN 'open'
-                        WHEN TASK.{self.IS_DONE} THEN 'done'
+                        WHEN TASK.{self.IS_INCOMPLETE} THEN 'incomplete'
                         WHEN TASK.{self.IS_CANCELED} THEN 'canceled'
-                    END AS status
+                        WHEN TASK.{self.IS_COMPLETED} THEN 'completed'
+                    END AS status,
+                    CASE
+                        WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
+                        WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
+                        WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
+                    END AS start
                 FROM
                     {self.TABLE_TASK} AS TASK
                 WHERE
                     TASK.{self.IS_NOT_TRASHED}
                     AND TASK.{self.IS_PROJECT}
                     {f"AND TASK.{status_query}" if status_query else ""}
+                    {f"AND TASK.{start_query}" if start_query else ""}
                     {afilter}
                 ORDER BY TASK.title COLLATE NOCASE
                 """
@@ -553,7 +456,7 @@ class Database:
                         WHERE
                         TASK.area = AREA.uuid AND
                         TASK.{self.IS_NOT_TRASHED} AND
-                        TASK.{self.IS_OPEN}
+                        TASK.{self.IS_INCOMPLETE}
                     ) AS size
                 FROM
                     {self.TABLE_AREA} AS AREA
@@ -584,7 +487,7 @@ class Database:
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
                 TASK.{self.IS_TASK} AND
-                TASK.{self.IS_OPEN} AND
+                TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_DUE} AND (
                     (
                         PROJECT.title IS NULL OR (
@@ -604,7 +507,7 @@ class Database:
         """Get tasks that float around"""
         query = f"""
             TASK.{self.IS_NOT_TRASHED} AND
-            TASK.{self.IS_OPEN} AND
+            TASK.{self.IS_INCOMPLETE} AND
             TASK.{self.IS_TASK} AND
             (TASK.{self.IS_SOMEDAY} OR TASK.{self.IS_ANYTIME}) AND
             TASK.project IS NULL AND
@@ -617,7 +520,7 @@ class Database:
         """Get projects that are empty"""
         query = f"""
             TASK.{self.IS_NOT_TRASHED} AND
-            TASK.{self.IS_OPEN} AND
+            TASK.{self.IS_INCOMPLETE} AND
             TASK.{self.IS_PROJECT} AND
             TASK.{self.IS_ANYTIME}
             GROUP BY TASK.uuid
@@ -627,7 +530,7 @@ class Database:
                  WHERE
                    PROJECT_TASK.project = TASK.uuid AND
                    PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                   PROJECT_TASK.{self.IS_OPEN} AND
+                   PROJECT_TASK.{self.IS_INCOMPLETE} AND
                    (PROJECT_TASK.{self.IS_ANYTIME} OR
                     PROJECT_TASK.{self.IS_SCHEDULED} OR
                       (PROJECT_TASK.{self.IS_RECURRING} AND
@@ -652,13 +555,13 @@ class Database:
                  WHERE
                    PROJECT_TASK.project = TASK.uuid AND
                    PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                   PROJECT_TASK.{self.IS_OPEN}
+                   PROJECT_TASK.{self.IS_INCOMPLETE}
                 ) AS tasks
             FROM
                 {self.TABLE_TASK} AS TASK
             WHERE
                TASK.{self.IS_NOT_TRASHED} AND
-               TASK.{self.IS_OPEN} AND
+               TASK.{self.IS_INCOMPLETE} AND
                TASK.{self.IS_PROJECT}
             GROUP BY TASK.uuid
             ORDER BY tasks COLLATE NOCASE DESC
@@ -711,7 +614,7 @@ class Database:
                         date(stopDate,"unixepoch") AS DAY
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE DAY NOT NULL
-                          AND TASK.{self.IS_DONE} AND TASK.{self.IS_TASK}
+                          AND TASK.{self.IS_COMPLETED} AND TASK.{self.IS_TASK}
                         GROUP BY DAY)
                         AS CLOSED ON CLOSED.DAY = date
                 """
@@ -740,7 +643,7 @@ class Database:
                     printf("%d", TAG.title) = TAG.title AND
                     TASK.{self.IS_NOT_TRASHED} AND
                     TASK.{self.IS_TASK} AND
-                    TASK.{self.IS_OPEN} AND
+                    TASK.{self.IS_INCOMPLETE} AND
                     TASK.{self.IS_ANYTIME} AND
                     TASK.{self.IS_SCHEDULED} AND (
                         (
@@ -762,7 +665,7 @@ class Database:
         result.extend(self.get_lint())
         result.extend(self.get_empty_projects())
         result.extend(self.get_tag(self.tag_cleanup))
-        result = [i for n, i in enumerate(result) if i not in result[n + 1:]]
+        result = [i for n, i in enumerate(result) if i not in result[n + 1 :]]
         return result
 
     @staticmethod
@@ -808,14 +711,19 @@ class Database:
                  WHERE
                    PROJECT_TASK.project = TASK.uuid AND
                    PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                   PROJECT_TASK.{self.IS_OPEN}
+                   PROJECT_TASK.{self.IS_INCOMPLETE}
                 ) AS size,
                 TASK.notes,
                 CASE
-                    WHEN TASK.{self.IS_OPEN} THEN 'open'
-                    WHEN TASK.{self.IS_DONE} THEN 'done'
+                    WHEN TASK.{self.IS_INCOMPLETE} THEN 'incomplete'
+                    WHEN TASK.{self.IS_COMPLETED} THEN 'completed'
                     WHEN TASK.{self.IS_CANCELED} THEN 'canceled'
-                END AS status
+                END AS status,
+                CASE
+                    WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
+                    WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
+                    WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
+                END AS start
             FROM
                 {self.TABLE_TASK} AS TASK
             LEFT OUTER JOIN
@@ -834,10 +742,7 @@ class Database:
                 {self.filter}
                 {sql}
                 """
-        try:
-            return self.execute_query(sql)
-        except:
-            breakpoint()
+        return self.execute_query(sql)
 
     def execute_query(self, sql):
         """Run the actual query"""
@@ -845,13 +750,12 @@ class Database:
             print(self.filepath)
             print(sql)
         try:
-            connection = sqlite3.connect(
-                f"file:{self.filepath}?mode=ro", uri=True)
+            uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
+            connection = sqlite3.connect(uri, uri=True)
             connection.row_factory = Database.dict_factory
             cursor = connection.cursor()
             cursor.execute(sql)
             tasks = cursor.fetchall()
-            tasks = self.anonymize_tasks(tasks)
             if self.debug:
                 for task in tasks:
                     print(task)
@@ -860,16 +764,6 @@ class Database:
             print(f"Could not query the database at: {self.filepath}.")
             print(f"Details: {error}.")
             sys.exit(2)
-
-    # pylint: disable=C0103
-    def mode_project(self):
-        """Hack to switch to project view"""
-        self.IS_TASK = self.MODE_PROJECT
-
-    # pylint: disable=C0103
-    def mode_task(self):
-        """Hack to switch to project view"""
-        self.IS_TASK = self.MODE_TASK
 
     functions = {
         "inbox": get_inbox,
