@@ -15,6 +15,9 @@ def tasks(
     area=None,
     project=None,
     heading=None,
+    start_date=None,
+    index="index",
+    include_items=False,
     **kwargs
 ):
     """
@@ -22,17 +25,15 @@ def tasks(
 
     Parameters
     ----------
-    type : {'task', 'project', None}, optional, default 'task'
+    type : {'task', 'project', 'heading', None}, optional, default 'task'
         Only return a specific type of Task:
 
         'task':     Default. Task within a project or a standalone task;
                     can link to an area, tags, and a checklist.
         'project':  a supertask; can link to an area, tags, (sub)tasks,
                     and headings.
-        None:       Return both types 'task' and type 'project'.
-
-        Note that the type 'heading' is implicitly included as part of
-        the type 'project'.
+        'heading':  a group of tasks; links to a project.
+        None:       Return any type of task.
 
     status : {'incomplete', 'completed', 'canceled', None}, optional, \
         default 'incomplete'
@@ -65,6 +66,18 @@ def tasks(
         If the argument is `None`, then ignore the heading value, that is,
         include tasks both with and without a containing heading.
 
+    start_date : bool or None, optional
+        If the argument is `False`, only include tasks _without_ a start date.
+        If the argument is `True`, only include tasks _with_ a start date.
+        If the argument is `None`, then ignore the start date value, that is,
+        include tasks both with and without a start date.
+
+    include_items : boolean, default False
+        Include tasks in projects and headings.
+
+    index : {'index', 'todayIndex'}, default 'index'
+        Database index to order result by.
+
     **kwargs : optional
         Optional keyword arguments passed to ``Database``.
 
@@ -76,47 +89,48 @@ def tasks(
     Examples
     --------
     >>> things.tasks()
+    >>> things.tasks(area='hIo1FJlAYGKt1Yj38vzKc3', include_items=True)
     """
     database = Database(**kwargs)
-    if type == "task":
-        return database.get_tasks(
-            status=status, start=start, area=area, project=project, heading=heading
-        )
-    elif type == "project":
-        result = []
-        matched_projects = database.get_projects(status=status, start=start, area=area)
-        for project in matched_projects:
-            # group tasks by heading
-            project["tasks"] = database.get_tasks(
-                status=status, start=start, project=project["uuid"], heading=False
-            )
-            project["headings"] = {
-                heading["title"]: database.get_tasks(
-                    status=status, start=start, heading=heading["uuid"]
+    result = database.get_tasks(
+        type=type,
+        status=status,
+        start=start,
+        area=area,
+        project=project,
+        heading=heading,
+        start_date=start_date,
+        index=index,
+    )
+
+    if include_items:
+        for item in result:
+            if item["type"] == "project":
+                project = item
+                # add items of project
+                project["items"] = items = tasks(
+                    type=None, project=project["uuid"], include_items=True, **kwargs
                 )
-                for heading in database.get_headings(
-                    status=status, project=project["uuid"]
-                )
-            }
-            result.append(project)
-        return result
+                # tasks without headings appear before headings
+                items.sort(key=lambda item: item["type"], reverse=True)
+            elif item["type"] == "heading":
+                heading = item
+                heading["items"] = tasks(heading=heading["uuid"], **kwargs)
+
+    return result
 
 
-def areas(include_tasks=False, status="incomplete", **kwargs):
+def areas(include_items=False, **kwargs):
     """
     Read areas into a list of dicts.
 
     Parameters
     ----------
-    include_tasks : boolean, default False
-        Include tasks and projects for each area.
-
-    status : {'incomplete', 'completed', 'canceled', None}, default 'incomplete'
-        Include only tasks and projects with the specified status.
-        The argument `None` includes all statuses.
+    include_items : boolean, default False
+        Include tasks and projects in each area.
 
     **kwargs : optional
-        Optional keyword arguments passed to ``Database``.
+        Optional keyword arguments passed to ``Database`` and `things.tasks`.
 
     Returns
     -------
@@ -126,23 +140,16 @@ def areas(include_tasks=False, status="incomplete", **kwargs):
     Examples
     --------
     >>> things.areas()
-    >>> things.areas(include_tasks=True, status='completed')
+    >>> things.areas(include_items=True, status='completed')
     """
-    database = Database(**kwargs)
-    all_areas = database.get_areas()
-    if include_tasks is False:
-        return all_areas
-    else:
-        return [
-            {
-                **area,
-                **dict(
-                    projects=projects(area=area["uuid"], **kwargs),
-                    tasks=tasks(area=area["uuid"], project=False, **kwargs),
-                ),
-            }
-            for area in all_areas
-        ]
+    database = Database(filepath=kwargs.get("filepath"))
+    result = database.get_areas()
+    if include_items:
+        for area in result:
+            area["items"] = tasks(
+                type=None, area=area["uuid"], include_items=True, **kwargs
+            )
+    return result
 
 
 def tags(**kwargs):
@@ -153,9 +160,21 @@ def tags(**kwargs):
 # Utility functions derived from above
 
 
+def canceled(**kwargs):
+    return tasks(type=None, status="canceled", **kwargs)
+
+
+def completed(**kwargs):
+    return tasks(type=None, status="completed", **kwargs)
+
+
 def inbox(**kwargs):
     return tasks(start="Inbox", **kwargs)
 
 
 def projects(**kwargs):
     return tasks(type="project", **kwargs)
+
+
+def today(**kwargs):
+    return tasks(type=None, start_date=True, index="todayIndex", **kwargs)

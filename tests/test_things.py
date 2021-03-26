@@ -21,10 +21,8 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(1, len(tasks))
         tasks = api.tasks(status="completed", filepath=DEMO_FILEPATH)
         self.assertEqual(3, len(tasks))
-        # todo: check if this should be possible
-        # todo: introduce some sort of strict typing / validation
-        tasks = api.tasks(status="wrong_value", filepath=DEMO_FILEPATH)
-        self.assertEqual(55, len(tasks))
+        with self.assertRaises(ValueError):
+            api.tasks(status="wrong_value", filepath=DEMO_FILEPATH)
 
     def test_tags(self):
         """Test all tags."""

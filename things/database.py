@@ -38,6 +38,12 @@ STATUS_TO_QUERY = {
     "completed": "status = 3",
 }
 
+TYPE_TO_QUERY = {"task": "type = 0", "project": "type = 1", "heading": "type = 2"}
+
+INDICES = ("index", "todayIndex")
+
+OMIT_IF_NONE = ("area", "project", "heading")
+
 
 # pylint: disable=R0904,R0902
 class Database:
@@ -101,53 +107,43 @@ class Database:
 
     @staticmethod
     def dict_factory(cursor, row):
-        """Convert SQL result into a dictionary"""
-        dictionary = {}
-        for idx, col in enumerate(cursor.description):
-            dictionary[col[0]] = row[idx]
-        return dictionary
+        """
+        Convert SQL result into a dictionary.
 
-    def get_inbox(self):
-        """Get all tasks from the inbox."""
-        query = f"""
-                TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
-                TASK.{self.IS_INCOMPLETE} AND
-                TASK.{self.IS_INBOX}
-                ORDER BY TASK.duedate DESC , TASK.todayIndex
-                """
-        return self.get_rows(query)
+        See also:
+        https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory
+        """
+        result = {}
+        for index, column in enumerate(cursor.description):
+            key, value = column[0], row[index]
+            if key in OMIT_IF_NONE and value is None:
+                continue
+            result[key] = value
+        return result
 
-    def get_today(self):
-        """Get all tasks from the todays list."""
-        query = f"""
-                TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
-                TASK.{self.IS_INCOMPLETE} AND
-                (TASK.{self.IS_ANYTIME} OR (
-                     TASK.{self.IS_SOMEDAY} AND
-                     TASK.{self.DATE_START} <= strftime('%s', 'now')
-                     )
-                ) AND
-                TASK.{self.IS_SCHEDULED} AND (
-                    (
-                        PROJECT.title IS NULL OR (
-                            PROJECT.{self.IS_NOT_TRASHED}
-                        )
-                    ) AND (
-                        HEADPROJ.title IS NULL OR (
-                            HEADPROJ.{self.IS_NOT_TRASHED}
-                        )
-                    )
-                )
-                ORDER BY TASK.duedate DESC , TASK.todayIndex
-                """
-        return self.get_rows(query)
+    # core methods
 
     def get_tasks(
-        self, status="incomplete", start=None, area=None, project=None, heading=None
+        self,
+        type="task",
+        status="incomplete",
+        start=None,
+        area=None,
+        project=None,
+        heading=None,
+        start_date=None,
+        index="index",
     ):
         """Get tasks."""
+
+        # Normalize
+        start = start and start.title()
+
+        # Validation
+        validate("type", type, [None] + list(TYPE_TO_QUERY))
+        validate("status", status, [None] + list(STATUS_TO_QUERY))
+        validate("start", start, [None] + list(START_TO_QUERY))
+        validate("index", index, list(INDICES))
 
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
@@ -161,35 +157,125 @@ class Database:
                 True: f"AND TASK.{column} IS NOT NULL",
             }.get(value, default)
 
-        afilter = make_filter("area", area)
-        pfilter = make_filter("project", project)
-        hfilter = make_filter("actionGroup", heading)
-
-        start_query = START_TO_QUERY.get(start and start.title())
+        start_query = START_TO_QUERY.get(start)
         status_query = STATUS_TO_QUERY.get(status)
+        type_query = TYPE_TO_QUERY.get(type)
 
         query = f"""
                 TASK.{self.IS_NOT_TRASHED}
-                AND TASK.{self.IS_TASK}
+                {f"AND TASK.{type_query}" if type_query else ""}
                 {f"AND TASK.{start_query}" if start_query else ""}
                 {f"AND TASK.{status_query}" if status_query else ""}
-                AND TASK.{self.IS_NOT_RECURRING} AND (
-                    (
-                        PROJECT.title IS NULL OR (
-                            PROJECT.{self.IS_NOT_TRASHED}
-                        )
-                    ) AND (
-                        HEADPROJ.title IS NULL OR (
-                            HEADPROJ.{self.IS_NOT_TRASHED}
-                        )
-                    )
-                )
-                {afilter}
-                {pfilter}
-                {hfilter}
-                ORDER BY TASK.duedate DESC, TASK.{self.DATE_CREATE} DESC
+                AND TASK.{self.IS_NOT_RECURRING}
+                AND (PROJECT.title IS NULL OR PROJECT.{self.IS_NOT_TRASHED})
+                AND (HEADPROJ.title IS NULL OR HEADPROJ.{self.IS_NOT_TRASHED})
+                {make_filter("area", area)}
+                {make_filter("project", project)}
+                {make_filter("actionGroup", heading)}
+                {make_filter("startDate", start_date)}
+                ORDER BY TASK."{index}"
                 """
         return self.get_rows(query)
+
+    def get_rows(self, sql):
+        """Query Things database."""
+
+        sql = f"""
+            SELECT DISTINCT
+                TASK.uuid,
+                TASK.title,
+                CASE
+                    WHEN TASK.{self.IS_TASK} THEN 'task'
+                    WHEN TASK.{self.IS_PROJECT} THEN 'project'
+                    WHEN TASK.{self.IS_HEADING} THEN 'heading'
+                END AS type,
+                CASE
+                    WHEN TASK.{self.IS_INCOMPLETE} THEN 'incomplete'
+                    WHEN TASK.{self.IS_COMPLETED} THEN 'completed'
+                    WHEN TASK.{self.IS_CANCELED} THEN 'canceled'
+                END AS status,
+                CASE
+                    WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
+                END AS area,
+                CASE
+                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
+                END AS project,
+                CASE
+                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.uuid
+                END AS heading,
+                TASK.notes,
+                CASE
+                    WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
+                    WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
+                    WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
+                END AS start,
+                date(TASK.startDate, "unixepoch") AS start_date,
+                date(TASK.dueDate, "unixepoch") AS due_date,
+                date(TASK.stopDate, "unixepoch") AS stop_date,
+                (SELECT COUNT(uuid)
+                 FROM TMTask AS PROJECT_TASK
+                 WHERE
+                   PROJECT_TASK.project = TASK.uuid AND
+                   PROJECT_TASK.{self.IS_NOT_TRASHED} AND
+                   PROJECT_TASK.{self.IS_INCOMPLETE}
+                ) AS size,
+                datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
+                datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified
+            FROM
+                {self.TABLE_TASK} AS TASK
+            LEFT OUTER JOIN
+                {self.TABLE_TASK} PROJECT ON TASK.project = PROJECT.uuid
+            LEFT OUTER JOIN
+                {self.TABLE_AREA} AREA ON TASK.area = AREA.uuid
+            LEFT OUTER JOIN
+                {self.TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
+            LEFT OUTER JOIN
+                {self.TABLE_TASK} HEADPROJ ON HEADING.project = HEADPROJ.uuid
+            LEFT OUTER JOIN
+                {self.TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
+            LEFT OUTER JOIN
+                {self.TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
+            WHERE
+                {self.filter}
+                {sql}
+                """
+        return self.execute_query(sql)
+
+    def get_areas(self):
+        """Get areas."""
+        query = f"""
+                SELECT
+                    AREA.uuid,
+                    'area' as type,
+                    AREA.title,
+                    (SELECT COUNT(uuid)
+                        FROM {self.TABLE_TASK} AS TASK
+                        WHERE
+                        TASK.area = AREA.uuid AND
+                        TASK.{self.IS_NOT_TRASHED} AND
+                        TASK.{self.IS_INCOMPLETE}
+                    ) AS size
+                FROM
+                    {self.TABLE_AREA} AS AREA
+                ORDER BY AREA."index"
+                """
+        return self.execute_query(query)
+
+    def get_tags(self):
+        """Get tags"""
+        query = f"""
+                SELECT
+                    TAG.uuid,
+                    'tag' AS type,
+                    TAG.title,
+                    TAG.shortcut
+                FROM
+                    {self.TABLE_TAG} AS TAG
+                ORDER BY TAG."index"
+                """
+        return self.execute_query(query)
+
+    # -------- Historical methods (TK: transform) --------
 
     def get_someday(self):
         """Get someday tasks."""
@@ -270,20 +356,6 @@ class Database:
                 """
         return self.get_rows(query)
 
-    def get_tags(self):
-        """Get tags"""
-        query = f"""
-                SELECT
-                    TAG.uuid,
-                    'tag' AS type,
-                    TAG.title,
-                    TAG.shortcut
-                FROM
-                    {self.TABLE_TAG} AS TAG
-                ORDER BY TAG."index"
-                """
-        return self.execute_query(query)
-
     def get_tag_today(self, tag):
         """Get today tasks with specific tag"""
         query = f"""
@@ -358,26 +430,6 @@ class Database:
                 """
         return self.get_rows(query)
 
-    def get_completed(self):
-        """Get completed tasks."""
-        query = f"""
-                TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
-                TASK.{self.IS_COMPLETED}
-                ORDER BY TASK.{self.DATE_STOP}
-                """
-        return self.get_rows(query)
-
-    def get_canceled(self):
-        """Get canceled tasks."""
-        query = f"""
-                TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
-                TASK.{self.IS_CANCELED}
-                ORDER BY TASK.{self.DATE_STOP}
-                """
-        return self.get_rows(query)
-
     def get_trashed(self):
         """Get trashed tasks."""
         query = f"""
@@ -386,83 +438,6 @@ class Database:
                 ORDER BY TASK.{self.DATE_STOP}
                 """
         return self.get_rows(query)
-
-    def get_projects(self, status="incomplete", start=None, area=None):
-        """Get projects."""
-        afilter = f'AND TASK.area = "{area}"' if area is not None else ""
-        start_query = START_TO_QUERY.get(start and start.title())
-        status_query = STATUS_TO_QUERY.get(status)
-        query = f"""
-                SELECT
-                    TASK.uuid,
-                    TASK.title,
-                    NULL as context,
-                    (SELECT COUNT(uuid)
-                     FROM TMTask AS PROJECT_TASK
-                     WHERE
-                       PROJECT_TASK.project = TASK.uuid AND
-                       PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                       {f"PROJECT_TASK.{status_query}" if status_query else ""}
-                    ) AS size,
-                    CASE
-                        WHEN TASK.{self.IS_INCOMPLETE} THEN 'incomplete'
-                        WHEN TASK.{self.IS_CANCELED} THEN 'canceled'
-                        WHEN TASK.{self.IS_COMPLETED} THEN 'completed'
-                    END AS status,
-                    CASE
-                        WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
-                        WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
-                        WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
-                    END AS start
-                FROM
-                    {self.TABLE_TASK} AS TASK
-                WHERE
-                    TASK.{self.IS_NOT_TRASHED}
-                    AND TASK.{self.IS_PROJECT}
-                    {f"AND TASK.{status_query}" if status_query else ""}
-                    {f"AND TASK.{start_query}" if start_query else ""}
-                    {afilter}
-                ORDER BY TASK.title COLLATE NOCASE
-                """
-        return self.execute_query(query)
-
-    def get_headings(self, status=None, project=None):
-        """Get headings."""
-        pfilter = f'AND TASK.project = "{project}"' if project is not None else ""
-        status_query = STATUS_TO_QUERY.get(status)
-        query = f"""
-                SELECT
-                    TASK.uuid,
-                    TASK.title
-                FROM
-                    {self.TABLE_TASK} AS TASK
-                WHERE
-                    TASK.{self.IS_HEADING}
-                    {f"AND TASK.{status_query}" if status_query else ""}
-                    {pfilter}
-                ORDER BY TASK."index"
-                """
-        return self.execute_query(query)
-
-    def get_areas(self):
-        """Get areas."""
-        query = f"""
-                SELECT
-                    AREA.uuid,
-                    'area' as type,
-                    AREA.title,
-                    (SELECT COUNT(uuid)
-                        FROM {self.TABLE_TASK} AS TASK
-                        WHERE
-                        TASK.area = AREA.uuid AND
-                        TASK.{self.IS_NOT_TRASHED} AND
-                        TASK.{self.IS_INCOMPLETE}
-                    ) AS size
-                FROM
-                    {self.TABLE_AREA} AS AREA
-                ORDER BY AREA."index"
-                """
-        return self.execute_query(query)
 
     def get_all(self):
         """Get all tasks."""
@@ -673,77 +648,6 @@ class Database:
         """Not implemented warning."""
         return [{"title": "not implemented"}]
 
-    def get_rows(self, sql):
-        """Query Things database."""
-
-        sql = f"""
-            SELECT DISTINCT
-                TASK.uuid,
-                CASE
-                    WHEN TASK.{self.IS_TASK} THEN 'task'
-                    WHEN TASK.{self.IS_PROJECT} THEN 'project'
-                    WHEN TASK.{self.IS_HEADING} THEN 'heading'
-                END AS type,
-                TASK.title,
-                CASE
-                    WHEN AREA.title IS NOT NULL THEN AREA.title
-                    WHEN PROJECT.title IS NOT NULL THEN PROJECT.title
-                    WHEN HEADING.title IS NOT NULL THEN HEADING.title
-                END AS context,
-                CASE
-                    WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
-                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
-                END AS context_uuid,
-                CASE
-                    WHEN TASK.recurrenceRule IS NULL
-                    THEN strftime('%d.%m.', TASK.dueDate,"unixepoch") ||
-                         substr(strftime('%Y', TASK.dueDate,"unixepoch"),3, 2)
-                ELSE NULL
-                END AS due,
-                date(TASK.{self.DATE_CREATE},"unixepoch") as created,
-                date(TASK.{self.DATE_MOD},"unixepoch") as modified,
-                strftime('%d.%m.', TASK.startDate,"unixepoch") ||
-                  substr(strftime('%Y', TASK.startDate,"unixepoch"),3, 2)
-                  as started,
-                date(TASK.stopDate,"unixepoch") as stopped,
-                (SELECT COUNT(uuid)
-                 FROM TMTask AS PROJECT_TASK
-                 WHERE
-                   PROJECT_TASK.project = TASK.uuid AND
-                   PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                   PROJECT_TASK.{self.IS_INCOMPLETE}
-                ) AS size,
-                TASK.notes,
-                CASE
-                    WHEN TASK.{self.IS_INCOMPLETE} THEN 'incomplete'
-                    WHEN TASK.{self.IS_COMPLETED} THEN 'completed'
-                    WHEN TASK.{self.IS_CANCELED} THEN 'canceled'
-                END AS status,
-                CASE
-                    WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
-                    WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
-                    WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
-                END AS start
-            FROM
-                {self.TABLE_TASK} AS TASK
-            LEFT OUTER JOIN
-                {self.TABLE_TASK} PROJECT ON TASK.project = PROJECT.uuid
-            LEFT OUTER JOIN
-                {self.TABLE_AREA} AREA ON TASK.area = AREA.uuid
-            LEFT OUTER JOIN
-                {self.TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
-            LEFT OUTER JOIN
-                {self.TABLE_TASK} HEADPROJ ON HEADING.project = HEADPROJ.uuid
-            LEFT OUTER JOIN
-                {self.TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
-            LEFT OUTER JOIN
-                {self.TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
-            WHERE
-                {self.filter}
-                {sql}
-                """
-        return self.execute_query(sql)
-
     def execute_query(self, sql):
         """Run the actual query"""
         if self.debug is True:
@@ -766,17 +670,12 @@ class Database:
             sys.exit(2)
 
     functions = {
-        "inbox": get_inbox,
-        "today": get_today,
         "next": get_anytime,
         "backlog": get_someday,
         "upcoming": get_upcoming,
         "waiting": get_waiting,
         "mit": get_mit,
-        "completed": get_completed,
-        "canceled": get_canceled,
         "trashed": get_trashed,
-        "projects": get_projects,
         "areas": get_areas,
         "all": get_all,
         "due": get_due,
@@ -787,3 +686,14 @@ class Database:
         "stats-day": get_daystats,
         "stats-min-today": get_minutes_today,
     }
+
+
+# Helper functions
+
+
+def validate(parameter, argument, valid):
+    if argument in valid:
+        return
+    message = f"Unrecognized {parameter} type: {argument!r}"
+    message += f"\nValid {parameter} types are {valid}"
+    raise ValueError(message)
