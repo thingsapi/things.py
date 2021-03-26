@@ -15,10 +15,8 @@ __email__ = "alex@willner.ws"
 __status__ = "Development"
 
 import os
-from pathlib import Path
 import sqlite3
 import sys
-from random import shuffle
 
 
 DEFAULT_DATABASE_FILEPATH = os.path.expanduser(
