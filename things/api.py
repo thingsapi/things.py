@@ -8,8 +8,15 @@ Module implementing Things API
 from .database import Database
 
 
-def tasks(type="task", status="open", area=None,
-          project=None, heading=None, **kwargs):
+def tasks(
+    type="task",
+    status="incomplete",
+    start=None,
+    area=None,
+    project=None,
+    heading=None,
+    **kwargs
+):
     """
     Read tasks into a list of dicts.
 
@@ -27,9 +34,15 @@ def tasks(type="task", status="open", area=None,
         Note that the type 'heading' is implicitly included as part of
         the type 'project'.
 
-    status : {'open', 'done', 'canceled', None}, optional, default 'open'
+    status : {'incomplete', 'completed', 'canceled', None}, optional, \
+        default 'incomplete'
+
         Only include tasks matching that status. If the argument is `None`,
         then include tasks with any status value.
+
+    start : {'Inbox', 'Anytime', 'Someday', None}, optional
+        Only include tasks matching that start value. If the argument is
+        `None` (default), then include tasks with any start value.
 
     area : str, bool, or None, optional
         Any valid uuid of an area. Only include tasks matching that area.
@@ -66,19 +79,21 @@ def tasks(type="task", status="open", area=None,
     """
     database = Database(**kwargs)
     if type == "task":
-        return database.get_task(
-            status=status, area=area, project=project, heading=heading
+        return database.get_tasks(
+            status=status, start=start, area=area, project=project, heading=heading
         )
     elif type == "project":
         result = []
-        matched_projects = database.get_projects(status=status, area=area)
+        matched_projects = database.get_projects(status=status, start=start, area=area)
         for project in matched_projects:
             # group tasks by heading
-            project["tasks"] = tasks(
-                status=status, project=project["uuid"], heading=False
+            project["tasks"] = database.get_tasks(
+                status=status, start=start, project=project["uuid"], heading=False
             )
             project["headings"] = {
-                heading["title"]: tasks(status=status, heading=heading["uuid"])
+                heading["title"]: database.get_tasks(
+                    status=status, start=start, heading=heading["uuid"]
+                )
                 for heading in database.get_headings(
                     status=status, project=project["uuid"]
                 )
@@ -87,7 +102,7 @@ def tasks(type="task", status="open", area=None,
         return result
 
 
-def areas(include_tasks=False, status="open", **kwargs):
+def areas(include_tasks=False, status="incomplete", **kwargs):
     """
     Read areas into a list of dicts.
 
@@ -96,7 +111,7 @@ def areas(include_tasks=False, status="open", **kwargs):
     include_tasks : boolean, default False
         Include tasks and projects for each area.
 
-    status : {'open', 'done', 'canceled', None}, default 'open'
+    status : {'incomplete', 'completed', 'canceled', None}, default 'incomplete'
         Include only tasks and projects with the specified status.
         The argument `None` includes all statuses.
 
@@ -111,7 +126,7 @@ def areas(include_tasks=False, status="open", **kwargs):
     Examples
     --------
     >>> things.areas()
-    >>> things.areas(include_tasks=True, status='done')
+    >>> things.areas(include_tasks=True, status='completed')
     """
     database = Database(**kwargs)
     all_areas = database.get_areas()
@@ -122,8 +137,8 @@ def areas(include_tasks=False, status="open", **kwargs):
             {
                 **area,
                 **dict(
-                    projects=projects(area=area["uuid"]),
-                    tasks=tasks(area=area["uuid"], project=False),
+                    projects=projects(area=area["uuid"], **kwargs),
+                    tasks=tasks(area=area["uuid"], project=False, **kwargs),
                 ),
             }
             for area in all_areas
