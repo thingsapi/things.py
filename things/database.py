@@ -40,8 +40,8 @@ TYPE_TO_QUERY = {"task": "type = 0", "project": "type = 1", "heading": "type = 2
 
 INDICES = ("index", "todayIndex")
 
-OMIT_IF_NONE = ("area", "project", "heading", "checklist", "tags")
-TRANSFORM_TO_BOOL = ("checklist", "tags")
+COLUMNS_TO_OMIT_IF_NONE = ("area", "project", "heading", "checklist", "tags")
+COLUMNS_TO_TRANSFORM_TO_BOOL = ("checklist", "tags")  # True indicates presence of list
 
 
 # pylint: disable=R0904,R0902
@@ -90,39 +90,43 @@ class Database:
     # Variables
     debug = False
     filter = ""
-    stat_days = 365
 
     # pylint: disable=R0913
-    def __init__(self, filepath=None, stat_days=None):
+    def __init__(self, filepath=None):
         self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
         try:
-            with open(self.filepath) as f_d:
-                if "Your database file has been moved there" in f_d.readline():
+            with open(self.filepath) as file:
+                if "Your database file has been moved there" in file.readline():
                     self.filepath = DEFAULT_DATABASE_FILEPATH
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
             pass  # binary file (old database) or doesn't exist
         # --------------------------------
 
-    # core methods
+    # Core methods
 
     def get_tasks(
         self,
+        uuid=None,
         type="task",
         status="incomplete",
         start=None,
         area=None,
         project=None,
         heading=None,
+        tag=None,
         start_date=None,
         index="index",
+        count_only=False,
     ):
-        """Get tasks."""
+        """Get tasks. See `api.tasks` for details on parameters."""
 
-        # Normalize
+        # Overwrites
         start = start and start.title()
+        if uuid:
+            type = status = None
 
         # Validation
         validate("type", type, [None] + list(TYPE_TO_QUERY))
@@ -130,17 +134,17 @@ class Database:
         validate("start", start, [None] + list(START_TO_QUERY))
         validate("index", index, list(INDICES))
 
+        if tag is not None:
+            valid_tags = self.get_tags(titles_only=True)
+            validate("tag", tag, [None] + list(valid_tags))
+
+        if uuid:
+            if count_only == False and not self.get_tasks(uuid=uuid, count_only=True):
+                raise ValueError(f"No such Task uuid found: {uuid!r}")
+
+        # Query
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
-
-        def make_filter(column, value):
-            default = f'AND TASK.{column} = "{value}"'
-            # special options
-            return {
-                None: "",
-                False: f"AND TASK.{column} IS NULL",
-                True: f"AND TASK.{column} IS NOT NULL",
-            }.get(value, default)
 
         start_query = START_TO_QUERY.get(start)
         status_query = STATUS_TO_QUERY.get(status)
@@ -154,18 +158,24 @@ class Database:
                 AND TASK.{self.IS_NOT_RECURRING}
                 AND (PROJECT.title IS NULL OR PROJECT.{self.IS_NOT_TRASHED})
                 AND (HEADPROJ.title IS NULL OR HEADPROJ.{self.IS_NOT_TRASHED})
-                {make_filter("area", area)}
-                {make_filter("project", project)}
-                {make_filter("actionGroup", heading)}
-                {make_filter("startDate", start_date)}
+                {make_filter('TASK.uuid', uuid)}
+                {make_filter("TASK.area", area)}
+                {make_filter("TASK.project", project)}
+                {make_filter("TASK.actionGroup", heading)}
+                {make_filter("TASK.startDate", start_date)}
+                {make_filter("TAG.title", tag)}
                 ORDER BY TASK."{index}"
                 """
-        return self.get_rows(query)
 
-    def get_rows(self, sql):
-        """Query Things database."""
+        sql = self.make_tasks_sql(query)
+        if count_only:
+            return self.get_count(sql)
+        else:
+            return self.execute_query(sql)
 
-        sql = f"""
+    def make_tasks_sql(self, query):
+        """Make SQL for tasks"""
+        return f"""
             SELECT DISTINCT
                 TASK.uuid,
                 TASK.title,
@@ -203,13 +213,6 @@ class Database:
                 date(TASK.startDate, "unixepoch") AS start_date,
                 date(TASK.dueDate, "unixepoch") AS due_date,
                 date(TASK.stopDate, "unixepoch") AS stop_date,
-                (SELECT COUNT(uuid)
-                 FROM TMTask AS PROJECT_TASK
-                 WHERE
-                   PROJECT_TASK.project = TASK.uuid AND
-                   PROJECT_TASK.{self.IS_NOT_TRASHED} AND
-                   PROJECT_TASK.{self.IS_INCOMPLETE}
-                ) AS size,
                 datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified
             FROM
@@ -231,12 +234,28 @@ class Database:
                 ON CHECKLIST_ITEM.task = TASK.uuid
             WHERE
                 {self.filter}
-                {sql}
-                """
-        return self.execute_query(sql)
+                {query}
+            """
 
-    def get_areas(self):
-        """Get areas."""
+    def get_rows(self, query):
+        return self.execute_query(self.make_tasks_sql(query))
+
+    def get_areas(self, uuid=None, tag=None, count_only=False):
+        """Get areas. See `api.areas` for details on parameters."""
+
+        # Validation
+        if tag is not None:
+            valid_tags = self.get_tags(titles_only=True)
+            validate("tag", tag, [None] + list(valid_tags))
+
+        if (
+            uuid
+            and count_only == False
+            and not self.get_areas(uuid=uuid, count_only=True)
+        ):
+            raise ValueError(f"No such area uuid found: {uuid!r}")
+
+        # Query
         query = f"""
                 SELECT
                     AREA.uuid,
@@ -244,23 +263,25 @@ class Database:
                     AREA.title,
                     CASE
                         WHEN AREA_TAG.areas IS NOT NULL THEN 1
-                    END AS tags,
-                    (SELECT COUNT(uuid)
-                        FROM {self.TABLE_TASK} AS TASK
-                        WHERE
-                        TASK.area = AREA.uuid AND
-                        TASK.{self.IS_NOT_TRASHED} AND
-                        TASK.{self.IS_INCOMPLETE}
-                    ) AS size
+                    END AS tags
                 FROM
                     {self.TABLE_AREA} AS AREA
                 LEFT OUTER JOIN
                     {self.TABLE_AREATAG} AREA_TAG ON AREA_TAG.areas = AREA.uuid
+                LEFT OUTER JOIN
+                    {self.TABLE_TAG} TAG ON TAG.uuid = AREA_TAG.tags
+                WHERE
+                    TRUE
+                    {make_filter('TAG.title', tag)}
+                    {make_filter('AREA.uuid', uuid)}
                 ORDER BY AREA."index"
                 """
-        return self.execute_query(query)
+        if count_only:
+            return self.get_count(query)
+        else:
+            return self.execute_query(query)
 
-    def get_checklist_items(self, tag_uuid=None):
+    def get_checklist_items(self, task_uuid=None):
         """Get checklist items."""
         query = f"""
                 SELECT
@@ -285,40 +306,40 @@ class Database:
                     CHECKLIST_ITEM.task = ?
                 ORDER BY CHECKLIST_ITEM."index"
                 """
-        return self.execute_query(query, (tag_uuid,))
+        return self.execute_query(query, (task_uuid,))
 
-    def get_tags(self, area=None, task=None):
-        """
-        Get list of tags.
+    def get_tags(self, title=None, area=None, task=None, titles_only=False):
+        """Get tags. See `api.tags` for details on parameters."""
 
-        Parameters
-        ----------
-        area : str or None, optional
-            Valid uuid of an area or None.
-        task : str or None, optional
-            Valid uuid of an task or None.
+        # Validation
+        if title is not None:
+            valid_titles = self.get_tags(titles_only=True)
+            validate("title", title, [None] + list(valid_titles))
 
-        Returns
-        -------
-        list of str (if a specific area or task is given);
-        list of dict (otherwise).
-        """
+        # Query
         if task:
             return self.get_tags_of_task(task)
         elif area:
             return self.get_tags_of_area(area)
 
-        query = f"""
-                SELECT
-                    TAG.uuid,
-                    'tag' AS type,
-                    TAG.title,
-                    TAG.shortcut
-                FROM
-                    {self.TABLE_TAG} AS TAG
-                ORDER BY TAG."index"
-                """
-        return self.execute_query(query)
+        if titles_only:
+            query = f'SELECT title FROM {self.TABLE_TAG} ORDER BY "index"'
+            return self.execute_query(query, row_factory=list_factory)
+        else:
+            query = f"""
+                    SELECT
+                        uuid,
+                        'tag' AS type,
+                        title,
+                        shortcut
+                    FROM
+                        {self.TABLE_TAG}
+                    WHERE
+                        TRUE
+                        {make_filter('title', title)}
+                    ORDER BY "index"
+                    """
+            return self.execute_query(query)
 
     def get_tags_of_task(self, task_uuid):
         """Get tag titles for task"""
@@ -353,6 +374,31 @@ class Database:
         return self.execute_query(
             query, parameters=(area_uuid,), row_factory=list_factory
         )
+
+    def get_count(self, sql):
+        sql = f"""SELECT COUNT(uuid) FROM ({sql})"""
+        return self.execute_query(sql, row_factory=list_factory)[0]
+
+    def execute_query(self, sql, parameters=(), row_factory=None):
+        """Run the actual query"""
+        if self.debug is True:
+            print(self.filepath)
+            print(sql)
+        try:
+            uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
+            connection = sqlite3.connect(uri, uri=True)
+            connection.row_factory = row_factory or dict_factory
+            cursor = connection.cursor()
+            cursor.execute(sql, parameters)
+            tasks = cursor.fetchall()
+            if self.debug:
+                for task in tasks:
+                    print(task)
+            return tasks
+        except sqlite3.OperationalError as error:
+            print(f"Could not query the database at: {self.filepath}.")
+            print(f"Details: {error}.")
+            sys.exit(2)
 
     # -------- Historical methods (TK: transform) --------
 
@@ -401,14 +447,6 @@ class Database:
                 ORDER BY TASK.startdate, TASK.todayIndex
                 """
         return self.get_rows(query)
-
-    def get_waiting(self):
-        """Get waiting tasks."""
-        return self.get_tag(self.tag_waiting)
-
-    def get_mit(self):
-        """Get most important tasks."""
-        return self.get_tag(self.tag_mit)
 
     def get_tag(self, tag):
         """Get task with specific tag"""
@@ -623,16 +661,21 @@ class Database:
         return self.execute_query(query)
 
     def get_daystats(self):
-        """Get a history of task activities"""
+        """Get a history of task activities
+
+        TK: understand what this does and whether to keep.
+        """
+        stat_days = 365
+
         query = f"""
                 WITH RECURSIVE timeseries(x) AS (
                     SELECT 0
                     UNION ALL
                     SELECT x+1 FROM timeseries
-                    LIMIT {self.stat_days}
+                    LIMIT {stat_days}
                 )
                 SELECT
-                    date(julianday("now", "-{self.stat_days} days"),
+                    date(julianday("now", "-{stat_days} days"),
                          "+" || x || " days") as date,
                     CREATED.TasksCreated as created,
                     CLOSED.TasksClosed as completed,
@@ -727,33 +770,10 @@ class Database:
         """Not implemented warning."""
         return [{"title": "not implemented"}]
 
-    def execute_query(self, sql, parameters=(), row_factory=None):
-        """Run the actual query"""
-        if self.debug is True:
-            print(self.filepath)
-            print(sql)
-        try:
-            uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
-            connection = sqlite3.connect(uri, uri=True)
-            connection.row_factory = row_factory or dict_factory
-            cursor = connection.cursor()
-            cursor.execute(sql, parameters)
-            tasks = cursor.fetchall()
-            if self.debug:
-                for task in tasks:
-                    print(task)
-            return tasks
-        except sqlite3.OperationalError as error:
-            print(f"Could not query the database at: {self.filepath}.")
-            print(f"Details: {error}.")
-            sys.exit(2)
-
     functions = {
         "next": get_anytime,
         "backlog": get_someday,
         "upcoming": get_upcoming,
-        "waiting": get_waiting,
-        "mit": get_mit,
         "trashed": get_trashed,
         "areas": get_areas,
         "all": get_all,
@@ -780,9 +800,9 @@ def dict_factory(cursor, row):
     result = {}
     for index, column in enumerate(cursor.description):
         key, value = column[0], row[index]
-        if value is None and key in OMIT_IF_NONE:
+        if value is None and key in COLUMNS_TO_OMIT_IF_NONE:
             continue
-        if value and key in TRANSFORM_TO_BOOL:
+        if value and key in COLUMNS_TO_TRANSFORM_TO_BOOL:
             value = bool(value)
         result[key] = value
     return result
@@ -793,6 +813,16 @@ def list_factory(cursor, row):
     Convert SQL selects of one column into a list.
     """
     return row[0]
+
+
+def make_filter(column, value):
+    default = f'AND {column} = "{value}"'
+    # special options
+    return {
+        None: "",
+        False: f"AND {column} IS NULL",
+        True: f"AND {column} IS NOT NULL",
+    }.get(value, default)
 
 
 def validate(parameter, argument, valid):
