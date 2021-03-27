@@ -1,16 +1,13 @@
 # Things Python API
 
 A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data.
-Implementations for some other languages are found [here](https://github.com/thingsapi).
 
 ## Table of Contents
 
-- [Things Python API](#things-python-api)
-  - [Table of Contents](#table-of-contents)
-  - [Install](#install)
-  - [Examples](#examples)
-  - [Background](#background)
-  - [Things URLs](#things-urls)
+- [Install](#install)
+- [Examples](#examples)
+- [Background](#background)
+- [Things URLs](#things-urls)
 
 ## Install
 

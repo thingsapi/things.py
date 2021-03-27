@@ -40,7 +40,8 @@ TYPE_TO_QUERY = {"task": "type = 0", "project": "type = 1", "heading": "type = 2
 
 INDICES = ("index", "todayIndex")
 
-OMIT_IF_NONE = ("area", "project", "heading")
+OMIT_IF_NONE = ("area", "project", "heading", "checklist", "tags")
+TRANSFORM_TO_BOOL = ("checklist", "tags")
 
 
 # pylint: disable=R0904,R0902
@@ -60,6 +61,8 @@ class Database:
     TABLE_AREA = "TMArea"
     TABLE_TAG = "TMTag"
     TABLE_TASKTAG = "TMTaskTag"
+    TABLE_AREATAG = "TMAreaTag"
+    TABLE_CHECKLIST_ITEM = "TMChecklistItem"
     DATE_CREATE = "creationDate"
     DATE_MOD = "userModificationDate"
     DATE_DUE = "dueDate"
@@ -102,22 +105,6 @@ class Database:
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
             pass  # binary file (old database) or doesn't exist
         # --------------------------------
-
-    @staticmethod
-    def dict_factory(cursor, row):
-        """
-        Convert SQL result into a dictionary.
-
-        See also:
-        https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory
-        """
-        result = {}
-        for index, column in enumerate(cursor.description):
-            key, value = column[0], row[index]
-            if key in OMIT_IF_NONE and value is None:
-                continue
-            result[key] = value
-        return result
 
     # core methods
 
@@ -203,10 +190,16 @@ class Database:
                 END AS heading,
                 TASK.notes,
                 CASE
+                    WHEN TAG.uuid IS NOT NULL THEN 1
+                END AS tags,
+                CASE
                     WHEN TASK.{self.IS_INBOX} THEN 'Inbox'
                     WHEN TASK.{self.IS_ANYTIME} THEN 'Anytime'
                     WHEN TASK.{self.IS_SOMEDAY} THEN 'Someday'
                 END AS start,
+                CASE
+                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
+                END AS checklist,
                 date(TASK.startDate, "unixepoch") AS start_date,
                 date(TASK.dueDate, "unixepoch") AS due_date,
                 date(TASK.stopDate, "unixepoch") AS stop_date,
@@ -233,6 +226,9 @@ class Database:
                 {self.TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
             LEFT OUTER JOIN
                 {self.TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
+            LEFT OUTER JOIN
+                {self.TABLE_CHECKLIST_ITEM} CHECKLIST_ITEM
+                ON CHECKLIST_ITEM.task = TASK.uuid
             WHERE
                 {self.filter}
                 {sql}
@@ -246,6 +242,9 @@ class Database:
                     AREA.uuid,
                     'area' as type,
                     AREA.title,
+                    CASE
+                        WHEN AREA_TAG.areas IS NOT NULL THEN 1
+                    END AS tags,
                     (SELECT COUNT(uuid)
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE
@@ -255,12 +254,60 @@ class Database:
                     ) AS size
                 FROM
                     {self.TABLE_AREA} AS AREA
+                LEFT OUTER JOIN
+                    {self.TABLE_AREATAG} AREA_TAG ON AREA_TAG.areas = AREA.uuid
                 ORDER BY AREA."index"
                 """
         return self.execute_query(query)
 
-    def get_tags(self):
-        """Get tags"""
+    def get_checklist_items(self, tag_uuid=None):
+        """Get checklist items."""
+        query = f"""
+                SELECT
+                    CHECKLIST_ITEM.title,
+                    CASE
+                        WHEN CHECKLIST_ITEM.{self.IS_INCOMPLETE} THEN 'incomplete'
+                        WHEN CHECKLIST_ITEM.{self.IS_COMPLETED} THEN 'completed'
+                        WHEN CHECKLIST_ITEM.{self.IS_CANCELED} THEN 'canceled'
+                    END AS status,
+                    date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
+                    'checklist item' as type,
+                    CHECKLIST_ITEM.uuid,
+                    datetime(
+                        CHECKLIST_ITEM.{self.DATE_MOD}, "unixepoch", "localtime"
+                    ) AS created,
+                    datetime(
+                        CHECKLIST_ITEM.{self.DATE_MOD}, "unixepoch", "localtime"
+                    ) AS modified
+                FROM
+                    {self.TABLE_CHECKLIST_ITEM} AS CHECKLIST_ITEM
+                WHERE
+                    CHECKLIST_ITEM.task = ?
+                ORDER BY CHECKLIST_ITEM."index"
+                """
+        return self.execute_query(query, (tag_uuid,))
+
+    def get_tags(self, area=None, task=None):
+        """
+        Get list of tags.
+
+        Parameters
+        ----------
+        area : str or None, optional
+            Valid uuid of an area or None.
+        task : str or None, optional
+            Valid uuid of an task or None.
+
+        Returns
+        -------
+        list of str (if a specific area or task is given);
+        list of dict (otherwise).
+        """
+        if task:
+            return self.get_tags_of_task(task)
+        elif area:
+            return self.get_tags_of_area(area)
+
         query = f"""
                 SELECT
                     TAG.uuid,
@@ -272,6 +319,40 @@ class Database:
                 ORDER BY TAG."index"
                 """
         return self.execute_query(query)
+
+    def get_tags_of_task(self, task_uuid):
+        """Get tag titles for task"""
+        query = f"""
+                SELECT
+                    TAG.title
+                FROM
+                    {self.TABLE_TASKTAG} AS TASK_TAG
+                LEFT OUTER JOIN
+                    {self.TABLE_TAG} TAG ON TAG.uuid = TASK_TAG.tags
+                WHERE
+                    TASK_TAG.tasks = ?
+                ORDER BY TAG."index"
+                """
+        return self.execute_query(
+            query, parameters=(task_uuid,), row_factory=list_factory
+        )
+
+    def get_tags_of_area(self, area_uuid):
+        """Get tag titles for area"""
+        query = f"""
+                SELECT
+                    AREA.title
+                FROM
+                    {self.TABLE_AREATAG} AS AREA_TAG
+                LEFT OUTER JOIN
+                    {self.TABLE_TAG} AREA ON AREA.uuid = AREA_TAG.tags
+                WHERE
+                    AREA_TAG.areas = ?
+                ORDER BY AREA."index"
+                """
+        return self.execute_query(
+            query, parameters=(area_uuid,), row_factory=list_factory
+        )
 
     # -------- Historical methods (TK: transform) --------
 
@@ -646,7 +727,7 @@ class Database:
         """Not implemented warning."""
         return [{"title": "not implemented"}]
 
-    def execute_query(self, sql):
+    def execute_query(self, sql, parameters=(), row_factory=None):
         """Run the actual query"""
         if self.debug is True:
             print(self.filepath)
@@ -654,9 +735,9 @@ class Database:
         try:
             uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
             connection = sqlite3.connect(uri, uri=True)
-            connection.row_factory = Database.dict_factory
+            connection.row_factory = row_factory or dict_factory
             cursor = connection.cursor()
-            cursor.execute(sql)
+            cursor.execute(sql, parameters)
             tasks = cursor.fetchall()
             if self.debug:
                 for task in tasks:
@@ -687,6 +768,31 @@ class Database:
 
 
 # Helper functions
+
+
+def dict_factory(cursor, row):
+    """
+    Convert SQL result into a dictionary.
+
+    See also:
+    https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory
+    """
+    result = {}
+    for index, column in enumerate(cursor.description):
+        key, value = column[0], row[index]
+        if value is None and key in OMIT_IF_NONE:
+            continue
+        if value and key in TRANSFORM_TO_BOOL:
+            value = bool(value)
+        result[key] = value
+    return result
+
+
+def list_factory(cursor, row):
+    """
+    Convert SQL selects of one column into a list.
+    """
+    return row[0]
 
 
 def validate(parameter, argument, valid):
