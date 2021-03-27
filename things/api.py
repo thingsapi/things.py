@@ -73,7 +73,8 @@ def tasks(
         include tasks both with and without a start date.
 
     include_items : boolean, default False
-        Include tasks in projects and headings.
+        Include items contained within a task. This includes checklists,
+        headings, and (sub)tasks.
 
     index : {'index', 'todayIndex'}, default 'index'
         Database index to order result by.
@@ -103,18 +104,25 @@ def tasks(
         index=index,
     )
 
-    if include_items:
-        for item in result:
-            if item["type"] == "project":
-                project = item
+    for task in result:
+        if task.get("tags"):
+            # How costly of an operation is it to do this for every task?
+            # IF costly, then can it be made significantly more efficient?
+            task["tags"] = database.get_tags(task=task["uuid"])
+        if include_items:
+            if task["type"] == "task":
+                if task.get("checklist"):
+                    task["checklist"] = database.get_checklist_items(task["uuid"])
+            elif task["type"] == "project":
+                project = task
                 # add items of project
                 project["items"] = items = tasks(
                     type=None, project=project["uuid"], include_items=True, **kwargs
                 )
-                # tasks without headings appear before headings
+                # tasks without headings appear before headings in app
                 items.sort(key=lambda item: item["type"], reverse=True)
-            elif item["type"] == "heading":
-                heading = item
+            elif task["type"] == "heading":
+                heading = task
                 heading["items"] = tasks(heading=heading["uuid"], **kwargs)
 
     return result
@@ -144,8 +152,11 @@ def areas(include_items=False, **kwargs):
     """
     database = Database(filepath=kwargs.get("filepath"))
     result = database.get_areas()
-    if include_items:
-        for area in result:
+
+    for area in result:
+        if area.get("tags"):
+            area["tags"] = database.get_tags(area=area["uuid"])
+        if include_items:
             area["items"] = tasks(
                 type=None, area=area["uuid"], include_items=True, **kwargs
             )
