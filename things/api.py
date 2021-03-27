@@ -133,7 +133,7 @@ def tasks(uuid=None, include_items=False, **kwargs):
         if task.get("tags"):
             task["tags"] = database.get_tags(task=task["uuid"])
 
-        if not (include_items or uuid and result[0]["type"] in ("task", "heading")):
+        if not include_items:
             continue
 
         # include items
