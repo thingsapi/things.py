@@ -32,13 +32,19 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'type': 'task',
   'project': 'w8oSP1HjWstPin8RMaJOtB',
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
-  'tags': [],
-  'checklist': [
-      {'title': 'Cleaning Spray', 'status': 'completed', ...},
-      {'title': 'Magnetic Eraser', 'status': 'incomplete', ...},
-      {'title': 'Round magnets', 'status': 'incomplete', ...}
-  ],
+  'checklist': True,
   ...
+>>> things.tasks('RLZroza3jz0XPs3uAlynS7')
+{'uuid': 'RLZroza3jz0XPs3uAlynS7',
+ 'title': 'Buy a whiteboard and accessories',
+ ...
+ 'checklist': [
+     {'title': 'Cleaning Spray', 'status': 'completed', ...},
+     {'title': 'Magnetic Eraser', 'status': 'incomplete', ...},
+     {'title': 'Round magnets', 'status': 'incomplete', ...}
+ ]
+ ...
+}
 
 >>> things.projects()
 [{'uuid': 'bNj6TPdKYhY6fScvXWVRDX',
@@ -73,19 +79,12 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'shortcut': None},
  ...
 
->>> things.get(uuid='CKILg3kKF2jlCRisNFcqOj')
+>>> things.get('CKILg3kKF2jlCRisNFcqOj')
 {'uuid': 'CKILg3kKF2jlCRisNFcqOj',
   'type': 'tag',
   'title': 'Home',
   'shortcut': None}
 
->>> things.get()
-{
-  'areas': [...],
-  'projects': [...],
-  'tasks': [...],
-  'tags': [...]
-}
 ```
 
 ## Background
@@ -94,16 +93,17 @@ The task management app Things stores all your to-dos in a SQLite database file 
 
 Here's the terminology used involving the database:
 
-- Area
-- Tag
-- Task
+- area
+- tag
+- Task (capitalized)
   - type
-    - `"task"`: task within a project or a standalone task; can include a checklist; can also link to an area and tags.
-    - `"project"`: a large task; can include (sub)tasks and headings; can also link to an area and tags.
-    - `"heading"`: contained within a project in order to group tasks
+    - `"task"`: Task in a project or a non-project Task; can have a checklist; can link to an area and tags.
+    - `"project"`: a large Task; can have (sub)"tasks" and headings; can link to an area and tags.
+    - `"heading"`: contained within a project in order to group "tasks"
   - status:  `"incomplete"`,  `"canceled"`, or `"completed"`
   - trashed: `True` or `False`
-- Checklist Item (contained within a task)
+- checklist item (contained within a "task")
+
 
 ## Things URLs
 
