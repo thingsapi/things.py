@@ -2,12 +2,23 @@
 
 A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data.
 
+[![Build Status](https://github.com/thingsapi/things.py/workflows/Build-Test/badge.svg)](https://github.com/thingsapi/things.py/actions)
+[![Coverage Status](https://coveralls.io/repos/github/thingsapi/things.py/badge.svg?branch=master)](https://coveralls.io/github/thingsapi/things.py?branch=master)
+[![GitHub Release](https://img.shields.io/github/v/release/thingsapi/things.py?sort=semver)](https://github.com/thingsapi/things.py/releases)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/things?label=pypi%20downloads)](https://pypi.org/project/things/)
+[![GitHub Download Count](https://img.shields.io/github/downloads/thingsapi/things.py/total.svg)](https://github.com/thingsapi/things.py/releases)
+[![GitHub Issues](https://img.shields.io/github/issues/thingsapi/things.py)](https://github.com/thingsapi/things.py/issues)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/thingsapi/things.py)](https://scrutinizer-ci.com/g/thingsapi/things.py/?branch=master)
+
 ## Table of Contents
 
-- [Install](#install)
-- [Examples](#examples)
-- [Background](#background)
-- [Things URLs](#things-urls)
+- [Things Python API](#things-python-api)
+  - [Table of Contents](#table-of-contents)
+  - [Install](#install)
+  - [Examples](#examples)
+  - [Background](#background)
+  - [Things URLs](#things-urls)
 
 ## Install
 
