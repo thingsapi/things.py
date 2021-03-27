@@ -52,7 +52,7 @@ auto-style: ## Style the code
 
 code-style: ## Test the code style
 	@echo PyCodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=88 --ignore=E203 $(SRC_CORE) ; \
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=88 --ignore=E203,W503 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 
 code-count: ## Count the code
@@ -61,7 +61,7 @@ code-count: ## Count the code
 
 code-lint: ## Lint the code
 	@echo Pylama...
-	@if type pylama >/dev/null 2>&1 ; then pylama --ignore E501,E203 $(SRC_CORE) ; \
+	@if type pylama >/dev/null 2>&1 ; then pylama --ignore E501,E203,W503 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
 	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) ; \

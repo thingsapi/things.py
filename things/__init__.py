@@ -1,6 +1,6 @@
 """A simple Python 3 library to read your Things app data."""
 
-from things.api import (
+from things.api import (  # noqa
     areas,
     canceled,
     completed,
@@ -11,5 +11,5 @@ from things.api import (
     tags,
     tasks,
     today,
-)  # noqa
+)
 from things.database import Database  # noqa

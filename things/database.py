@@ -94,7 +94,6 @@ class Database:
     # pylint: disable=R0913
     def __init__(self, filepath=None):
         self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
-        self.stat_days = stat_days
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -140,7 +139,7 @@ class Database:
             validate("tag", tag, [None] + list(valid_tags))
 
         if uuid:
-            if count_only == False and not self.get_tasks(uuid=uuid, count_only=True):
+            if count_only is False and not self.get_tasks(uuid=uuid, count_only=True):
                 raise ValueError(f"No such Task uuid found: {uuid!r}")
 
         # Query
@@ -251,7 +250,7 @@ class Database:
 
         if (
             uuid
-            and count_only == False
+            and count_only is False
             and not self.get_areas(uuid=uuid, count_only=True)
         ):
             raise ValueError(f"No such area uuid found: {uuid!r}")
@@ -827,7 +826,7 @@ def make_filter(column, value):
 
 def validate(parameter, argument, valid):
     """
-    Check of a given parameter might be invalid.
+    Check if a given parameter might be invalid.
     """
     if argument in valid:
         return
