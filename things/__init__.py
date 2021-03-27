@@ -1,5 +1,6 @@
-from things.api import areas, canceled, completed, inbox, projects, tags, tasks, today
-from things.database import Database
+"""A simple Python 3 library to read your Things app data."""
 
-__all__ = ['Database', 'areas', 'canceled', 'completed',
-           'inbox', 'projects', 'tags', 'tasks', 'today', ]
+
+from things.api import (areas, canceled, completed,  # noqa
+                        inbox, projects, tags, tasks, today)  # noqa
+from things.database import Database  # noqa

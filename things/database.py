@@ -95,6 +95,7 @@ class Database:
     # pylint: disable=R0913
     def __init__(self, filepath=None, stat_days=None):
         self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
+        self.stat_days = stat_days
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -305,7 +306,7 @@ class Database:
         """
         if task:
             return self.get_tags_of_task(task)
-        elif area:
+        if area:
             return self.get_tags_of_area(area)
 
         query = f"""
@@ -401,14 +402,6 @@ class Database:
                 ORDER BY TASK.startdate, TASK.todayIndex
                 """
         return self.get_rows(query)
-
-    def get_waiting(self):
-        """Get waiting tasks."""
-        return self.get_tag(self.tag_waiting)
-
-    def get_mit(self):
-        """Get most important tasks."""
-        return self.get_tag(self.tag_mit)
 
     def get_tag(self, tag):
         """Get task with specific tag"""
@@ -718,7 +711,6 @@ class Database:
         result = []
         result.extend(self.get_lint())
         result.extend(self.get_empty_projects())
-        result.extend(self.get_tag(self.tag_cleanup))
         result = [i for n, i in enumerate(result) if i not in result[n + 1 :]]
         return result
 
@@ -752,8 +744,6 @@ class Database:
         "next": get_anytime,
         "backlog": get_someday,
         "upcoming": get_upcoming,
-        "waiting": get_waiting,
-        "mit": get_mit,
         "trashed": get_trashed,
         "areas": get_areas,
         "all": get_all,
@@ -796,6 +786,9 @@ def list_factory(cursor, row):
 
 
 def validate(parameter, argument, valid):
+    """
+    Check of a given parameter might be invalid.
+    """
     if argument in valid:
         return
     message = f"Unrecognized {parameter} type: {argument!r}"
