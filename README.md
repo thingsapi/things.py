@@ -79,7 +79,7 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'shortcut': None},
  ...
 
->>> things.get(uuid='CKILg3kKF2jlCRisNFcqOj')
+>>> things.get('CKILg3kKF2jlCRisNFcqOj')
 {'uuid': 'CKILg3kKF2jlCRisNFcqOj',
   'type': 'tag',
   'title': 'Home',

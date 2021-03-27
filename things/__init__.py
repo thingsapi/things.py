@@ -4,6 +4,7 @@ from things.api import (  # noqa
     areas,
     canceled,
     completed,
+    get,
     inbox,
     link,
     projects,

@@ -317,6 +317,27 @@ def completed(**kwargs):
     return tasks(status="completed", type=kwargs.pop("type", None), **kwargs)
 
 
+def get(uuid, **kwargs):
+    """
+    Find object by uuid.
+
+    Currently supports tasks, projects, headings, areas, and tags.
+    """
+    try:
+        return tasks(uuid=uuid, **kwargs)
+    except ValueError:
+        pass
+
+    try:
+        return areas(uuid=uuid, **kwargs)
+    except ValueError:
+        pass
+
+    for tag in tags(**kwargs):
+        if tag["uuid"] == uuid:
+            return tag
+
+
 def inbox(**kwargs):
     return tasks(start="Inbox", **kwargs)
 
