@@ -264,7 +264,6 @@ class Database:
         """Get checklist items."""
         query = f"""
                 SELECT
-                    CHECKLIST_ITEM.uuid,
                     CHECKLIST_ITEM.title,
                     CASE
                         WHEN CHECKLIST_ITEM.{self.IS_INCOMPLETE} THEN 'incomplete'
@@ -273,6 +272,7 @@ class Database:
                     END AS status,
                     date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
                     'checklist item' as type,
+                    CHECKLIST_ITEM.uuid,
                     datetime(
                         CHECKLIST_ITEM.{self.DATE_MOD}, "unixepoch", "localtime"
                     ) AS created,
