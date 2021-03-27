@@ -1,3 +1,5 @@
+"""A simple Python 3 library to read your Things app data."""
+
 from things.api import (
     areas,
     canceled,
@@ -9,17 +11,5 @@ from things.api import (
     tags,
     tasks,
     today,
-)
-from things.database import Database
-
-__all__ = [
-    "Database",
-    "areas",
-    "canceled",
-    "completed",
-    "inbox",
-    "projects",
-    "tags",
-    "tasks",
-    "today",
-]
+)  # noqa
+from things.database import Database  # noqa

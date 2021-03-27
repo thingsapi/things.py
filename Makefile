@@ -51,7 +51,8 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --ignore=E203 --max-line-length=88 $(SRC_CORE) ; \
+	@echo PyCodestyle...
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=88 --ignore=E203 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 
 code-count: ## Count the code
@@ -59,14 +60,19 @@ code-count: ## Count the code
 	 else echo "SKIPPED. Run 'brew install cloc' first." >&2 ; fi
 
 code-lint: ## Lint the code
-	@if type pyflakes >/dev/null 2>&1 ; then pyflakes $(SRC_CORE) ; \
-	 else echo "SKIPPED. Run '$(PIP) install pyflakes' first." >&2 ; fi
+	@echo Pylama...
+	@if type pylama >/dev/null 2>&1 ; then pylama --ignore E501,E203 $(SRC_CORE) ; \
+	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
+	@echo Pylint...
 	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
+	@echo Flake...
 	@if type flake8 >/dev/null 2>&1 ; then flake8 --max-complexity 10 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
+	@echo Pyright...
 	@if type pyright >/dev/null 2>&1 ; then pyright $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
+	@echo MyPy...
 	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
 
