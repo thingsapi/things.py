@@ -36,7 +36,7 @@ STATUS_TO_QUERY = {
     "completed": "status = 3",
 }
 
-TYPE_TO_QUERY = {"task": "type = 0", "project": "type = 1", "heading": "type = 2"}
+TYPE_TO_QUERY = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
 
 INDICES = ("index", "todayIndex")
 
@@ -76,7 +76,7 @@ class Database:
     IS_DUE = f"{DATE_DUE} IS NOT NULL"
     IS_RECURRING = "recurrenceRule IS NOT NULL"
     IS_NOT_RECURRING = "recurrenceRule IS NULL"
-    IS_TASK = "type = 0"
+    IS_TODO = "type = 0"
     IS_PROJECT = "type = 1"
     IS_HEADING = "type = 2"
     IS_TRASHED = "trashed = 1"
@@ -110,7 +110,7 @@ class Database:
     def get_tasks(
         self,
         uuid=None,
-        type="task",
+        type=None,
         status="incomplete",
         start=None,
         area=None,
@@ -126,7 +126,7 @@ class Database:
         # Overwrites
         start = start and start.title()
         if uuid:
-            type = status = None
+            status = None
 
         # Validation
         validate("type", type, [None] + list(TYPE_TO_QUERY))
@@ -140,7 +140,7 @@ class Database:
 
         if uuid:
             if count_only is False and not self.get_tasks(uuid=uuid, count_only=True):
-                raise ValueError(f"No such Task uuid found: {uuid!r}")
+                raise ValueError(f"No such task uuid found: {uuid!r}")
 
         # Query
         # TK: might consider executing SQL with parameters instead.
@@ -180,7 +180,7 @@ class Database:
                 TASK.uuid,
                 TASK.title,
                 CASE
-                    WHEN TASK.{self.IS_TASK} THEN 'task'
+                    WHEN TASK.{self.IS_TODO} THEN 'to-do'
                     WHEN TASK.{self.IS_PROJECT} THEN 'project'
                     WHEN TASK.{self.IS_HEADING} THEN 'heading'
                 END AS type,
@@ -406,7 +406,7 @@ class Database:
         """Get someday tasks."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_SOMEDAY} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND
@@ -429,7 +429,7 @@ class Database:
         """Get upcoming tasks."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_SOMEDAY} AND
                 TASK.{self.IS_SCHEDULED} AND
@@ -452,7 +452,7 @@ class Database:
         """Get task with specific tag"""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_NOT_RECURRING} AND
                 TAGS.tags=(SELECT uuid FROM {self.TABLE_TAG}
@@ -477,7 +477,7 @@ class Database:
         """Get today tasks with specific tag"""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 (TASK.{self.IS_ANYTIME} OR (
                      TASK.{self.IS_SOMEDAY} AND
@@ -505,7 +505,7 @@ class Database:
         """Get anytime tasks."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_ANYTIME} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND (
@@ -529,7 +529,7 @@ class Database:
             # ugly hack for Kanban task view on project
             query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_ANYTIME} AND
                 TASK.{self.IS_NOT_SCHEDULED} AND (
@@ -551,7 +551,7 @@ class Database:
         """Get trashed tasks."""
         query = f"""
                 TASK.{self.IS_TRASHED} AND
-                TASK.{self.IS_TASK}
+                TASK.{self.IS_TODO}
                 ORDER BY TASK.{self.DATE_STOP}
                 """
         return self.get_rows(query)
@@ -560,7 +560,7 @@ class Database:
         """Get all tasks."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND (
+                TASK.{self.IS_TODO} AND (
                     (
                         PROJECT.title IS NULL OR (
                             PROJECT.{self.IS_NOT_TRASHED}
@@ -578,7 +578,7 @@ class Database:
         """Get due tasks."""
         query = f"""
                 TASK.{self.IS_NOT_TRASHED} AND
-                TASK.{self.IS_TASK} AND
+                TASK.{self.IS_TODO} AND
                 TASK.{self.IS_INCOMPLETE} AND
                 TASK.{self.IS_DUE} AND (
                     (
@@ -600,7 +600,7 @@ class Database:
         query = f"""
             TASK.{self.IS_NOT_TRASHED} AND
             TASK.{self.IS_INCOMPLETE} AND
-            TASK.{self.IS_TASK} AND
+            TASK.{self.IS_TODO} AND
             (TASK.{self.IS_SOMEDAY} OR TASK.{self.IS_ANYTIME}) AND
             TASK.project IS NULL AND
             TASK.area IS NULL AND
@@ -687,7 +687,7 @@ class Database:
                         date({self.DATE_CREATE},"unixepoch") AS DAY
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE DAY NOT NULL
-                          AND TASK.{self.IS_TASK}
+                          AND TASK.{self.IS_TODO}
                         GROUP BY DAY)
                     AS CREATED ON CREATED.DAY = date
                 LEFT JOIN
@@ -695,7 +695,7 @@ class Database:
                         date(stopDate,"unixepoch") AS DAY
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE DAY NOT NULL
-                          AND TASK.{self.IS_CANCELED} AND TASK.{self.IS_TASK}
+                          AND TASK.{self.IS_CANCELED} AND TASK.{self.IS_TODO}
                         GROUP BY DAY)
                         AS CANCELLED ON CANCELLED.DAY = date
                 LEFT JOIN
@@ -703,7 +703,7 @@ class Database:
                         date({self.DATE_MOD},"unixepoch") AS DAY
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE DAY NOT NULL
-                          AND TASK.{self.IS_TRASHED} AND TASK.{self.IS_TASK}
+                          AND TASK.{self.IS_TRASHED} AND TASK.{self.IS_TODO}
                         GROUP BY DAY)
                         AS TRASHED ON TRASHED.DAY = date
                 LEFT JOIN
@@ -711,7 +711,7 @@ class Database:
                         date(stopDate,"unixepoch") AS DAY
                         FROM {self.TABLE_TASK} AS TASK
                         WHERE DAY NOT NULL
-                          AND TASK.{self.IS_COMPLETED} AND TASK.{self.IS_TASK}
+                          AND TASK.{self.IS_COMPLETED} AND TASK.{self.IS_TODO}
                         GROUP BY DAY)
                         AS CLOSED ON CLOSED.DAY = date
                 """
@@ -739,7 +739,7 @@ class Database:
                 WHERE
                     printf("%d", TAG.title) = TAG.title AND
                     TASK.{self.IS_NOT_TRASHED} AND
-                    TASK.{self.IS_TASK} AND
+                    TASK.{self.IS_TODO} AND
                     TASK.{self.IS_INCOMPLETE} AND
                     TASK.{self.IS_ANYTIME} AND
                     TASK.{self.IS_SCHEDULED} AND (

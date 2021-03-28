@@ -12,5 +12,6 @@ from things.api import (  # noqa
     tags,
     tasks,
     today,
+    todos,
 )
 from things.database import Database  # noqa

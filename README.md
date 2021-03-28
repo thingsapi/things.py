@@ -32,20 +32,20 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 ```python
 >>> import things
->>> things.tasks()
+>>> things.todos()
 [{'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
   'title': 'Make reservation for dinner',
-  'type': 'task',
+  'type': 'to-do',
   'project': 'bNj6TPdKYhY6fScvXWVRDX',
   ...},
  {'uuid': 'RLZroza3jz0XPs3uAlynS7',
   'title': 'Buy a whiteboard and accessories',
-  'type': 'task',
+  'type': 'to-do',
   'project': 'w8oSP1HjWstPin8RMaJOtB',
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'checklist': True,
   ...
->>> things.tasks('RLZroza3jz0XPs3uAlynS7')
+>>> things.todos('RLZroza3jz0XPs3uAlynS7')
 {'uuid': 'RLZroza3jz0XPs3uAlynS7',
  'title': 'Buy a whiteboard and accessories',
  ...
@@ -106,16 +106,16 @@ Here's the terminology used involving the database:
 
 - area
 - tag
-- Task (capitalized)
+- task
   - type
-    - `"task"`: Task in a project or a non-project Task; can have a checklist; can link to an area and tags.
-    - `"project"`: a large Task; can have (sub)"tasks" and headings; can link to an area and tags.
-    - `"heading"`: contained within a project in order to group "tasks"
+    - `'to-do'`: may have a checklist; may be in an area and have tags.
+    - `'project'`: may have to-dos and headings; may be in an area and have tags.
+    - `'heading'`:  part of a project; groups "tasks".
   - status:  `"incomplete"`,  `"canceled"`, or `"completed"`
   - trashed: `True` or `False`
-- checklist item (contained within a "task")
-
+  - start: `"Inbox"`, `"Anytime"`, or `"Someday"`
+- checklist item (contained within a to-do)
 
 ## Things URLs
 
-You can make good use of the `uuid` to link to tasks, areas, tags, and more from other apps. Read more [here](https://culturedcode.com/things/blog/2018/02/hey-things/).
+You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Read more [here](https://culturedcode.com/things/blog/2018/02/hey-things/).
