@@ -28,7 +28,7 @@ jobs:
       run: |
         pip install coverage
         make test
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        flag-name: Unit Test
