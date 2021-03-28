@@ -1,10 +1,11 @@
 name: Build-Test
 
 on: [push]
+env:
+  CI: true
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +28,7 @@ jobs:
       run: |
         pip install coverage
         make test
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
