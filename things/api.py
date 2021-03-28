@@ -130,8 +130,8 @@ def tasks(uuid=None, include_items=False, **kwargs):
     if kwargs.get("count_only"):
         return result
 
-    # overwrite `include_items` if fetching single uuid for to-do or heading
-    if uuid and result[0]["type"] in ("to-do", "heading"):
+    # overwrite `include_items` if fetching a single task.
+    if uuid:
         include_items = True
 
     for task in result:
