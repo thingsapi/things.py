@@ -21,7 +21,6 @@ class ThingsCase(unittest.TestCase):
     def test_upcoming(self):
         """Test upcoming."""
         tasks = api.upcoming(filepath=DEMO_FILEPATH)
-        print(tasks)
         self.assertEqual(2, len(tasks))
 
     def test_today(self):
