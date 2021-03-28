@@ -13,16 +13,16 @@ DEMO_FILEPATH = "tests/demo.sqlite3"
 class ThingsCase(unittest.TestCase):
     """Class documentation goes here."""
 
-    def test_tasks(self):
-        """Test all tasks."""
-        tasks = api.tasks(start="Anytime", filepath=DEMO_FILEPATH)
-        self.assertEqual(37, len(tasks))
-        tasks = api.tasks(start="Anytime", status="completed", filepath=DEMO_FILEPATH)
-        self.assertEqual(1, len(tasks))
-        tasks = api.tasks(status="completed", filepath=DEMO_FILEPATH)
-        self.assertEqual(3, len(tasks))
+    def test_todos(self):
+        """Test all todos."""
+        todos = api.todos(start="Anytime", filepath=DEMO_FILEPATH)
+        self.assertEqual(37, len(todos))
+        todos = api.todos(start="Anytime", status="completed", filepath=DEMO_FILEPATH)
+        self.assertEqual(1, len(todos))
+        todos = api.todos(status="completed", filepath=DEMO_FILEPATH)
+        self.assertEqual(3, len(todos))
         with self.assertRaises(ValueError):
-            api.tasks(status="wrong_value", filepath=DEMO_FILEPATH)
+            api.todos(status="wrong_value", filepath=DEMO_FILEPATH)
 
     def test_tags(self):
         """Test all tags."""
