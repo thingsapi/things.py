@@ -21,7 +21,7 @@ class ThingsCase(unittest.TestCase):
     def test_today(self):
         """Test today."""
         tasks = api.today(filepath=DEMO_FILEPATH)
-        self.assertEqual(3, len(tasks)) # todo: should be 1
+        self.assertEqual(1, len(tasks))
 
     def test_todos(self):
         """Test all tasks."""
