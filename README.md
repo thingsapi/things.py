@@ -13,12 +13,10 @@ A simple Python 3 library to read your [Things app](https://culturedcode.com/thi
 
 ## Table of Contents
 
-- [Things Python API](#things-python-api)
-  - [Table of Contents](#table-of-contents)
-  - [Install](#install)
-  - [Examples](#examples)
-  - [Background](#background)
-  - [Things URLs](#things-urls)
+- [Install](#install)
+- [Examples](#examples)
+- [Background](#background)
+- [Things URLs](#things-urls)
 
 ## Install
 
