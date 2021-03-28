@@ -34,19 +34,20 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 >>> import things
 >>> things.todos()
 [{'uuid': '2Ukg8I2nLukhyEM7wYiBeb',
-  'title': 'Make reservation for dinner',
   'type': 'to-do',
+  'title': 'Make reservation for dinner',
   'project': 'bNj6TPdKYhY6fScvXWVRDX',
   ...},
  {'uuid': 'RLZroza3jz0XPs3uAlynS7',
-  'title': 'Buy a whiteboard and accessories',
   'type': 'to-do',
+  'title': 'Buy a whiteboard and accessories',
   'project': 'w8oSP1HjWstPin8RMaJOtB',
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'checklist': True,
   ...
 >>> things.todos('RLZroza3jz0XPs3uAlynS7')
 {'uuid': 'RLZroza3jz0XPs3uAlynS7',
+ 'type': 'to-do',
  'title': 'Buy a whiteboard and accessories',
  ...
  'checklist': [
@@ -59,24 +60,24 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 >>> things.projects()
 [{'uuid': 'bNj6TPdKYhY6fScvXWVRDX',
-  'title': 'Throw Birthday Party',
   'type': 'project',
+  'title': 'Throw Birthday Party',
   'area': 'bNj6TPdKYhY6fScvXWVRDX',
   ...},
  {'uuid': 'w8oSP1HjWstPin8RMaJOtB',
-  'title': 'Set Up Home Office',
   'type': 'project',
+  'title': 'Set Up Home Office',
   'area': 'Gw9QefIdgR6nPEoY5hBNSh',
   ...
 
 >>> things.areas()
 [{'uuid': 'ToLxnnBrWkfHC3tkx4vxdV',
-  'title': 'Family',
   'type': 'area',
+  'title': 'Family',
   ...},
  {'uuid': 'Gw9QefIdgR6nPEoY5hBNSh',
-  'title': 'Apartment',
   'type': 'area',
+  'title': 'Apartment',
   ...
 
 >>> things.tags()
