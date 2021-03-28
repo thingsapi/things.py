@@ -23,10 +23,20 @@ class ThingsCase(unittest.TestCase):
         tasks = api.upcoming(filepath=DEMO_FILEPATH)
         self.assertEqual(2, len(tasks))
 
+    def test_due(self):
+        """Test due."""
+        tasks = api.due(filepath=DEMO_FILEPATH)
+        self.assertEqual(1, len(tasks))
+
     def test_today(self):
         """Test today."""
         tasks = api.today(filepath=DEMO_FILEPATH)
         self.assertEqual(1, len(tasks))
+
+    def test_get(self):
+        """Test get."""
+        tasks = api.get('wrong_uuid', filepath=DEMO_FILEPATH)
+        self.assertEqual(None, tasks)
 
     def test_todos(self):
         """Test all tasks."""
@@ -36,8 +46,12 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(6, len(tasks))
         tasks = api.todos(status="completed", filepath=DEMO_FILEPATH)
         self.assertEqual(10, len(tasks))
+        tasks = api.todos(include_items=True, filepath=DEMO_FILEPATH)
+        self.assertEqual(9, len(tasks))
         with self.assertRaises(ValueError):
             api.todos(status="wrong_value", filepath=DEMO_FILEPATH)
+        tasks = api.tasks('A2oPvtt4dXoypeoLc8uYzY', filepath=DEMO_FILEPATH)
+        self.assertEqual(13, len(tasks))
 
     def test_tags(self):
         """Test all tags."""
