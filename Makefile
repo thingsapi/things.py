@@ -20,8 +20,7 @@ run: ## Run the code
 	@$(PYTHON) -m $(SRC_CORE).$(MAIN)
 
 install: ## Install the code
-	@$(PYTHON) setup.py install
-	@echo "You can now use 'things' API library.
+	@$(PYTHON) setup.py install --user
 
 uninstall: ## Uninstall the code
 	@$(PIP) uninstall -y things
@@ -88,3 +87,6 @@ feedback: ## Give feedback
 upload: clean ## Upload the code
 	@python3 setup.py sdist bdist_wheel
 	@python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/things*
+
+copy-db:
+	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
