@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Module implementing Things API
+Module implementing Things API.
 """
 
 import os
@@ -10,79 +10,86 @@ from shlex import quote
 from .database import Database
 
 
+# --------------------------------------------------
+# Core functions
+# --------------------------------------------------
+
+
 def tasks(uuid=None, include_items=False, **kwargs):
     """
-    Read Tasks into a list of dicts.
+    Read tasks into dicts.
 
-    Note: In the database, a Task (capitalized) can be a regular "task",
-    a project, or a heading. Per default, this returns only "tasks".
-    For details, see the "type" parameter.
+    Note: "task" is a technical term used in the database to refer to a
+    to-do, project, or heading. For details, check the "type"-parameter.
+
+    Per default, only tasks marked as incomplete are included. If you
+    want to include completed or canceled tasks in the result, check the
+    "status"-parameter.
 
     Parameters
     ----------
     uuid : str or None, optional
-        Any valid uuid of a Task. If None, then return all Tasks.
+        Any valid task uuid. If None, then return all tasks matched.
 
     include_items : boolean, default False
-        Include items contained within a Task. This can include checklists,
-        headings, and "tasks".
+        Include items contained within a task. These might include
+        checklist items, headings, and to-dos.
 
-    type : {'task', 'project', 'heading', None}, optional, default 'task'
-        Only return a specific type of Task:
+    type : {'to-do', 'heading', 'project', None}, optional
+        Only return a specific type of task:
 
-        'task':     default. Task in a project or a non-project Task;
-                    can have a checklist; can link to an area and tags.
-        'project':  a large Task. can have "tasks" and headings;
-                    can link to an area and tags.
-        'heading':  contained within a project in order to group "tasks"
-         None:      Return all types of Tasks: "task", project, heading
+        'to-do':    may have a checklist; may be in an area and have tags.
+        'project':  may have to-dos and headings; may be in an area and
+                    have tags.
+        'heading':  part of a project; groups tasks.
+         None:      return all types of tasks.
 
     status : {'incomplete', 'completed', 'canceled', None}, optional, \
         default 'incomplete'
 
-        Only include Tasks matching that status. If the argument is `None`,
-        then include Tasks with any status value.
+        Only include tasks matching that status. If the argument is `None`,
+        then include tasks with any status value.
 
     start : {'Inbox', 'Anytime', 'Someday', None}, optional
-        Only include Tasks matching that start value. If the argument is
-        `None` (default), then include Tasks with any start value.
+        Only include tasks matching that start value. If the argument is
+        `None` (default), then include tasks with any start value.
 
     area : str, bool, or None, optional
-        Any valid uuid of an area. Only include Tasks matching that area.
-        If the argument is `False`, only include Tasks _without_ an area.
-        If the argument is `True`, only include Tasks _with_ an area.
-        If the argument is `None`, then ignore the area value, that is,
-        include Tasks both with and without a containing area.
+        Any valid uuid of an area. Only include tasks matching that area.
+        If the argument is `False`, only include tasks _without_ an area.
+        If the argument is `True`, only include tasks _with_ an area.
+        If the argument is `None` (default), then include all tasks.
 
     project : str or None, optional
-        Any valid uuid of a project. Only include Tasks matching that project.
-        If the argument is `False`, only include Tasks _without_ a project.
-        If the argument is `True`, only include Tasks _with_ a project.
-        If the argument is `None`, then ignore the project value, that is,
-        include Tasks both with and without a containing project.
+        Any valid uuid of a project. Only include tasks matching that project.
+        If the argument is `False`, only include tasks _without_ a project.
+        If the argument is `True`, only include tasks _with_ a project.
+        If the argument is `None` (default), then include all tasks.
 
     heading : str or None, optional
-        Any valid uuid of a heading. Only include Tasks matching that heading.
-        If the argument is `False`, only include Tasks _without_ a heading.
-        If the argument is `True`, only include Tasks _with_ a heading.
-        If the argument is `None`, then ignore the heading value, that is,
-        include Tasks both with and without a containing heading.
+        Any valid uuid of a heading. Only include tasks matching that heading.
+        If the argument is `False`, only include tasks _without_ a heading.
+        If the argument is `True`, only include tasks _with_ a heading.
+        If the argument is `None` (default), then include all tasks.
 
     tag : str or None, optional
-        Any valid title of a tag. Only include Tasks matching that tag.
-        If the argument is `False`, only include Tasks _without_ tags.
-        If the argument is `True`, only include Tasks _with_ tags.
-        If the argument is `None`, then ignore any tags present, that is,
-        include Tasks both with and without tags.
+        Any valid title of a tag. Only include tasks matching that tag.
+        If the argument is `False`, only include tasks _without_ tags.
+        If the argument is `True`, only include tasks _with_ tags.
+        If the argument is `None` (default), then include all tasks.
 
     start_date : bool or None, optional
-        If the argument is `False`, only include Tasks _without_ a start date.
-        If the argument is `True`, only include Tasks _with_ a start date.
-        If the argument is `None`, then ignore the start date value, that is,
-        include Tasks both with and without a start date.
+        If the argument is `False`, only include tasks _without_ a start date.
+        If the argument is `True`, only include tasks _with_ a start date.
+        If the argument is `None` (default), then include all tasks.
+
+    due_date : bool or None, optional
+        If the argument is `False`, only include tasks _without_ a due date.
+        If the argument is `True`, only include tasks _with_ a due date.
+        If the argument is `None` (default), then include all tasks.
 
     index : {'index', 'todayIndex'}, default 'index'
-        Database index to order result by.
+        Database field to order result by.
 
     count_only : boolean, default False
         Only output length of result. This is done by a SQL COUNT query.
@@ -97,9 +104,9 @@ def tasks(uuid=None, include_items=False, **kwargs):
     Returns
     -------
     list of dict (default)
-        Representing Things Tasks.
+        Representing multiple tasks.
     dict (if `uuid` is given)
-        Representing a single Things Task.
+        Representing a single task.
     int (count_only == True)
         Count of matching Tasks.
 
@@ -109,20 +116,22 @@ def tasks(uuid=None, include_items=False, **kwargs):
     ...
     >>> things.tasks('2Ukg8I2nLukhyEM7wYiBeb')
     ...
-    >>> things.tasks(area='hIo1FJlAYGKt1Yj38vzKc3', type=None, include_items=True)
+    >>> things.tasks(area='hIo1FJlAYGKt1Yj38vzKc3', include_items=True)
     ...
     >>> things.tasks(status='completed', count_only=True)
     10
 
     """
     database = pop_database(kwargs)
-    result = database.get_tasks(uuid=uuid, **kwargs)
+    result = database.get_tasks(
+        uuid=uuid, status=kwargs.pop("status", "incomplete"), **kwargs
+    )
 
     if kwargs.get("count_only"):
         return result
 
-    # overwrite `include_items` if fetching single uuid for task or heading
-    if uuid and result[0]["type"] in ("task", "heading"):
+    # overwrite `include_items` if fetching a single task.
+    if uuid:
         include_items = True
 
     for task in result:
@@ -137,23 +146,25 @@ def tasks(uuid=None, include_items=False, **kwargs):
             continue
 
         # include items
-        if task["type"] == "task":
+        if task["type"] == "to-do":
             if task.get("checklist"):
                 task["checklist"] = database.get_checklist_items(task_uuid=task["uuid"])
         elif task["type"] == "project":
             project = task
             project["items"] = items = tasks(
-                type=None,
                 project=project["uuid"],
                 include_items=True,
                 database=database,
             )
-            # tasks without headings appear before headings in app
+            # to-dos without headings appear before headings in app
             items.sort(key=lambda item: item["type"], reverse=True)
         elif task["type"] == "heading":
             heading = task
             heading["items"] = tasks(
-                heading=heading["uuid"], include_items=True, database=database
+                type="to-do",
+                heading=heading["uuid"],
+                include_items=True,
+                database=database,
             )
 
     if uuid:
@@ -164,7 +175,7 @@ def tasks(uuid=None, include_items=False, **kwargs):
 
 def areas(uuid=None, include_items=False, **kwargs):
     """
-    Read areas into a list of dicts.
+    Read areas into dicts.
 
     Parameters
     ----------
@@ -222,7 +233,7 @@ def areas(uuid=None, include_items=False, **kwargs):
             area["tags"] = database.get_tags(area=area["uuid"])
         if include_items:
             area["items"] = tasks(
-                type=None, area=area["uuid"], include_items=True, database=database
+                area=area["uuid"], include_items=True, database=database
             )
 
     if uuid:
@@ -233,7 +244,7 @@ def areas(uuid=None, include_items=False, **kwargs):
 
 def tags(title=None, include_items=False, **kwargs):
     """
-    Read tags into a list of dicts.
+    Read tags into dicts.
 
     Parameters
     ----------
@@ -289,7 +300,7 @@ def tags(title=None, include_items=False, **kwargs):
             tag_title = tag["title"]
             tag["items"] = [
                 *areas(tag=tag_title, database=database),
-                *tasks(type=None, tag=tag_title, database=database),
+                *tasks(tag=tag_title, database=database),
             ]
 
     if title:
@@ -298,28 +309,14 @@ def tags(title=None, include_items=False, **kwargs):
     return result
 
 
+# --------------------------------------------------
 # Utility API functions derived from above
+# --------------------------------------------------
 
 
-def canceled(**kwargs):
-    return tasks(status="canceled", type=kwargs.pop("type", None), **kwargs)
-
-
-def completed(**kwargs):
+def get(uuid, default=None, **kwargs):
     """
-    Examples
-    --------
-    >>> things.completed(count_only=True)
-    14
-    >>> things.completed(type='project', count_only=True)
-    4
-    """
-    return tasks(status="completed", type=kwargs.pop("type", None), **kwargs)
-
-
-def get(uuid, **kwargs):
-    """
-    Find object by uuid.
+    Find an object by uuid. If not found, return `default`.
 
     Currently supports tasks, projects, headings, areas, and tags.
     """
@@ -337,22 +334,82 @@ def get(uuid, **kwargs):
         if tag["uuid"] == uuid:
             return tag
 
+    return default
 
-def inbox(**kwargs):
-    return tasks(start="Inbox", **kwargs)
+
+# Filter by object type
+
+
+def todos(uuid=None, **kwargs):
+    return tasks(uuid=uuid, type="to-do", **kwargs)
 
 
 def projects(uuid=None, **kwargs):
     return tasks(uuid=uuid, type="project", **kwargs)
 
 
+# Filter by collections in the Things app sidebar.
+
+
+def inbox(**kwargs):
+    return tasks(start="Inbox", **kwargs)
+
+
 def today(**kwargs):
     """
-    TK: This might still be incomplete. Do a more thorough solution here as needed.
+    Note: This might not produce desired results if the Things app hasn't
+    been opened yet today. In general, you can assume that whatever state
+    the Things app was in when you last opened it, that's the state
+    reflected here by the API.
     """
-    return tasks(
-        start_date=True, index="todayIndex", type=kwargs.pop("type", None), **kwargs
-    )
+    return tasks(start_date=True, start="Anytime", index="todayIndex", **kwargs)
+
+
+def upcoming(**kwargs):
+    """
+    Note: unscheduled tasks with a due date are not included here.
+    See the `due` function instead.
+    """
+    return tasks(start_date=True, start="Someday", **kwargs)
+
+
+def anytime(**kwargs):
+    return tasks(start="Anytime", **kwargs)
+
+
+def someday(**kwargs):
+    return tasks(start_date=False, start="Someday", **kwargs)
+
+
+def logbook(**kwargs):
+    result = [*canceled(**kwargs), *completed(**kwargs)]
+    result.sort(key=lambda task: task["stop_date"], reverse=True)
+    return result
+
+
+# Filter by various task properties
+
+
+def canceled(**kwargs):
+    return tasks(status="canceled", **kwargs)
+
+
+def completed(**kwargs):
+    """
+    Examples
+    --------
+    >>> things.completed(count_only=True)
+    14
+    >>> things.completed(type='project', count_only=True)
+    4
+    """
+    return tasks(status="completed", **kwargs)
+
+
+def due(**kwargs):
+    result = tasks(due_date=True, **kwargs)
+    result.sort(key=lambda task: task["due_date"])
+    return result
 
 
 # Interact with Things app

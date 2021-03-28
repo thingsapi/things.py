@@ -23,16 +23,16 @@ class ThingsCase(unittest.TestCase):
         tasks = api.today(filepath=DEMO_FILEPATH)
         self.assertEqual(3, len(tasks)) # todo: should be 1
 
-    def test_tasks(self):
+    def test_todos(self):
         """Test all tasks."""
-        tasks = api.tasks(start="Anytime", filepath=DEMO_FILEPATH)
+        tasks = api.todos(start="Anytime", filepath=DEMO_FILEPATH)
         self.assertEqual(5, len(tasks))
-        tasks = api.tasks(start="Anytime", status="completed", filepath=DEMO_FILEPATH)
+        tasks = api.todos(start="Anytime", status="completed", filepath=DEMO_FILEPATH)
         self.assertEqual(6, len(tasks))
-        tasks = api.tasks(status="completed", filepath=DEMO_FILEPATH)
+        tasks = api.todos(status="completed", filepath=DEMO_FILEPATH)
         self.assertEqual(10, len(tasks))
         with self.assertRaises(ValueError):
-            api.tasks(status="wrong_value", filepath=DEMO_FILEPATH)
+            api.todos(status="wrong_value", filepath=DEMO_FILEPATH)
 
     def test_tags(self):
         """Test all tags."""
