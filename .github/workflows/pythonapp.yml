@@ -28,7 +28,7 @@ jobs:
       run: |
         pip install coverage
         make test
-    - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v1
       with:
-        flag-name: Unit Test
+        fail_ci_if_error: true
