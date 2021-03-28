@@ -8,3 +8,4 @@ __pycache__
 .mypy_cache/
 node_modules/
 package-lock.json
+.eggs
