@@ -1,10 +1,11 @@
 name: Build-Test
 
 on: [push]
+env:
+  CI: true
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +28,7 @@ jobs:
       run: |
         pip install coverage
         make test
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
