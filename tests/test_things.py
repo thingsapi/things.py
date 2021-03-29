@@ -98,6 +98,11 @@ class ThingsCase(unittest.TestCase):
         test_areas = things.areas(**FILEPATH)
         self.assertEqual(1, len(test_areas))
 
+    def test_database_version(self):
+        """Test database version."""
+        version = things.Database(**FILEPATH).get_version()
+        self.assertEqual(18, version)
+
 
 if __name__ == "__main__":
     unittest.main()
