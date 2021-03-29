@@ -11,6 +11,7 @@ from things.api import (  # noqa
     link,
     logbook,
     projects,
+    search,
     show,
     someday,
     tags,

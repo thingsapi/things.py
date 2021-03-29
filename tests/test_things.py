@@ -14,6 +14,13 @@ FILEPATH = dict(filepath="tests/main.sqlite")
 class ThingsCase(unittest.TestCase):
     """Class documentation goes here."""
 
+    def test_search(self):
+        """Test search."""
+        tasks = things.search('wrong_query', **FILEPATH)
+        self.assertEqual(0, len(tasks))
+        tasks = things.search('To-Do % Heading', **FILEPATH)
+        self.assertEqual(1, len(tasks))
+
     def test_inbox(self):
         """Test inbox."""
         tasks = things.inbox(**FILEPATH)

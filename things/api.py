@@ -314,6 +314,9 @@ def tags(title=None, include_items=False, **kwargs):
 # Utility API functions derived from above
 # --------------------------------------------------
 
+def search(querystr: str, **kwargs):
+    return tasks(querystr=querystr, **kwargs)
+
 
 def get(uuid, default=None, **kwargs):
     """
