@@ -359,16 +359,17 @@ def inbox(**kwargs):
 def today(**kwargs):
     """
     Note: This might not produce desired results if the Things app hasn't
-    been opened yet today. In general, you can assume that whatever state
-    the Things app was in when you last opened it, that's the state
-    reflected here by the API.
+    been opened yet today and the yellow "OK" button clicked for new tasks.
+    In general, you can assume that whatever state the Things app was in
+    when you last opened it, that's the state reflected here by the API.
     """
     database = pop_database(kwargs)
     if not database.was_modified_today():
         print(
             "[NOTE] The results reflect the state of the Things app "
             "when it was last run. If the results seem out of date, "
-            "then run the Things app to update the database.",
+            "then run the Things app and click the yellow 'OK' button
+            "to update Today's to-dos and projects.",
             file=sys.stderr,
         )
     return tasks(
