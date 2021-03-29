@@ -6,6 +6,7 @@ Module implementing Things API.
 
 import os
 from shlex import quote
+import sys
 
 from .database import Database
 
@@ -362,7 +363,21 @@ def today(**kwargs):
     the Things app was in when you last opened it, that's the state
     reflected here by the API.
     """
-    return tasks(start_date=True, start="Anytime", index="todayIndex", **kwargs)
+    database = pop_database(kwargs)
+    if not database.was_modified_today():
+        print(
+            "[NOTE] The results reflect the state of the Things app "
+            "when it was last run. If the results seem out of date, "
+            "then run the Things app to update the database.",
+            file=sys.stderr,
+        )
+    return tasks(
+        start_date=True,
+        start="Anytime",
+        index="todayIndex",
+        database=database,
+        **kwargs,
+    )
 
 
 def upcoming(**kwargs):

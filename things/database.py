@@ -14,6 +14,7 @@ __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
+import datetime
 import os
 import sqlite3
 import sys
@@ -63,6 +64,7 @@ class Database:
     TABLE_TASKTAG = "TMTaskTag"
     TABLE_AREATAG = "TMAreaTag"
     TABLE_CHECKLIST_ITEM = "TMChecklistItem"
+    TABLE_META = "Meta"
     DATE_CREATE = "creationDate"
     DATE_MOD = "userModificationDate"
     DATE_DUE = "dueDate"
@@ -377,9 +379,19 @@ class Database:
                     AREA_TAG.areas = ?
                 ORDER BY AREA."index"
                 """
+
         return self.execute_query(
             query, parameters=(area_uuid,), row_factory=list_factory
         )
+
+    def get_version(self):
+        """Get Things Database version."""
+        import plistlib
+
+        query = f"SELECT value FROM {self.TABLE_META} WHERE key = 'databaseVersion'"
+        result = self.execute_query(query, row_factory=list_factory)
+        plist_bytes = result[0].encode()
+        return plistlib.loads(plist_bytes)
 
     def get_count(self, sql):
         sql = f"""SELECT COUNT(uuid) FROM ({sql})"""
@@ -405,6 +417,17 @@ class Database:
             print(f"Could not query the database at: {self.filepath}.")
             print(f"Details: {error}.")
             sys.exit(2)
+
+    # -------- Utility methods --------
+
+    def last_modified(self):
+        mtime_seconds = os.path.getmtime(self.filepath)
+        return datetime.datetime.fromtimestamp(mtime_seconds)
+
+    def was_modified_today(self):
+        last_modified_date = self.last_modified().date()
+        todays_date = datetime.datetime.now().date()
+        return last_modified_date >= todays_date
 
     # -------- Historical methods (TK: transform) --------
 
