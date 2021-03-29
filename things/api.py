@@ -368,7 +368,7 @@ def today(**kwargs):
         print(
             "[NOTE] The results reflect the state of the Things app "
             "when it was last run. If the results seem out of date, "
-            "then run the Things app and click the yellow 'OK' button
+            "then run the Things app and click the yellow 'OK' button "
             "to update Today's to-dos and projects.",
             file=sys.stderr,
         )
