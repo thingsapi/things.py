@@ -1,6 +1,7 @@
 .DS_Store
 dist
 build
+htmlcov
 __pycache__
 *.pyc
 *.egg-info

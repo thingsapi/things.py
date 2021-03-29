@@ -14,6 +14,7 @@ __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
+import datetime
 import os
 import sqlite3
 import sys
@@ -405,6 +406,17 @@ class Database:
             print(f"Could not query the database at: {self.filepath}.")
             print(f"Details: {error}.")
             sys.exit(2)
+
+    # -------- Utility methods --------
+
+    def last_modified(self):
+        mtime_seconds = os.path.getmtime(self.filepath)
+        return datetime.datetime.fromtimestamp(mtime_seconds)
+
+    def was_modified_today(self):
+        last_modified_date = self.last_modified().date()
+        todays_date = datetime.datetime.now().date()
+        return last_modified_date >= todays_date
 
     # -------- Historical methods (TK: transform) --------
 
