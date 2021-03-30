@@ -676,59 +676,16 @@ def make_search_filter(query: str) -> str:
         OR TASK.notes LIKE "%dinner%"
         OR AREA.title LIKE "%dinner%"
     )'
-
-    >>> make_search_filter(False)
-    'AND (
-        TASK.title LIKE "%%"
-        OR TASK.notes LIKE "%%"
-        OR AREA.title LIKE "%%"
-    )'
-
-    >>> make_search_filter('')
-    'AND (
-        TASK.title IS NULL
-        OR TASK.notes IS NULL
-        OR AREA.title IS NULL
-    )'
-
-    >>> make_search_filter(None)
-    ''
     """
-    result = ""
+    if not query:
+        return ""
 
     # noqa todo 'TMChecklistItem.title'
-    sources = ["TASK.title", "TASK.notes", "AREA.title"]
-    sub_searches = (make_sub_search_filter(source, query) for source in sources)
-    result = " OR ".join(filter(None, sub_searches))
+    columns = ["TASK.title", "TASK.notes", "AREA.title"]
 
-    if result:
-        result = f"AND ({result})"
+    sub_searches = (f'{column} LIKE "%{query}%"' for column in columns)
 
-    return result
-
-
-def make_sub_search_filter(column, query):
-    """
-    Examples
-    --------
-    >>> make_sub_search_filter('TASK.title', 'dinner')
-    'TASK.title LIKE "%dinner%"'
-
-    >>> make_sub_search_filter('TASK.title', None)
-    ''
-
-    >>> make_sub_search_filter('TASK.title', False)
-    'TASK.title IS NULL'
-
-    >>> make_sub_search_filter('TASK.title', True)
-    'TASK.title IS NOT NULL'
-    """
-    default = f'{column} LIKE "%{query}%"'
-    return {
-        None: "",
-        False: f"{column} IS NULL",
-        True: f"{column} IS NOT NULL",
-    }.get(query, default)
+    return f"AND ({' OR '.join(sub_searches)})"
 
 
 def validate(parameter, argument, valid_arguments):

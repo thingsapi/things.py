@@ -90,9 +90,10 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         If the argument is `True`, only include tasks _with_ a due date.
         If the argument is `None` (default), then include all tasks.
 
-    search_query : str, bool, or None, optional
+    search_query : str, optional
         The string value is passed to the SQL LIKE operator. It can thus
-        include placeholders such as '%' and '_'.
+        include placeholders such as '%' and '_'. Per default, it is
+        wrapped in '% ... %'.
 
         Currently titles and notes of to-dos, projects, headings, and areas
         are taken into account.
@@ -332,8 +333,8 @@ def search(query: str, **kwargs) -> List[Dict]:
     """
     Search tasks in the database.
 
-    Currently titles and notes of to-dos, projects, headings, and areas
-    are taken into account.
+    Currently any part of a title and note of a to-do, project,
+    heading, or area is matched.
 
     See the `search_query` parameter of `api.tasks` for details.
 
@@ -348,6 +349,7 @@ def search(query: str, **kwargs) -> List[Dict]:
       'type': 'to-do',
       'title': 'Book flights',
       ...}]
+
     >>> things.search('book%room')
     [{'uuid': 'YrOmUnEXASmpq8ch6RsyPt',
       'type': 'to-do',
