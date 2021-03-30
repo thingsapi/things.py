@@ -85,9 +85,9 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         If the argument is `True`, only include tasks _with_ a start date.
         If the argument is `None` (default), then include all tasks.
 
-    due_date : bool or None, optional
-        If the argument is `False`, only include tasks _without_ a due date.
-        If the argument is `True`, only include tasks _with_ a due date.
+    deadline : bool or None, optional
+        If the argument is `False`, only include tasks _without_ a deadline.
+        If the argument is `True`, only include tasks _with_ a deadline.
         If the argument is `None` (default), then include all tasks.
 
     search_query : str, optional
@@ -427,8 +427,8 @@ def today(**kwargs):
 
 def upcoming(**kwargs):
     """
-    Note: unscheduled tasks with a due date are not included here.
-    See the `due` function instead.
+    Note: unscheduled tasks with a deadline are not included here.
+    See the `deadline` function instead.
     """
     return tasks(start_date=True, start="Someday", **kwargs)
 
@@ -466,9 +466,9 @@ def completed(**kwargs):
     return tasks(status="completed", **kwargs)
 
 
-def due(**kwargs):
-    result = tasks(due_date=True, **kwargs)
-    result.sort(key=lambda task: task["due_date"])
+def deadlines(**kwargs):
+    result = tasks(deadline=True, **kwargs)
+    result.sort(key=lambda task: task["deadline"])
     return result
 
 

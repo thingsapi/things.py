@@ -5,7 +5,7 @@ from things.api import (  # noqa
     areas,
     canceled,
     completed,
-    due,
+    deadlines,
     get,
     inbox,
     link,
