@@ -33,7 +33,7 @@ setup(
     app=APP,
     author=AUTHOR,
     author_email=AUTHOR_MAIL,
-    name="things",
+    name="things.py",
     description=DESCRIPTON,
     long_description=LONG_DESRIPTION,
     long_description_content_type="text/markdown",

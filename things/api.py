@@ -7,6 +7,7 @@ Module implementing Things API.
 import os
 from shlex import quote
 import sys
+from typing import List, Dict
 
 from .database import Database
 
@@ -16,7 +17,7 @@ from .database import Database
 # --------------------------------------------------
 
 
-def tasks(uuid=None, include_items=False, **kwargs):
+def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     """
     Read tasks into dicts.
 
@@ -313,6 +314,27 @@ def tags(title=None, include_items=False, **kwargs):
 # --------------------------------------------------
 # Utility API functions derived from above
 # --------------------------------------------------
+
+def search(query: str, **kwargs) -> List[Dict]:
+    """
+    Search the database. This takes mainly notes and titles into account.
+
+    Parameters
+    ----------
+    query : str
+        The string with optional placeholders (%) to search for.
+
+    Returns
+    -------
+    list of dict
+        Representing Things items.
+
+    Examples
+    --------
+    >>> things.search('substring % within notes and titles')
+    ...
+    """
+    return tasks(querystr=query, **kwargs)
 
 
 def get(uuid, default=None, **kwargs):

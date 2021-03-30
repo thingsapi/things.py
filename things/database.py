@@ -123,6 +123,7 @@ class Database:
         due_date=None,
         index="index",
         count_only=False,
+        querystr=None
     ):
         """Get tasks. See `api.tasks` for details on parameters."""
 
@@ -162,6 +163,7 @@ class Database:
                     AND TASK.{self.IS_NOT_RECURRING}
                     AND (PROJECT.title IS NULL OR PROJECT.{self.IS_NOT_TRASHED})
                     AND (HEADPROJ.title IS NULL OR HEADPROJ.{self.IS_NOT_TRASHED})
+                    {make_search(querystr)}
                     {make_filter('TASK.uuid', uuid)}
                     {make_filter("TASK.area", area)}
                     {make_filter("TASK.project", project)}
@@ -397,6 +399,7 @@ class Database:
         sql = f"""SELECT COUNT(uuid) FROM ({sql})"""
         return self.execute_query(sql, row_factory=list_factory)[0]
 
+    # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
     def execute_query(self, sql, parameters=(), row_factory=None):
         """Run the actual query"""
         if self.debug is True:
@@ -661,6 +664,30 @@ def make_filter(column, value):
         None: "",
         False: f"AND {column} IS NULL",
         True: f"AND {column} IS NOT NULL",
+    }.get(value, default)
+
+
+def make_search(value: str) -> str:
+    query = ""
+    # noqa todo 'TMChecklistItem.title'
+    sources = ['TASK.title', 'TASK.notes', 'AREA.title']
+    for source in sources:
+        subsearch = make_sub_search(source, value)
+        if subsearch:
+            query = query + subsearch + ' OR '
+    if query.endswith(' OR '):
+        query = query[:-4]
+    if query != "":
+        query = 'AND (' + query + ')'
+    return query
+
+
+def make_sub_search(column, value):
+    default = f'{column} LIKE "%{value}%"'
+    return {
+        None: "",
+        False: f"{column} IS NULL",
+        True: f"{column} IS NOT NULL",
     }.get(value, default)
 
 
