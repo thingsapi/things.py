@@ -87,7 +87,7 @@ feedback: ## Give feedback
 
 upload: clean ## Upload the code
 	@$(PYTHON) setup.py sdist bdist_wheel
-	@$(PYTHON) -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/things*
+	@$(PYTHON) -m twine upload dist/things.py*
 
 copy-db:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
