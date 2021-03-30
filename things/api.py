@@ -90,6 +90,19 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         If the argument is `True`, only include tasks _with_ a due date.
         If the argument is `None` (default), then include all tasks.
 
+    search_query : str, optional
+        The string value is passed to the SQL LIKE operator. It can thus
+        include placeholders such as '%' and '_'. Per default, it is
+        wrapped in '% ... %'.
+
+        Currently titles and notes of to-dos, projects, headings, and areas
+        are taken into account.
+
+        If the query is `False`, then return items where titles or notes
+        are empty.
+
+        If the query `None`, then return all items.
+
     index : {'index', 'todayIndex'}, default 'index'
         Database field to order result by.
 
@@ -315,26 +328,35 @@ def tags(title=None, include_items=False, **kwargs):
 # Utility API functions derived from above
 # --------------------------------------------------
 
+
 def search(query: str, **kwargs) -> List[Dict]:
     """
-    Search the database. This takes mainly notes and titles into account.
+    Search tasks in the database.
 
-    Parameters
-    ----------
-    query : str
-        The string with optional placeholders (%) to search for.
+    Currently any part of a title and note of a to-do, project,
+    heading, or area is matched.
 
-    Returns
-    -------
-    list of dict
-        Representing Things items.
+    See the `search_query` parameter of `api.tasks` for details.
 
     Examples
     --------
-    >>> things.search('substring % within notes and titles')
-    ...
+    >>> things.search('book')
+    [{'uuid': 'YrOmUnEXASmpq8ch6RsyPt',
+      'type': 'to-do',
+      'title': 'Book a hotel room',
+      ...},
+      {'uuid': 'KVHAxIIJ52a0h1RCbmg5D6',
+      'type': 'to-do',
+      'title': 'Book flights',
+      ...}]
+
+    >>> things.search('book%room')
+    [{'uuid': 'YrOmUnEXASmpq8ch6RsyPt',
+      'type': 'to-do',
+      'title': 'Book a hotel room',
+      ...}]
     """
-    return tasks(querystr=query, **kwargs)
+    return tasks(search_query=query, **kwargs)
 
 
 def get(uuid, default=None, **kwargs):
