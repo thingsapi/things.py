@@ -25,19 +25,19 @@ DEFAULT_DATABASE_FILEPATH = os.path.expanduser(
     "/Things Database.thingsdatabase/main.sqlite"
 )
 
-START_TO_QUERY = {
+START_TO_FILTER = {
     "Inbox": "start = 0",
     "Anytime": "start = 1",
     "Someday": "start = 2",
 }
 
-STATUS_TO_QUERY = {
+STATUS_TO_FILTER = {
     "incomplete": "status = 0",
     "canceled": "status = 2",
     "completed": "status = 3",
 }
 
-TYPE_TO_QUERY = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
+TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
 
 INDICES = ("index", "todayIndex")
 
@@ -70,22 +70,22 @@ class Database:
     DATE_DUE = "dueDate"
     DATE_START = "startDate"
     DATE_STOP = "stopDate"
-    IS_INBOX = START_TO_QUERY["Inbox"]
-    IS_ANYTIME = START_TO_QUERY["Anytime"]
-    IS_SOMEDAY = START_TO_QUERY["Someday"]
+    IS_INBOX = START_TO_FILTER["Inbox"]
+    IS_ANYTIME = START_TO_FILTER["Anytime"]
+    IS_SOMEDAY = START_TO_FILTER["Someday"]
     IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
     IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
     IS_DUE = f"{DATE_DUE} IS NOT NULL"
     IS_RECURRING = "recurrenceRule IS NOT NULL"
     IS_NOT_RECURRING = "recurrenceRule IS NULL"
-    IS_TODO = TYPE_TO_QUERY["to-do"]
-    IS_PROJECT = TYPE_TO_QUERY["project"]
-    IS_HEADING = TYPE_TO_QUERY["heading"]
+    IS_TODO = TYPE_TO_FILTER["to-do"]
+    IS_PROJECT = TYPE_TO_FILTER["project"]
+    IS_HEADING = TYPE_TO_FILTER["heading"]
     IS_NOT_TRASHED = "trashed = 0"
     IS_TRASHED = "trashed = 1"
-    IS_INCOMPLETE = STATUS_TO_QUERY["incomplete"]
-    IS_CANCELED = STATUS_TO_QUERY["canceled"]
-    IS_COMPLETED = STATUS_TO_QUERY["completed"]
+    IS_INCOMPLETE = STATUS_TO_FILTER["incomplete"]
+    IS_CANCELED = STATUS_TO_FILTER["canceled"]
+    IS_COMPLETED = STATUS_TO_FILTER["completed"]
     RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
     RECURRING_HAS_NEXT_STARTDATE = "nextInstanceStartDate IS NOT NULL"
 
@@ -123,7 +123,7 @@ class Database:
         due_date=None,
         index="index",
         count_only=False,
-        querystr=None
+        search_query=None,
     ):
         """Get tasks. See `api.tasks` for details on parameters."""
 
@@ -131,9 +131,9 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("type", type, [None] + list(TYPE_TO_QUERY))
-        validate("status", status, [None] + list(STATUS_TO_QUERY))
-        validate("start", start, [None] + list(START_TO_QUERY))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))
+        validate("status", status, [None] + list(STATUS_TO_FILTER))
+        validate("start", start, [None] + list(START_TO_FILTER))
         validate("index", index, list(INDICES))
 
         if tag is not None:
@@ -149,21 +149,20 @@ class Database:
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
         if uuid:
-            query = f"TRUE {make_filter('TASK.uuid', uuid)}"
+            where_predicate = f"TRUE {make_filter('TASK.uuid', uuid)}"
         else:
-            start_query = START_TO_QUERY.get(start)
-            status_query = STATUS_TO_QUERY.get(status)
-            type_query = TYPE_TO_QUERY.get(type)
+            start_filter = START_TO_FILTER.get(start, "")
+            status_filter = STATUS_TO_FILTER.get(status, "")
+            type_filter = TYPE_TO_FILTER.get(type, "")
 
-            query = f"""
+            where_predicate = f"""
                     TASK.{self.IS_NOT_TRASHED}
-                    {f"AND TASK.{type_query}" if type_query else ""}
-                    {f"AND TASK.{start_query}" if start_query else ""}
-                    {f"AND TASK.{status_query}" if status_query else ""}
+                    {type_filter and f"AND TASK.{type_filter}"}
+                    {start_filter and f"AND TASK.{start_filter}"}
+                    {status_filter and f"AND TASK.{status_filter}"}
                     AND TASK.{self.IS_NOT_RECURRING}
                     AND (PROJECT.title IS NULL OR PROJECT.{self.IS_NOT_TRASHED})
                     AND (HEADPROJ.title IS NULL OR HEADPROJ.{self.IS_NOT_TRASHED})
-                    {make_search(querystr)}
                     {make_filter('TASK.uuid', uuid)}
                     {make_filter("TASK.area", area)}
                     {make_filter("TASK.project", project)}
@@ -171,17 +170,18 @@ class Database:
                     {make_filter("TASK.startDate", start_date)}
                     {make_filter("TASK.dueDate", due_date)}
                     {make_filter("TAG.title", tag)}
+                    {make_search_filter(search_query)}
                     ORDER BY TASK."{index}"
                     """
 
-        sql = self.make_tasks_sql(query)
+        sql_query = self.make_task_sql_query(where_predicate)
         if count_only:
-            return self.get_count(sql)
+            return self.get_count(sql_query)
         else:
-            return self.execute_query(sql)
+            return self.execute_query(sql_query)
 
-    def make_tasks_sql(self, query):
-        """Make SQL for tasks"""
+    def make_task_sql_query(self, where_predicate):
+        """Make SQL query for Task table"""
         return f"""
             SELECT DISTINCT
                 TASK.uuid,
@@ -244,11 +244,11 @@ class Database:
                 ON CHECKLIST_ITEM.task = TASK.uuid
             WHERE
                 {self.filter}
-                {query}
+                {where_predicate}
             """
 
-    def get_rows(self, query):
-        return self.execute_query(self.make_tasks_sql(query))
+    def get_task_rows(self, where_predicate):
+        return self.execute_query(self.make_task_sql_query(where_predicate))
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
@@ -266,7 +266,7 @@ class Database:
             raise ValueError(f"No such area uuid found: {uuid!r}")
 
         # Query
-        query = f"""
+        sql_query = f"""
                 SELECT
                     AREA.uuid,
                     'area' as type,
@@ -287,13 +287,13 @@ class Database:
                 ORDER BY AREA."index"
                 """
         if count_only:
-            return self.get_count(query)
+            return self.get_count(sql_query)
         else:
-            return self.execute_query(query)
+            return self.execute_query(sql_query)
 
     def get_checklist_items(self, task_uuid=None):
         """Get checklist items."""
-        query = f"""
+        sql_query = f"""
                 SELECT
                     CHECKLIST_ITEM.title,
                     CASE
@@ -316,7 +316,7 @@ class Database:
                     CHECKLIST_ITEM.task = ?
                 ORDER BY CHECKLIST_ITEM."index"
                 """
-        return self.execute_query(query, (task_uuid,))
+        return self.execute_query(sql_query, (task_uuid,))
 
     def get_tags(self, title=None, area=None, task=None, titles_only=False):
         """Get tags. See `api.tags` for details on parameters."""
@@ -333,84 +333,83 @@ class Database:
             return self.get_tags_of_area(area)
 
         if titles_only:
-            query = f'SELECT title FROM {self.TABLE_TAG} ORDER BY "index"'
-            return self.execute_query(query, row_factory=list_factory)
+            sql_query = f'SELECT title FROM {self.TABLE_TAG} ORDER BY "index"'
+            return self.execute_query(sql_query, row_factory=list_factory)
         else:
-            query = f"""
-                    SELECT
-                        uuid,
-                        'tag' AS type,
-                        title,
-                        shortcut
-                    FROM
-                        {self.TABLE_TAG}
-                    WHERE
-                        TRUE
-                        {make_filter('title', title)}
-                    ORDER BY "index"
-                    """
-            return self.execute_query(query)
+            sql_query = f"""
+                SELECT
+                    uuid,
+                    'tag' AS type,
+                    title,
+                    shortcut
+                FROM
+                    {self.TABLE_TAG}
+                WHERE
+                    TRUE
+                    {make_filter('title', title)}
+                ORDER BY "index"
+                """
+            return self.execute_query(sql_query)
 
     def get_tags_of_task(self, task_uuid):
         """Get tag titles of task"""
-        query = f"""
-                SELECT
-                    TAG.title
-                FROM
-                    {self.TABLE_TASKTAG} AS TASK_TAG
-                LEFT OUTER JOIN
-                    {self.TABLE_TAG} TAG ON TAG.uuid = TASK_TAG.tags
-                WHERE
-                    TASK_TAG.tasks = ?
-                ORDER BY TAG."index"
-                """
+        sql_query = f"""
+            SELECT
+                TAG.title
+            FROM
+                {self.TABLE_TASKTAG} AS TASK_TAG
+            LEFT OUTER JOIN
+                {self.TABLE_TAG} TAG ON TAG.uuid = TASK_TAG.tags
+            WHERE
+                TASK_TAG.tasks = ?
+            ORDER BY TAG."index"
+            """
         return self.execute_query(
-            query, parameters=(task_uuid,), row_factory=list_factory
+            sql_query, parameters=(task_uuid,), row_factory=list_factory
         )
 
     def get_tags_of_area(self, area_uuid):
         """Get tag titles for area"""
-        query = f"""
-                SELECT
-                    AREA.title
-                FROM
-                    {self.TABLE_AREATAG} AS AREA_TAG
-                LEFT OUTER JOIN
-                    {self.TABLE_TAG} AREA ON AREA.uuid = AREA_TAG.tags
-                WHERE
-                    AREA_TAG.areas = ?
-                ORDER BY AREA."index"
-                """
-
+        sql_query = f"""
+            SELECT
+                AREA.title
+            FROM
+                {self.TABLE_AREATAG} AS AREA_TAG
+            LEFT OUTER JOIN
+                {self.TABLE_TAG} AREA ON AREA.uuid = AREA_TAG.tags
+            WHERE
+                AREA_TAG.areas = ?
+            ORDER BY AREA."index"
+            """
         return self.execute_query(
-            query, parameters=(area_uuid,), row_factory=list_factory
+            sql_query, parameters=(area_uuid,), row_factory=list_factory
         )
 
     def get_version(self):
         """Get Things Database version."""
         import plistlib
 
-        query = f"SELECT value FROM {self.TABLE_META} WHERE key = 'databaseVersion'"
-        result = self.execute_query(query, row_factory=list_factory)
+        sql_query = f"SELECT value FROM {self.TABLE_META} WHERE key = 'databaseVersion'"
+        result = self.execute_query(sql_query, row_factory=list_factory)
         plist_bytes = result[0].encode()
         return plistlib.loads(plist_bytes)
 
     def get_count(self, sql):
-        sql = f"""SELECT COUNT(uuid) FROM ({sql})"""
-        return self.execute_query(sql, row_factory=list_factory)[0]
+        sql_query = f"""SELECT COUNT(uuid) FROM ({sql})"""
+        return self.execute_query(sql_query, row_factory=list_factory)[0]
 
     # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
-    def execute_query(self, sql, parameters=(), row_factory=None):
-        """Run the actual query"""
+    def execute_query(self, sql_query, parameters=(), row_factory=None):
+        """Run the actual SQL query"""
         if self.debug is True:
             print(self.filepath)
-            print(sql)
+            print(sql_query)
         try:
             uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
             connection = sqlite3.connect(uri, uri=True)
             connection.row_factory = row_factory or dict_factory
             cursor = connection.cursor()
-            cursor.execute(sql, parameters)
+            cursor.execute(sql_query, parameters)
             tasks = cursor.fetchall()
             if self.debug:
                 for task in tasks:
@@ -441,7 +440,7 @@ class Database:
                 TASK.{self.IS_TODO}
                 ORDER BY TASK.{self.DATE_STOP}
                 """
-        return self.get_rows(query)
+        return self.get_task_rows(query)
 
     def get_lint(self):
         """Get tasks that float around"""
@@ -454,7 +453,7 @@ class Database:
             TASK.area IS NULL AND
             TASK.actionGroup IS NULL
             """
-        return self.get_rows(query)
+        return self.get_task_rows(query)
 
     def get_empty_projects(self):
         """Get projects that are empty"""
@@ -480,7 +479,7 @@ class Database:
                    )
                 ) = 0
             """
-        return self.get_rows(query)
+        return self.get_task_rows(query)
 
     def get_largest_projects(self):
         """Get projects that are empty"""
@@ -667,33 +666,83 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_search(value: str) -> str:
-    query = ""
+def make_search_filter(query: str) -> str:
+    """
+    Example
+    -------
+    >>> make_search_filter('dinner')
+    'AND (
+        TASK.title LIKE "%dinner%"
+        OR TASK.notes LIKE "%dinner%"
+        OR AREA.title LIKE "%dinner%"
+    )'
+
+    >>> make_search_filter(False)
+    'AND (
+        TASK.title LIKE "%%"
+        OR TASK.notes LIKE "%%"
+        OR AREA.title LIKE "%%"
+    )'
+
+    >>> make_search_filter('')
+    'AND (
+        TASK.title IS NULL
+        OR TASK.notes IS NULL
+        OR AREA.title IS NULL
+    )'
+
+    >>> make_search_filter(None)
+    ''
+    """
+    result = ""
+
     # noqa todo 'TMChecklistItem.title'
-    sources = ['TASK.title', 'TASK.notes', 'AREA.title']
-    for source in sources:
-        subsearch = make_sub_search(source, value)
-        if subsearch:
-            query = query + subsearch + ' OR '
-    if query.endswith(' OR '):
-        query = query[:-4]
-    if query != "":
-        query = 'AND (' + query + ')'
-    return query
+    sources = ["TASK.title", "TASK.notes", "AREA.title"]
+    sub_searches = (make_sub_search_filter(source, query) for source in sources)
+    result = " OR ".join(filter(None, sub_searches))
+
+    if result:
+        result = f"AND ({result})"
+
+    return result
 
 
-def make_sub_search(column, value):
-    default = f'{column} LIKE "%{value}%"'
+def make_sub_search_filter(column, query):
+    """
+    Examples
+    --------
+    >>> make_sub_search_filter('TASK.title', 'dinner')
+    'TASK.title LIKE "%dinner%"'
+
+    >>> make_sub_search_filter('TASK.title', None)
+    ''
+
+    >>> make_sub_search_filter('TASK.title', False)
+    'TASK.title IS NULL'
+
+    >>> make_sub_search_filter('TASK.title', True)
+    'TASK.title IS NOT NULL'
+    """
+    default = f'{column} LIKE "%{query}%"'
     return {
         None: "",
         False: f"{column} IS NULL",
         True: f"{column} IS NOT NULL",
-    }.get(value, default)
+    }.get(query, default)
 
 
 def validate(parameter, argument, valid_arguments):
     """
     For a given parameter, check if its argument type is valid.
+    If not, then raise ValueError.
+
+    Example
+    -------
+    >>> validate(
+        parameter='status',
+        argument='completed',
+        valid_arguments=['incomplete', 'completed']
+    )
     """
     if argument in valid_arguments:
         return
