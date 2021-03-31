@@ -389,7 +389,7 @@ def todos(uuid=None, **kwargs):
     """
     Read to-dos into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(uuid=uuid, type="to-do", **kwargs)
 
@@ -398,7 +398,7 @@ def projects(uuid=None, **kwargs):
     """
     Read projects into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(uuid=uuid, type="project", **kwargs)
 
@@ -410,7 +410,7 @@ def inbox(**kwargs):
     """
     Read inbox into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(start="Inbox", **kwargs)
 
@@ -450,27 +450,27 @@ def upcoming(**kwargs):
 
 def anytime(**kwargs):
     """
-    Read anytime to-dos into dicts.
+    Read anytime tasks into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(start="Anytime", **kwargs)
 
 
 def someday(**kwargs):
     """
-    Read someday to-dos into dicts.
+    Read someday tasks into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(start_date=False, start="Someday", **kwargs)
 
 
 def logbook(**kwargs):
     """
-    Read logbook to-dos into dicts.
+    Read logbook tasks into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     result = [*canceled(**kwargs), *completed(**kwargs)]
     result.sort(key=lambda task: task["stop_date"], reverse=True)
@@ -482,9 +482,9 @@ def logbook(**kwargs):
 
 def canceled(**kwargs):
     """
-    Read cancelled to-dos into dicts.
+    Read cancelled tasks into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     return tasks(status="canceled", **kwargs)
 
@@ -503,9 +503,9 @@ def completed(**kwargs):
 
 def deadlines(**kwargs):
     """
-    Read to-dos with due dates into dicts.
+    Read tasks with deadlines into dicts.
 
-    See `api.tasks` for details.
+    See `things.tasks` for details.
     """
     result = tasks(deadline=True, **kwargs)
     result.sort(key=lambda task: task["deadline"])
