@@ -482,7 +482,7 @@ def logbook(**kwargs):
 
 def canceled(**kwargs):
     """
-    Read cancelled tasks into dicts.
+    Read canceled tasks into dicts.
 
     See `things.tasks` for details.
     """
