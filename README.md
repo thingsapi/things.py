@@ -1,15 +1,15 @@
 # Things Python API
 
-A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data.
+A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data. You can test the API [via our CLI](https://github.com/thingsapi/things-cli).
 
 [![Build Status](https://github.com/thingsapi/things.py/workflows/Build-Test/badge.svg)](https://github.com/thingsapi/things.py/actions)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/thingsapi/things.py)](https://scrutinizer-ci.com/g/thingsapi/things.py/?branch=master)
 [![Coverage Status](https://codecov.io/gh/thingsapi/things.py/branch/main/graph/badge.svg?token=DBWGKAEYAP)](https://codecov.io/gh/thingsapi/things.py)
-[![GitHub Release](https://img.shields.io/github/v/release/thingsapi/things.py?sort=semver)](https://github.com/thingsapi/things.py/releases)
+[![GitHub Issues](https://img.shields.io/github/issues/thingsapi/things.py)](https://github.com/thingsapi/things.py/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub Release](https://img.shields.io/github/v/release/thingsapi/things.py?sort=semver)](https://github.com/thingsapi/things.py/releases)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/things.py?label=pypi%20downloads)](https://pypi.org/project/things.py/)
 [![GitHub Download Count](https://img.shields.io/github/downloads/thingsapi/things.py/total.svg)](https://github.com/thingsapi/things.py/releases)
-[![GitHub Issues](https://img.shields.io/github/issues/thingsapi/things.py)](https://github.com/thingsapi/things.py/issues)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/thingsapi/things.py)](https://scrutinizer-ci.com/g/thingsapi/things.py/?branch=master)
 
 ## Table of Contents
 
