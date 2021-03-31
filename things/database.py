@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Simple read-only API for Things."""
+"""Simple read-only API for Things.
+
+We attempt to follow the names used in the Things app, URL Scheme,
+and SQL database whenever possible.
+"""
 
 from __future__ import print_function
 
@@ -67,7 +71,7 @@ class Database:
     TABLE_META = "Meta"
     DATE_CREATE = "creationDate"
     DATE_MOD = "userModificationDate"
-    DATE_DUE = "dueDate"
+    DATE_DEADLINE = "dueDate"
     DATE_START = "startDate"
     DATE_STOP = "stopDate"
     IS_INBOX = START_TO_FILTER["Inbox"]
@@ -75,7 +79,7 @@ class Database:
     IS_SOMEDAY = START_TO_FILTER["Someday"]
     IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
     IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
-    IS_DUE = f"{DATE_DUE} IS NOT NULL"
+    IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
     IS_RECURRING = "recurrenceRule IS NOT NULL"
     IS_NOT_RECURRING = "recurrenceRule IS NULL"
     IS_TODO = TYPE_TO_FILTER["to-do"]
@@ -120,7 +124,7 @@ class Database:
         heading=None,
         tag=None,
         start_date=None,
-        due_date=None,
+        deadline=None,
         index="index",
         count_only=False,
         search_query=None,
@@ -168,7 +172,7 @@ class Database:
                     {make_filter("TASK.project", project)}
                     {make_filter("TASK.actionGroup", heading)}
                     {make_filter("TASK.startDate", start_date)}
-                    {make_filter("TASK.dueDate", due_date)}
+                    {make_filter(f"TASK.{self.DATE_DEADLINE}", deadline)}
                     {make_filter("TAG.title", tag)}
                     {make_search_filter(search_query)}
                     ORDER BY TASK."{index}"
@@ -221,8 +225,8 @@ class Database:
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
                 date(TASK.startDate, "unixepoch") AS start_date,
-                date(TASK.dueDate, "unixepoch") AS due_date,
-                date(TASK.stopDate, "unixepoch") AS stop_date,
+                date(TASK.{self.DATE_DEADLINE}, "unixepoch") AS deadline,
+                date(TASK.stopDate, "unixepoch") AS "stop_date",
                 datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified
             FROM
@@ -302,7 +306,7 @@ class Database:
                         WHEN CHECKLIST_ITEM.{self.IS_CANCELED} THEN 'canceled'
                     END AS status,
                     date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
-                    'checklist item' as type,
+                    'checklist-item' as type,
                     CHECKLIST_ITEM.uuid,
                     datetime(
                         CHECKLIST_ITEM.{self.DATE_MOD}, "unixepoch", "localtime"

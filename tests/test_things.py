@@ -16,9 +16,9 @@ class ThingsCase(unittest.TestCase):
 
     def test_search(self):
         """Test search."""
-        tasks = things.search('wrong_query', **FILEPATH)
+        tasks = things.search("wrong_query", **FILEPATH)
         self.assertEqual(0, len(tasks))
-        tasks = things.search('To-Do % Heading', **FILEPATH)
+        tasks = things.search("To-Do % Heading", **FILEPATH)
         self.assertEqual(1, len(tasks))
 
     def test_inbox(self):
@@ -31,9 +31,9 @@ class ThingsCase(unittest.TestCase):
         tasks = things.upcoming(**FILEPATH)
         self.assertEqual(2, len(tasks))
 
-    def test_due(self):
-        """Test due."""
-        tasks = things.due(**FILEPATH)
+    def test_deadlines(self):
+        """Test deadlines."""
+        tasks = things.deadlines(**FILEPATH)
         self.assertEqual(1, len(tasks))
 
     def test_today(self):
