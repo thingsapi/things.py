@@ -530,7 +530,7 @@ class Database:
                          "+" || x || " days") as date,
                     CREATED.TasksCreated as created,
                     CLOSED.TasksClosed as completed,
-                    CANCELLED.TasksCanceled as canceled,
+                    CANCELED.TasksCanceled as canceled,
                     TRASHED.TasksTrashed as trashed
                 FROM timeseries
                 LEFT JOIN
@@ -548,7 +548,7 @@ class Database:
                         WHERE DAY NOT NULL
                           AND TASK.{self.IS_CANCELED} AND TASK.{self.IS_TODO}
                         GROUP BY DAY)
-                        AS CANCELLED ON CANCELLED.DAY = date
+                        AS CANCELED ON CANCELED.DAY = date
                 LEFT JOIN
                     (SELECT COUNT(uuid) AS TasksTrashed,
                         date({self.DATE_MOD},"unixepoch") AS DAY
