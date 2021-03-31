@@ -3,9 +3,6 @@
 exclude_lines =
     if __name__ == .__main__.:
 
-[run]
-    relative_files = True
-
 omit =
     setup.py
     */__init__.py
