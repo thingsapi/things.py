@@ -2,10 +2,12 @@ VERSION=0.0.2
 MAIN=things
 SRC_CORE=things
 SRC_TEST=tests
+DST_DOCS=docs
 PYTHON=python3
 PYDOC=pydoc3
 PIP=pip3
 PIPENV=pipenv
+PDOC=pdoc
 
 help: ## Print help for each target
 	$(info Things low-level Python API.)
@@ -33,8 +35,10 @@ test: ## Test the code
 	@coverage html
 
 .PHONY: doc
-doc: ## Document the code
-	@$(PYDOC) $(SRC_CORE).api
+doc: install ## Document the code
+	@#$(PYDOC) $(SRC_CORE).api
+	@$(PDOC) -o $(DST_DOCS) -d numpy -n $(SRC_CORE)
+	@echo "Now open $(DST_DOCS)"
 
 .PHONY: clean
 clean: ## Cleanup
