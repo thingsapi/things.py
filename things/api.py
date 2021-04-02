@@ -114,7 +114,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         If no path is provided, then access the default database path.
 
     database : things.Database, optional
-        Any valid `things.Database` object previously instantiated.
+        Any valid `things.database.Database` object previously instantiated.
 
     Returns
     -------
