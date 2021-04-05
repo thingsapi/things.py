@@ -47,13 +47,12 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(3, len(tasks))
         tasks = things.checklist_items('K9bx7h1xCJdevvyWardZDq', **FILEPATH)
         self.assertEqual(0, len(tasks))
-        
 
     def test_anytime(self):
-        """Test antime."""
+        """Test anytime."""
         tasks = things.anytime(**FILEPATH)
-        self.assertEqual(8, len(tasks))
-        self.assertTrue(any(task['area_title'] == 'Area' for task in tasks))
+        self.assertEqual(10, len(tasks))
+        self.assertTrue(any(task.pop('area_title', '') == 'Area 1' for task in tasks))
 
     def test_logbook(self):
         """Test logbook."""
@@ -87,13 +86,13 @@ class ThingsCase(unittest.TestCase):
     def test_todos(self):
         """Test all tasks."""
         tasks = things.todos(start="Anytime", **FILEPATH)
-        self.assertEqual(5, len(tasks))
+        self.assertEqual(7, len(tasks))
         tasks = things.todos(start="Anytime", status="completed", **FILEPATH)
         self.assertEqual(6, len(tasks))
         tasks = things.todos(status="completed", **FILEPATH)
         self.assertEqual(10, len(tasks))
         tasks = things.todos(include_items=True, **FILEPATH)
-        self.assertEqual(10, len(tasks))
+        self.assertEqual(12, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value", **FILEPATH)
         tasks = things.tasks("A2oPvtt4dXoypeoLc8uYzY", **FILEPATH)
@@ -112,7 +111,7 @@ class ThingsCase(unittest.TestCase):
     def test_areas(self):
         """Test all test_areas."""
         test_areas = things.areas(**FILEPATH)
-        self.assertEqual(1, len(test_areas))
+        self.assertEqual(3, len(test_areas))
 
     def test_database_version(self):
         """Test database version."""
