@@ -207,11 +207,20 @@ class Database:
                     WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
                 END AS area,
                 CASE
+                    WHEN AREA.uuid IS NOT NULL THEN AREA.title
+                END AS area_title,
+                CASE
                     WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
                 END AS project,
                 CASE
+                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.title
+                END AS project_title,
+                CASE
                     WHEN HEADING.uuid IS NOT NULL THEN HEADING.uuid
                 END AS heading,
+                CASE
+                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.title
+                END AS heading_title,
                 TASK.notes,
                 CASE
                     WHEN TAG.uuid IS NOT NULL THEN 1

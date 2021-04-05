@@ -45,6 +45,7 @@ class ThingsCase(unittest.TestCase):
         """Test antime."""
         tasks = things.anytime(**FILEPATH)
         self.assertEqual(8, len(tasks))
+        self.assertTrue(any(task['area_title'] == 'Area' for task in tasks))
 
     def test_logbook(self):
         """Test logbook."""
@@ -88,7 +89,7 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value", **FILEPATH)
         tasks = things.tasks("A2oPvtt4dXoypeoLc8uYzY", **FILEPATH)
-        self.assertEqual(13, len(tasks))
+        self.assertEqual(16, len(tasks))
 
     def test_tags(self):
         """Test all tags."""
