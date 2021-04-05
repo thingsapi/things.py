@@ -1,4 +1,4 @@
-VERSION=0.0.2
+VERSION=0.0.5
 MAIN=things
 SRC_CORE=things
 SRC_TEST=tests
