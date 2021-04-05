@@ -45,7 +45,7 @@ TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type =
 
 INDICES = ("index", "todayIndex")
 
-COLUMNS_TO_OMIT_IF_NONE = ("area", "project", "heading", "trashed", "checklist", "tags")
+COLUMNS_TO_OMIT_IF_NONE = ("area", "area_title", "project", "project_title", "heading", "heading_title", "trashed", "checklist", "tags")
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("trashed", "checklist", "tags")
 
 
