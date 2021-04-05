@@ -4,6 +4,7 @@ from things.api import (  # noqa
     anytime,
     areas,
     canceled,
+    checklist_items,
     completed,
     deadlines,
     get,

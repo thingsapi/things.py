@@ -403,6 +403,18 @@ def projects(uuid=None, **kwargs):
     return tasks(uuid=uuid, type="project", **kwargs)
 
 
+def checklist_items(uuid, **kwargs):
+    """
+    Read checklist items into dicts.
+    See `things.api.tasks` for details.
+
+    Returns
+    -------
+    list of dict
+        Representing checklist items. Or [] if none found.
+    """
+    return tasks(uuid=uuid, type="to-do", **kwargs).get('checklist', [])
+
 # Filter by collections in the Things app sidebar.
 
 

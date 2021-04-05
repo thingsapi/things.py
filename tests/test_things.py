@@ -24,7 +24,7 @@ class ThingsCase(unittest.TestCase):
     def test_inbox(self):
         """Test inbox."""
         tasks = things.inbox(**FILEPATH)
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(2, len(tasks))
 
     def test_upcoming(self):
         """Test upcoming."""
@@ -40,6 +40,14 @@ class ThingsCase(unittest.TestCase):
         """Test today."""
         tasks = things.today(**FILEPATH)
         self.assertEqual(1, len(tasks))
+
+    def test_checklist(self):
+        """Test checklist."""
+        tasks = things.checklist_items('3Eva4XFof6zWb9iSfYy4ej', **FILEPATH)
+        self.assertEqual(3, len(tasks))
+        tasks = things.checklist_items('K9bx7h1xCJdevvyWardZDq', **FILEPATH)
+        self.assertEqual(0, len(tasks))
+        
 
     def test_anytime(self):
         """Test antime."""
@@ -85,7 +93,7 @@ class ThingsCase(unittest.TestCase):
         tasks = things.todos(status="completed", **FILEPATH)
         self.assertEqual(10, len(tasks))
         tasks = things.todos(include_items=True, **FILEPATH)
-        self.assertEqual(9, len(tasks))
+        self.assertEqual(10, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value", **FILEPATH)
         tasks = things.tasks("A2oPvtt4dXoypeoLc8uYzY", **FILEPATH)
