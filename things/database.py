@@ -301,8 +301,8 @@ class Database:
                 """
         if count_only:
             return self.get_count(sql_query)
-        else:
-            return self.execute_query(sql_query)
+
+        return self.execute_query(sql_query)
 
     def get_checklist_items(self, task_uuid=None):
         """Get checklist items."""
