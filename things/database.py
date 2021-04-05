@@ -281,7 +281,7 @@ class Database:
         # Query
         sql_query = f"""
                 SELECT
-                    AREA.uuid,
+                    DISTINCT AREA.uuid,
                     'area' as type,
                     AREA.title,
                     CASE
