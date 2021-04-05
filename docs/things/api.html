@@ -49,6 +49,9 @@
                     <a class="function" href="#projects">projects</a>
             </li>
             <li>
+                    <a class="function" href="#checklist_items">checklist_items</a>
+            </li>
+            <li>
                     <a class="function" href="#inbox">inbox</a>
             </li>
             <li>
@@ -508,6 +511,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+
+<span class="k">def</span> <span class="nf">checklist_items</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read checklist items into dicts.</span>
+<span class="sd">    See `things.api.tasks` for details.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Representing checklist items. Or [] if none found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checklist&#39;</span><span class="p">,</span> <span class="p">[])</span>
 
 <span class="c1"># Filter by collections in the Things app sidebar.</span>
 
@@ -1369,6 +1384,43 @@ heading, or area is matched.</p>
             <div class="docstring"><p>Read projects into dicts.</p>
 
 <p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+</div>
+
+
+                </section>
+                <section id="checklist_items">
+                            <div class="attr function"><a class="headerlink" href="#checklist_items">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">checklist_items</span><span class="signature">(uuid, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checklist_items</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read checklist items into dicts.</span>
+<span class="sd">    See `things.api.tasks` for details.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Representing checklist items. Or [] if none found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checklist&#39;</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Read checklist items into dicts.
+See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>list of dict</strong>: Representing checklist items. Or [] if none found.</li>
+</ul>
 </div>
 
 

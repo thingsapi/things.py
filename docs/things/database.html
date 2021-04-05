@@ -519,7 +519,7 @@ and SQL database whenever possible.</p>
         <span class="c1"># Query</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                SELECT</span>
-<span class="s2">                    AREA.uuid,</span>
+<span class="s2">                    DISTINCT AREA.uuid,</span>
 <span class="s2">                    &#39;area&#39; as type,</span>
 <span class="s2">                    AREA.title,</span>
 <span class="s2">                    CASE</span>
@@ -1204,7 +1204,7 @@ and SQL database whenever possible.</p>
         <span class="c1"># Query</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                SELECT</span>
-<span class="s2">                    AREA.uuid,</span>
+<span class="s2">                    DISTINCT AREA.uuid,</span>
 <span class="s2">                    &#39;area&#39; as type,</span>
 <span class="s2">                    AREA.title,</span>
 <span class="s2">                    CASE</span>
@@ -2139,7 +2139,7 @@ If no path is provided, then access the default database path.</li>
         <span class="c1"># Query</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                SELECT</span>
-<span class="s2">                    AREA.uuid,</span>
+<span class="s2">                    DISTINCT AREA.uuid,</span>
 <span class="s2">                    &#39;area&#39; as type,</span>
 <span class="s2">                    AREA.title,</span>
 <span class="s2">                    CASE</span>
@@ -2796,7 +2796,7 @@ If no path is provided, then access the default database path.</li>
                             <div id="Database.functions" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Database.functions">#&nbsp;&nbsp</a>
 
-        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7f863f0010d0&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7f863ef9daf0&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7f863f001160&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7f863f0011f0&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7f863f001430&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7f863f001280&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7f863f001310&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7f863f0013a0&gt;}</span>
+        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7fcf5a37e0d0&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7fcf5a348af0&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7fcf5a37e160&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7fcf5a37e1f0&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7fcf5a37e430&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7fcf5a37e280&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7fcf5a37e310&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7fcf5a37e3a0&gt;}</span>
     </div>
 
     
