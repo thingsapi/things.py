@@ -22,6 +22,7 @@ import datetime
 import os
 import sqlite3
 import sys
+from os import environ
 
 
 DEFAULT_DATABASE_FILEPATH = os.path.expanduser(
@@ -99,7 +100,7 @@ class Database:
 
     # pylint: disable=R0913
     def __init__(self, filepath=None):
-        self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
+        self.filepath = filepath or environ.get("THINGSDB") or DEFAULT_DATABASE_FILEPATH
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
