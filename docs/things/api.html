@@ -70,9 +70,6 @@
                     <a class="function" href="#logbook">logbook</a>
             </li>
             <li>
-                    <a class="function" href="#trash">trash</a>
-            </li>
-            <li>
                     <a class="function" href="#canceled">canceled</a>
             </li>
             <li>
@@ -597,17 +594,6 @@
 <span class="k">def</span> <span class="nf">logbook</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read logbook tasks into dicts.</span>
-
-<span class="sd">    See `things.api.tasks` for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">canceled</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="o">*</span><span class="n">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
-
-
-<span class="k">def</span> <span class="nf">trash</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read trashed tasks into dicts.</span>
 
 <span class="sd">    See `things.api.tasks` for details.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1624,36 +1610,6 @@ See the <code>deadline</code> function instead.</p>
         </details>
 
             <div class="docstring"><p>Read logbook tasks into dicts.</p>
-
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
-</div>
-
-
-                </section>
-                <section id="trash">
-                            <div class="attr function"><a class="headerlink" href="#trash">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">trash</span><span class="signature">(**kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">trash</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read trashed tasks into dicts.</span>
-
-<span class="sd">    See `things.api.tasks` for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">canceled</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="o">*</span><span class="n">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Read trashed tasks into dicts.</p>
 
 <p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
 </div>
