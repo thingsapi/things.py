@@ -260,7 +260,6 @@ and SQL database whenever possible.</p>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
 
 
 <span class="n">DEFAULT_DATABASE_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
@@ -338,7 +337,7 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -1023,7 +1022,7 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -1589,7 +1588,7 @@ If no path is provided, then access the default database path.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -2797,7 +2796,7 @@ If no path is provided, then access the default database path.</li>
                             <div id="Database.functions" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Database.functions">#&nbsp;&nbsp</a>
 
-        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7f699a582040&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7f699a54da60&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7f699a5820d0&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7f699a582160&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7f699a5823a0&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7f699a5821f0&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7f699a582280&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7f699a582310&gt;}</span>
+        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7f6c51b42040&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7f6c51af2a60&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7f6c51b420d0&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7f6c51b42160&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7f6c51b423a0&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7f6c51b421f0&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7f6c51b42280&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7f6c51b42310&gt;}</span>
     </div>
 
     
