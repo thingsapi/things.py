@@ -416,7 +416,8 @@ def checklist_items(uuid, **kwargs):
     list of dict
         Representing checklist items. Or [] if none found.
     """
-    return tasks(uuid=uuid, type="to-do", **kwargs).get('checklist', [])
+    return tasks(uuid=uuid, type="to-do", **kwargs).get("checklist", [])
+
 
 # Filter by collections in the Things app sidebar.
 
@@ -491,6 +492,7 @@ def logbook(**kwargs):
     result.sort(key=lambda task: task["stop_date"], reverse=True)
     return result
 
+
 def trash(**kwargs):
     """
     Read trashed tasks into dicts.
@@ -500,6 +502,7 @@ def trash(**kwargs):
     result = [*canceled(**kwargs), *completed(**kwargs)]
     result.sort(key=lambda task: task["stop_date"], reverse=True)
     return result
+
 
 # Filter by various task properties
 
