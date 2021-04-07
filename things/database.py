@@ -135,9 +135,9 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("type", type, [None] + list(TYPE_TO_FILTER))
-        validate("status", status, [None] + list(STATUS_TO_FILTER))
-        validate("start", start, [None] + list(START_TO_FILTER))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
+        validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
         validate("index", index, list(INDICES))
 
         if tag is not None:
