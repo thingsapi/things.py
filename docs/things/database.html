@@ -475,7 +475,9 @@ and SQL database whenever possible.</p>
 <span class="s2">                date(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
 <span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
-<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified</span>
+<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
+<span class="s2">                TASK.&#39;index&#39;,</span>
+<span class="s2">                TASK.todayIndex</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -1160,7 +1162,9 @@ and SQL database whenever possible.</p>
 <span class="s2">                date(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
 <span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
-<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified</span>
+<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
+<span class="s2">                TASK.&#39;index&#39;,</span>
+<span class="s2">                TASK.todayIndex</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -2061,7 +2065,9 @@ If no path is provided, then access the default database path.</li>
 <span class="s2">                date(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
 <span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
-<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified</span>
+<span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
+<span class="s2">                TASK.&#39;index&#39;,</span>
+<span class="s2">                TASK.todayIndex</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -2796,7 +2802,7 @@ If no path is provided, then access the default database path.</li>
                             <div id="Database.functions" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Database.functions">#&nbsp;&nbsp</a>
 
-        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7f9c08372040&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7f9c08328a60&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7f9c083720d0&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7f9c08372160&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7f9c083723a0&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7f9c083721f0&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7f9c08372280&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7f9c08372310&gt;}</span>
+        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7f031feaf0d0&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7f031fe7aaf0&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7f031feaf160&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7f031feaf1f0&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7f031feaf430&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7f031feaf280&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7f031feaf310&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7f031feaf3a0&gt;}</span>
     </div>
 
     
