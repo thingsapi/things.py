@@ -14,16 +14,16 @@ def package_files(directory):
     return paths
 
 
-APP = ['']
+APP = [""]
 APP_NAME = "Things"
 AUTHOR = "Alexander Willner, Michael B."
 AUTHOR_MAIL = "alex@willner.ws"
 DESCRIPTON = "A simple Python 3 library to read your Things app data."
 URL = "https://github.com/thingsapi/things.py"
-VERSION = "0.0.2"
-DATA_FILES = package_files('')
+VERSION = "0.0.5"
+DATA_FILES = package_files("")
 OPTIONS = {
-    'argv_emulation': False,
+    "argv_emulation": False,
 }
 
 with open("README.md", "r") as fh:
@@ -44,11 +44,11 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: MacOS :: MacOS X",
-        "Natural Language :: English"
+        "Natural Language :: English",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
     version=VERSION,
     data_files=DATA_FILES,
-    options={'py2app': OPTIONS},
-    setup_requires=['py2app'],
+    options={"py2app": OPTIONS},
+    setup_requires=["py2app"],
 )

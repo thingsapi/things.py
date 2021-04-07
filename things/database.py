@@ -13,7 +13,7 @@ __author__ = "Alexander Willner"
 __copyright__ = "2020 Alexander Willner"
 __credits__ = ["Alexander Willner"]
 __license__ = "Apache License 2.0"
-__version__ = "2.6.3"
+__version__ = "0.0.5"
 __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
@@ -45,7 +45,7 @@ TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type =
 
 INDICES = ("index", "todayIndex")
 
-COLUMNS_TO_OMIT_IF_NONE = ("area", "project", "heading", "trashed", "checklist", "tags")
+COLUMNS_TO_OMIT_IF_NONE = ("area", "area_title", "project", "project_title", "heading", "heading_title", "trashed", "checklist", "tags")
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("trashed", "checklist", "tags")
 
 
@@ -99,7 +99,7 @@ class Database:
 
     # pylint: disable=R0913
     def __init__(self, filepath=None):
-        self.filepath = filepath or DEFAULT_DATABASE_FILEPATH
+        self.filepath = filepath or os.environ.get("THINGSDB") or DEFAULT_DATABASE_FILEPATH
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -207,11 +207,20 @@ class Database:
                     WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
                 END AS area,
                 CASE
+                    WHEN AREA.uuid IS NOT NULL THEN AREA.title
+                END AS area_title,
+                CASE
                     WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
                 END AS project,
                 CASE
+                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.title
+                END AS project_title,
+                CASE
                     WHEN HEADING.uuid IS NOT NULL THEN HEADING.uuid
                 END AS heading,
+                CASE
+                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.title
+                END AS heading_title,
                 TASK.notes,
                 CASE
                     WHEN TAG.uuid IS NOT NULL THEN 1
@@ -272,7 +281,7 @@ class Database:
         # Query
         sql_query = f"""
                 SELECT
-                    AREA.uuid,
+                    DISTINCT AREA.uuid,
                     'area' as type,
                     AREA.title,
                     CASE
@@ -292,8 +301,8 @@ class Database:
                 """
         if count_only:
             return self.get_count(sql_query)
-        else:
-            return self.execute_query(sql_query)
+
+        return self.execute_query(sql_query)
 
     def get_checklist_items(self, task_uuid=None):
         """Get checklist items."""

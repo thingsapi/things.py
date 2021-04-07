@@ -1,11 +1,13 @@
-VERSION=0.0.2
+VERSION=0.0.5
 MAIN=things
 SRC_CORE=things
 SRC_TEST=tests
+DST_DOCS=docs
 PYTHON=python3
 PYDOC=pydoc3
 PIP=pip3
 PIPENV=pipenv
+PDOC=pdoc
 
 help: ## Print help for each target
 	$(info Things low-level Python API.)
@@ -33,8 +35,10 @@ test: ## Test the code
 	@coverage html
 
 .PHONY: doc
-doc: ## Document the code
-	@$(PYDOC) $(SRC_CORE).api
+doc: install ## Document the code
+	@#$(PYDOC) $(SRC_CORE).api
+	@$(PDOC) -o $(DST_DOCS) -d numpy -n $(SRC_CORE)
+	@echo "Now open $(DST_DOCS)"
 
 .PHONY: clean
 clean: ## Cleanup
@@ -52,7 +56,7 @@ auto-style: ## Style the code
 
 code-style: ## Test the code style
 	@echo PyCodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=88 --ignore=E203,W503 $(SRC_CORE) ; \
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 
 code-count: ## Count the code
@@ -61,13 +65,13 @@ code-count: ## Count the code
 
 code-lint: ## Lint the code
 	@echo Pylama...
-	@if type pylama >/dev/null 2>&1 ; then pylama --ignore E501,E203,W503 $(SRC_CORE) ; \
+	@if type pylama >/dev/null 2>&1 ; then pylama $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
 	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Flake...
-	@if type flake8 >/dev/null 2>&1 ; then flake8 --max-complexity 10 $(SRC_CORE) ; \
+	@if type flake8 >/dev/null 2>&1 ; then flake8 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 	@echo Pyright...
 	@if type pyright >/dev/null 2>&1 ; then pyright $(SRC_CORE) ; \
