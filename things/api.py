@@ -493,17 +493,6 @@ def logbook(**kwargs):
     return result
 
 
-def trash(**kwargs):
-    """
-    Read trashed tasks into dicts.
-
-    See `things.api.tasks` for details.
-    """
-    result = [*canceled(**kwargs), *completed(**kwargs)]
-    result.sort(key=lambda task: task["stop_date"], reverse=True)
-    return result
-
-
 # Filter by various task properties
 
 
