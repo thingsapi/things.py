@@ -237,7 +237,9 @@ class Database:
                 date(TASK.{self.DATE_DEADLINE}, "unixepoch") AS deadline,
                 date(TASK.stopDate, "unixepoch") AS "stop_date",
                 datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
-                datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified
+                datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified,
+                TASK.'index',
+                TASK.todayIndex
             FROM
                 {self.TABLE_TASK} AS TASK
             LEFT OUTER JOIN

@@ -96,7 +96,7 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value", **FILEPATH)
         tasks = things.tasks("A2oPvtt4dXoypeoLc8uYzY", **FILEPATH)
-        self.assertEqual(14, len(tasks))
+        self.assertEqual(16, len(tasks))
 
     def test_tags(self):
         """Test all tags."""
