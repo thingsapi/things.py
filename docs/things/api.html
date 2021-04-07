@@ -116,7 +116,7 @@
 <span class="sd">Module implementing Things API.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.5&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.6&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">shlex</span> <span class="kn">import</span> <span class="n">quote</span>
@@ -528,7 +528,8 @@
 <span class="sd">    list of dict</span>
 <span class="sd">        Representing checklist items. Or [] if none found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checklist&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
 
 <span class="c1"># Filter by collections in the Things app sidebar.</span>
 
@@ -603,6 +604,7 @@
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
+
 <span class="k">def</span> <span class="nf">trash</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read trashed tasks into dicts.</span>
@@ -612,6 +614,7 @@
     <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">canceled</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="o">*</span><span class="n">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
+
 
 <span class="c1"># Filter by various task properties</span>
 
@@ -1425,7 +1428,7 @@ heading, or area is matched.</p>
 <span class="sd">    list of dict</span>
 <span class="sd">        Representing checklist items. Or [] if none found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;checklist&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
 
         </details>
