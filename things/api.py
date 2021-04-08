@@ -4,7 +4,7 @@
 Module implementing Things API.
 """
 
-__version__ = "0.0.5"
+__version__ = "0.0.7"
 
 import os
 from shlex import quote
@@ -416,7 +416,8 @@ def checklist_items(uuid, **kwargs):
     list of dict
         Representing checklist items. Or [] if none found.
     """
-    return tasks(uuid=uuid, type="to-do", **kwargs).get('checklist', [])
+    return tasks(uuid=uuid, type="to-do", **kwargs).get("checklist", [])  # type: ignore
+
 
 # Filter by collections in the Things app sidebar.
 

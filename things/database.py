@@ -13,13 +13,14 @@ __author__ = "Alexander Willner"
 __copyright__ = "2020 Alexander Willner"
 __credits__ = ["Alexander Willner"]
 __license__ = "Apache License 2.0"
-__version__ = "0.0.5"
+__version__ = "0.0.7"
 __maintainer__ = "Alexander Willner"
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
 import datetime
 import os
+import plistlib
 import sqlite3
 import sys
 
@@ -45,7 +46,8 @@ TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type =
 
 INDICES = ("index", "todayIndex")
 
-COLUMNS_TO_OMIT_IF_NONE = ("area", "area_title", "project", "project_title", "heading", "heading_title", "trashed", "checklist", "tags")
+COLUMNS_TO_OMIT_IF_NONE = ("area", "area_title", "project", "project_title",
+                           "heading", "heading_title", "trashed", "checklist", "tags")
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("trashed", "checklist", "tags")
 
 
@@ -113,31 +115,29 @@ class Database:
 
     # Core methods
 
-    def get_tasks(
-        self,
-        uuid=None,
-        type=None,
-        status=None,
-        start=None,
-        area=None,
-        project=None,
-        heading=None,
-        tag=None,
-        start_date=None,
-        deadline=None,
-        index="index",
-        count_only=False,
-        search_query=None,
-    ):
+    def get_tasks(self,  # pylint: disable=R0914
+                  uuid=None,
+                  type=None,  # pylint: disable=W0622
+                  status=None,
+                  start=None,
+                  area=None,
+                  project=None,
+                  heading=None,
+                  tag=None,
+                  start_date=None,
+                  deadline=None,
+                  index="index",
+                  count_only=False,
+                  search_query=None):
         """Get tasks. See `api.tasks` for details on parameters."""
 
         # Overwrites
         start = start and start.title()
 
         # Validation
-        validate("type", type, [None] + list(TYPE_TO_FILTER))
-        validate("status", status, [None] + list(STATUS_TO_FILTER))
-        validate("start", start, [None] + list(START_TO_FILTER))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
+        validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
         validate("index", index, list(INDICES))
 
         if tag is not None:
@@ -181,8 +181,8 @@ class Database:
         sql_query = self.make_task_sql_query(where_predicate)
         if count_only:
             return self.get_count(sql_query)
-        else:
-            return self.execute_query(sql_query)
+
+        return self.execute_query(sql_query)
 
     def make_task_sql_query(self, where_predicate):
         """Make SQL query for Task table"""
@@ -237,7 +237,9 @@ class Database:
                 date(TASK.{self.DATE_DEADLINE}, "unixepoch") AS deadline,
                 date(TASK.stopDate, "unixepoch") AS "stop_date",
                 datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
-                datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified
+                datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified,
+                TASK.'index',
+                TASK.todayIndex
             FROM
                 {self.TABLE_TASK} AS TASK
             LEFT OUTER JOIN
@@ -261,6 +263,7 @@ class Database:
             """
 
     def get_task_rows(self, where_predicate):
+        """Executes SQL query with given WHERE clauses."""
         return self.execute_query(self.make_task_sql_query(where_predicate))
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
@@ -271,11 +274,7 @@ class Database:
             valid_tags = self.get_tags(titles_only=True)
             validate("tag", tag, [None] + list(valid_tags))
 
-        if (
-            uuid
-            and count_only is False
-            and not self.get_areas(uuid=uuid, count_only=True)
-        ):
+        if (uuid and count_only is False and not self.get_areas(uuid=uuid, count_only=True)):
             raise ValueError(f"No such area uuid found: {uuid!r}")
 
         # Query
@@ -348,21 +347,21 @@ class Database:
         if titles_only:
             sql_query = f'SELECT title FROM {self.TABLE_TAG} ORDER BY "index"'
             return self.execute_query(sql_query, row_factory=list_factory)
-        else:
-            sql_query = f"""
-                SELECT
-                    uuid,
-                    'tag' AS type,
-                    title,
-                    shortcut
-                FROM
-                    {self.TABLE_TAG}
-                WHERE
-                    TRUE
-                    {make_filter('title', title)}
-                ORDER BY "index"
-                """
-            return self.execute_query(sql_query)
+
+        sql_query = f"""
+            SELECT
+                uuid,
+                'tag' AS type,
+                title,
+                shortcut
+            FROM
+                {self.TABLE_TAG}
+            WHERE
+                TRUE
+                {make_filter('title', title)}
+            ORDER BY "index"
+            """
+        return self.execute_query(sql_query)
 
     def get_tags_of_task(self, task_uuid):
         """Get tag titles of task"""
@@ -400,7 +399,6 @@ class Database:
 
     def get_version(self):
         """Get Things Database version."""
-        import plistlib
 
         sql_query = f"SELECT value FROM {self.TABLE_META} WHERE key = 'databaseVersion'"
         result = self.execute_query(sql_query, row_factory=list_factory)
@@ -408,6 +406,7 @@ class Database:
         return plistlib.loads(plist_bytes)
 
     def get_count(self, sql):
+        """Count number of results."""
         sql_query = f"""SELECT COUNT(uuid) FROM ({sql})"""
         return self.execute_query(sql_query, row_factory=list_factory)[0]
 
@@ -419,7 +418,7 @@ class Database:
             print(sql_query)
         try:
             uri = f"file:{self.filepath}?mode=ro"  # "ro" means read-only
-            connection = sqlite3.connect(uri, uri=True)
+            connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
             connection.row_factory = row_factory or dict_factory
             cursor = connection.cursor()
             cursor.execute(sql_query, parameters)
@@ -428,7 +427,7 @@ class Database:
                 for task in tasks:
                     print(task)
             return tasks
-        except sqlite3.OperationalError as error:
+        except sqlite3.OperationalError as error:  # pylint: disable=E1101
             print(f"Could not query the database at: {self.filepath}.")
             print(f"Details: {error}.")
             sys.exit(2)
@@ -436,10 +435,12 @@ class Database:
     # -------- Utility methods --------
 
     def last_modified(self):
+        """Get last modified time."""
         mtime_seconds = os.path.getmtime(self.filepath)
         return datetime.datetime.fromtimestamp(mtime_seconds)
 
     def was_modified_today(self):
+        """Was task modified today?"""
         last_modified_date = self.last_modified().date()
         todays_date = datetime.datetime.now().date()
         return last_modified_date >= todays_date
@@ -662,7 +663,7 @@ def dict_factory(cursor, row):
     return result
 
 
-def list_factory(cursor, row):
+def list_factory(_cursor, row):
     """
     Convert SQL selects of one column into a list.
     """
@@ -670,6 +671,7 @@ def list_factory(cursor, row):
 
 
 def make_filter(column, value):
+    """Filter SQL query by AND {column} = "{value}"."""
     default = f'AND {column} = "{value}"'
     # special options
     return {

@@ -29,7 +29,7 @@ class ThingsCase(unittest.TestCase):
     def test_upcoming(self):
         """Test upcoming."""
         tasks = things.upcoming(**FILEPATH)
-        self.assertEqual(2, len(tasks))
+        self.assertEqual(1, len(tasks))
 
     def test_deadlines(self):
         """Test deadlines."""
@@ -39,7 +39,7 @@ class ThingsCase(unittest.TestCase):
     def test_today(self):
         """Test today."""
         tasks = things.today(**FILEPATH)
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(2, len(tasks))
 
     def test_checklist(self):
         """Test checklist."""
@@ -51,7 +51,7 @@ class ThingsCase(unittest.TestCase):
     def test_anytime(self):
         """Test anytime."""
         tasks = things.anytime(**FILEPATH)
-        self.assertEqual(10, len(tasks))
+        self.assertEqual(11, len(tasks))
         self.assertTrue(any(task.pop('area_title', '') == 'Area 1' for task in tasks))
 
     def test_logbook(self):
@@ -86,7 +86,7 @@ class ThingsCase(unittest.TestCase):
     def test_todos(self):
         """Test all tasks."""
         tasks = things.todos(start="Anytime", **FILEPATH)
-        self.assertEqual(7, len(tasks))
+        self.assertEqual(8, len(tasks))
         tasks = things.todos(start="Anytime", status="completed", **FILEPATH)
         self.assertEqual(6, len(tasks))
         tasks = things.todos(status="completed", **FILEPATH)
@@ -96,12 +96,15 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value", **FILEPATH)
         tasks = things.tasks("A2oPvtt4dXoypeoLc8uYzY", **FILEPATH)
-        self.assertEqual(14, len(tasks))
+        self.assertEqual(16, len(tasks))
 
     def test_tags(self):
         """Test all tags."""
         tags = things.tags(**FILEPATH)
         self.assertEqual(5, len(tags))
+        tasks = things.tasks(tag='Errand', **FILEPATH)
+        self.assertEqual(1, len(tasks))
+
 
     def test_projects(self):
         """Test all projects."""
