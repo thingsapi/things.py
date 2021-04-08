@@ -20,5 +20,5 @@ jobs:
               env:
                   PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
               run: |
-                  pip install wheel
+                  pip install wheel twine
                   make upload
