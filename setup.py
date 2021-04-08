@@ -20,7 +20,7 @@ AUTHOR = "Alexander Willner, Michael B."
 AUTHOR_MAIL = "alex@willner.ws"
 DESCRIPTON = "A simple Python 3 library to read your Things app data."
 URL = "https://github.com/thingsapi/things.py"
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 DATA_FILES = package_files("")
 OPTIONS = {
     "argv_emulation": False,
