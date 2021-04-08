@@ -91,7 +91,10 @@ feedback: ## Give feedback
 
 upload: clean ## Upload the code
 	@$(PYTHON) setup.py sdist bdist_wheel
-	@$(PYTHON) -m twine upload dist/things.py*
+	@echo "########################"
+	@echo "Using environment variable PYPI_API_TOKEN..."
+	@echo "########################"
+	@$(PYTHON) -m twine upload dist/things.py* -u __token__ -p "${PYPI_API_TOKEN}"
 
 copy-db:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
