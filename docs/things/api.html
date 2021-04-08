@@ -525,7 +525,7 @@
 <span class="sd">    list of dict</span>
 <span class="sd">        Representing checklist items. Or [] if none found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
 
 
 <span class="c1"># Filter by collections in the Things app sidebar.</span>
@@ -1414,7 +1414,7 @@ heading, or area is matched.</p>
 <span class="sd">    list of dict</span>
 <span class="sd">        Representing checklist items. Or [] if none found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
 </pre></div>
 
         </details>
