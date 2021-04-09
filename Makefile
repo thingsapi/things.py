@@ -9,6 +9,8 @@ PIP=pip3
 PIPENV=pipenv
 PDOC=pdoc
 
+DATE:=$(shell date +"%Y-%M-%d")
+
 help: ## Print help for each target
 	$(info Things low-level Python API.)
 	$(info ============================)
@@ -89,8 +91,14 @@ deps-install: ## Install the dependencies
 feedback: ## Give feedback
 	@open https://github.com/thingsapi/things.py/issues
 
-upload: clean ## Upload the code
+release: build ## Create a new release
+	@type gh >/dev/null 2>&1 || (echo "Run e.g. 'brew install gh' first." >&2 ; exit 1)
+	@gh release create "v$(VERSION)" -t "$(VERSION) - $(DATE)" 'dist/$(MAIN).py-$(VERSION).tar.gz'
+
+build: clean ## Build the code
 	@$(PYTHON) setup.py sdist bdist_wheel
+
+upload: build ## Upload the code
 	@echo "########################"
 	@echo "Using environment variable PYPI_API_TOKEN..."
 	@echo "########################"
