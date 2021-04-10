@@ -23,7 +23,7 @@ jobs:
       run: |
         pip install black pycodestyle pylama pylint flake8 mypy
         npm install pyright
-        # make lint # doesn't currenty pass
+        make lint
     - name: Run tests
       run: |
         pip install coverage

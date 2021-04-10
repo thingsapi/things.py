@@ -123,7 +123,7 @@ class Database:
 
     # Core methods
 
-    def get_tasks(
+    def get_tasks(  # pylint: disable=C0330,R0914
         self,  # pylint: disable=R0914
         uuid=None,
         type=None,  # pylint: disable=W0622
@@ -283,7 +283,7 @@ class Database:
             valid_tags = self.get_tags(titles_only=True)
             validate("tag", tag, [None] + list(valid_tags))
 
-        if (
+        if (  # pylint: disable=C0330
             uuid
             and count_only is False
             and not self.get_areas(uuid=uuid, count_only=True)
