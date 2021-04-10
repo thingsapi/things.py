@@ -127,9 +127,6 @@
                                 <a class="variable" href="#Database.debug">debug</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Database.filter">filter</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Database.get_tasks">get_tasks</a>
                         </li>
                         <li>
@@ -191,9 +188,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Database.get_not_implemented">get_not_implemented</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Database.functions">functions</a>
                         </li>
                 </ul>
 
@@ -284,8 +278,17 @@ and SQL database whenever possible.</p>
 
 <span class="n">INDICES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;todayIndex&quot;</span><span class="p">)</span>
 
-<span class="n">COLUMNS_TO_OMIT_IF_NONE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;area_title&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;project_title&quot;</span><span class="p">,</span>
-                           <span class="s2">&quot;heading&quot;</span><span class="p">,</span> <span class="s2">&quot;heading_title&quot;</span><span class="p">,</span> <span class="s2">&quot;trashed&quot;</span><span class="p">,</span> <span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">)</span>
+<span class="n">COLUMNS_TO_OMIT_IF_NONE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;area_title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project_title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;heading&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;heading_title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;trashed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;checklist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tags&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">COLUMNS_TO_TRANSFORM_TO_BOOL</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;trashed&quot;</span><span class="p">,</span> <span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">)</span>
 
 
@@ -335,11 +338,10 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># Variables</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="nb">filter</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -353,20 +355,22 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># Core methods</span>
 
-    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
-                  <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
-                  <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
-                  <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
+        <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
         <span class="c1"># Overwrites</span>
@@ -477,7 +481,7 @@ and SQL database whenever possible.</p>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
 <span class="s2">                TASK.&#39;index&#39;,</span>
-<span class="s2">                TASK.todayIndex</span>
+<span class="s2">                TASK.todayIndex AS today_index</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -496,12 +500,11 @@ and SQL database whenever possible.</p>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_CHECKLIST_ITEM</span><span class="si">}</span><span class="s2"> CHECKLIST_ITEM</span>
 <span class="s2">                ON CHECKLIST_ITEM.task = TASK.uuid</span>
 <span class="s2">            WHERE</span>
-<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">where_predicate</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_task_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">where_predicate</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE clauses.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE predicate.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_task_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -512,7 +515,11 @@ and SQL database whenever possible.</p>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">uuid</span> <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">uuid</span>
+            <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such area uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Query</span>
@@ -588,10 +595,7 @@ and SQL database whenever possible.</p>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
-<span class="s2">                uuid,</span>
-<span class="s2">                &#39;tag&#39; AS type,</span>
-<span class="s2">                title,</span>
-<span class="s2">                shortcut</span>
+<span class="s2">                uuid, &#39;tag&#39; AS type, title, shortcut</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TAG</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            WHERE</span>
@@ -868,17 +872,6 @@ and SQL database whenever possible.</p>
         <span class="sd">&quot;&quot;&quot;Not implemented warning.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;not implemented&quot;</span><span class="p">}]</span>
 
-    <span class="n">functions</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;trashed&quot;</span><span class="p">:</span> <span class="n">get_trashed</span><span class="p">,</span>
-        <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="n">get_areas</span><span class="p">,</span>
-        <span class="s2">&quot;lint&quot;</span><span class="p">:</span> <span class="n">get_lint</span><span class="p">,</span>
-        <span class="s2">&quot;empty&quot;</span><span class="p">:</span> <span class="n">get_empty_projects</span><span class="p">,</span>
-        <span class="s2">&quot;cleanup&quot;</span><span class="p">:</span> <span class="n">get_cleanup</span><span class="p">,</span>
-        <span class="s2">&quot;top-proj&quot;</span><span class="p">:</span> <span class="n">get_largest_projects</span><span class="p">,</span>
-        <span class="s2">&quot;stats-day&quot;</span><span class="p">:</span> <span class="n">get_daystats</span><span class="p">,</span>
-        <span class="s2">&quot;stats-min-today&quot;</span><span class="p">:</span> <span class="n">get_minutes_today</span><span class="p">,</span>
-    <span class="p">}</span>
-
 
 <span class="c1"># Helper functions</span>
 
@@ -909,7 +902,10 @@ and SQL database whenever possible.</p>
 
 
 <span class="k">def</span> <span class="nf">make_filter</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Filter SQL query by AND {column} = &quot;{value}&quot;.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
+
+<span class="sd">    Special handling if `value` is `bool` or `None`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> = &quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
     <span class="c1"># special options</span>
     <span class="k">return</span> <span class="p">{</span>
@@ -944,7 +940,7 @@ and SQL database whenever possible.</p>
 <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given parameter, check if its argument type is valid.</span>
-<span class="sd">    If not, then raise ValueError.</span>
+<span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -1020,11 +1016,10 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># Variables</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="nb">filter</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -1038,20 +1033,22 @@ and SQL database whenever possible.</p>
 
     <span class="c1"># Core methods</span>
 
-    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
-                  <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
-                  <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
-                  <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
+        <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
         <span class="c1"># Overwrites</span>
@@ -1162,7 +1159,7 @@ and SQL database whenever possible.</p>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
 <span class="s2">                TASK.&#39;index&#39;,</span>
-<span class="s2">                TASK.todayIndex</span>
+<span class="s2">                TASK.todayIndex AS today_index</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -1181,12 +1178,11 @@ and SQL database whenever possible.</p>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_CHECKLIST_ITEM</span><span class="si">}</span><span class="s2"> CHECKLIST_ITEM</span>
 <span class="s2">                ON CHECKLIST_ITEM.task = TASK.uuid</span>
 <span class="s2">            WHERE</span>
-<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">where_predicate</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_task_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">where_predicate</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE clauses.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE predicate.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_task_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1197,7 +1193,11 @@ and SQL database whenever possible.</p>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">uuid</span> <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">uuid</span>
+            <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such area uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Query</span>
@@ -1273,10 +1273,7 @@ and SQL database whenever possible.</p>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
-<span class="s2">                uuid,</span>
-<span class="s2">                &#39;tag&#39; AS type,</span>
-<span class="s2">                title,</span>
-<span class="s2">                shortcut</span>
+<span class="s2">                uuid, &#39;tag&#39; AS type, title, shortcut</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TAG</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            WHERE</span>
@@ -1552,17 +1549,6 @@ and SQL database whenever possible.</p>
     <span class="k">def</span> <span class="nf">get_not_implemented</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;Not implemented warning.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;not implemented&quot;</span><span class="p">}]</span>
-
-    <span class="n">functions</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;trashed&quot;</span><span class="p">:</span> <span class="n">get_trashed</span><span class="p">,</span>
-        <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="n">get_areas</span><span class="p">,</span>
-        <span class="s2">&quot;lint&quot;</span><span class="p">:</span> <span class="n">get_lint</span><span class="p">,</span>
-        <span class="s2">&quot;empty&quot;</span><span class="p">:</span> <span class="n">get_empty_projects</span><span class="p">,</span>
-        <span class="s2">&quot;cleanup&quot;</span><span class="p">:</span> <span class="n">get_cleanup</span><span class="p">,</span>
-        <span class="s2">&quot;top-proj&quot;</span><span class="p">:</span> <span class="n">get_largest_projects</span><span class="p">,</span>
-        <span class="s2">&quot;stats-day&quot;</span><span class="p">:</span> <span class="n">get_daystats</span><span class="p">,</span>
-        <span class="s2">&quot;stats-min-today&quot;</span><span class="p">:</span> <span class="n">get_minutes_today</span><span class="p">,</span>
-    <span class="p">}</span>
 </pre></div>
 
         </details>
@@ -1589,7 +1575,7 @@ If no path is provided, then access the default database path.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;THINGSDB&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_DATABASE_FILEPATH</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
         <span class="c1"># --------------------------------</span>
@@ -1886,15 +1872,6 @@ If no path is provided, then access the default database path.</li>
     
 
                             </div>
-                            <div id="Database.filter" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Database.filter">#&nbsp;&nbsp</a>
-
-        <span class="name">filter</span><span class="default_value"> = &#39;&#39;</span>
-    </div>
-
-    
-
-                            </div>
                             <div id="Database.get_tasks" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Database.get_tasks">#&nbsp;&nbsp</a>
 
@@ -1920,20 +1897,22 @@ If no path is provided, then access the default database path.</li>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
-                  <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
-                  <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
-                  <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0914</span>
+        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=W0622</span>
+        <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">heading</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
         <span class="c1"># Overwrites</span>
@@ -2062,7 +2041,7 @@ If no path is provided, then access the default database path.</li>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_MOD</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
 <span class="s2">                TASK.&#39;index&#39;,</span>
-<span class="s2">                TASK.todayIndex</span>
+<span class="s2">                TASK.todayIndex AS today_index</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> AS TASK</span>
 <span class="s2">            LEFT OUTER JOIN</span>
@@ -2081,7 +2060,6 @@ If no path is provided, then access the default database path.</li>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_CHECKLIST_ITEM</span><span class="si">}</span><span class="s2"> CHECKLIST_ITEM</span>
 <span class="s2">                ON CHECKLIST_ITEM.task = TASK.uuid</span>
 <span class="s2">            WHERE</span>
-<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">where_predicate</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
 </pre></div>
@@ -2104,13 +2082,13 @@ If no path is provided, then access the default database path.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_task_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">where_predicate</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE clauses.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Executes SQL query with given WHERE predicate.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_task_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Executes SQL query with given WHERE clauses.</p>
+            <div class="docstring"><p>Executes SQL query with given WHERE predicate.</p>
 </div>
 
 
@@ -2133,7 +2111,11 @@ If no path is provided, then access the default database path.</li>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">uuid</span> <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">uuid</span>
+            <span class="ow">and</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such area uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Query</span>
@@ -2245,10 +2227,7 @@ If no path is provided, then access the default database path.</li>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
-<span class="s2">                uuid,</span>
-<span class="s2">                &#39;tag&#39; AS type,</span>
-<span class="s2">                title,</span>
-<span class="s2">                shortcut</span>
+<span class="s2">                uuid, &#39;tag&#39; AS type, title, shortcut</span>
 <span class="s2">            FROM</span>
 <span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_TAG</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            WHERE</span>
@@ -2801,15 +2780,6 @@ If no path is provided, then access the default database path.</li>
 
 
                             </div>
-                            <div id="Database.functions" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Database.functions">#&nbsp;&nbsp</a>
-
-        <span class="name">functions</span><span class="default_value"> = {&#39;trashed&#39;: &lt;function <a href="#Database.get_trashed">Database.get_trashed</a> at 0x7feb9151aa60&gt;, &#39;areas&#39;: &lt;function <a href="#Database.get_areas">Database.get_areas</a> at 0x7feb9151a4c0&gt;, &#39;lint&#39;: &lt;function <a href="#Database.get_lint">Database.get_lint</a> at 0x7feb9151aaf0&gt;, &#39;empty&#39;: &lt;function <a href="#Database.get_empty_projects">Database.get_empty_projects</a> at 0x7feb9151ab80&gt;, &#39;cleanup&#39;: &lt;function <a href="#Database.get_cleanup">Database.get_cleanup</a> at 0x7feb9151adc0&gt;, &#39;top-proj&#39;: &lt;function <a href="#Database.get_largest_projects">Database.get_largest_projects</a> at 0x7feb9151ac10&gt;, &#39;stats-day&#39;: &lt;function <a href="#Database.get_daystats">Database.get_daystats</a> at 0x7feb9151aca0&gt;, &#39;stats-min-today&#39;: &lt;function <a href="#Database.get_minutes_today">Database.get_minutes_today</a> at 0x7feb9151ad30&gt;}</span>
-    </div>
-
-    
-
-                            </div>
                 </section>
                 <section id="dict_factory">
                             <div class="attr function"><a class="headerlink" href="#dict_factory">#&nbsp;&nbsp</a>
@@ -2884,7 +2854,10 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_filter</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Filter SQL query by AND {column} = &quot;{value}&quot;.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
+
+<span class="sd">    Special handling if `value` is `bool` or `None`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> = &quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
     <span class="c1"># special options</span>
     <span class="k">return</span> <span class="p">{</span>
@@ -2896,7 +2869,9 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
 
         </details>
 
-            <div class="docstring"><p>Filter SQL query by AND {column} = "{value}".</p>
+            <div class="docstring"><p>Return SQL filter 'AND {column} = "{value}"'.</p>
+
+<p>Special handling if <code>value</code> is <code>bool</code> or <code>None</code>.</p>
 </div>
 
 
@@ -2961,7 +2936,7 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given parameter, check if its argument type is valid.</span>
-<span class="sd">    If not, then raise ValueError.</span>
+<span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -2981,7 +2956,7 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
         </details>
 
             <div class="docstring"><p>For a given parameter, check if its argument type is valid.
-If not, then raise ValueError.</p>
+If not, then raise <code>ValueError</code>.</p>
 
 <h6 id="example">Example</h6>
 

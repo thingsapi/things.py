@@ -43,16 +43,16 @@ class ThingsCase(unittest.TestCase):
 
     def test_checklist(self):
         """Test checklist."""
-        tasks = things.checklist_items('3Eva4XFof6zWb9iSfYy4ej', **FILEPATH)
+        tasks = things.checklist_items("3Eva4XFof6zWb9iSfYy4ej", **FILEPATH)
         self.assertEqual(3, len(tasks))
-        tasks = things.checklist_items('K9bx7h1xCJdevvyWardZDq', **FILEPATH)
+        tasks = things.checklist_items("K9bx7h1xCJdevvyWardZDq", **FILEPATH)
         self.assertEqual(0, len(tasks))
 
     def test_anytime(self):
         """Test anytime."""
         tasks = things.anytime(**FILEPATH)
         self.assertEqual(11, len(tasks))
-        self.assertTrue(any(task.pop('area_title', '') == 'Area 1' for task in tasks))
+        self.assertTrue(any(task.get("area_title") == "Area 1" for task in tasks))
 
     def test_logbook(self):
         """Test logbook."""
@@ -102,9 +102,8 @@ class ThingsCase(unittest.TestCase):
         """Test all tags."""
         tags = things.tags(**FILEPATH)
         self.assertEqual(5, len(tags))
-        tasks = things.tasks(tag='Errand', **FILEPATH)
+        tasks = things.tasks(tag="Errand", **FILEPATH)
         self.assertEqual(1, len(tasks))
-
 
     def test_projects(self):
         """Test all projects."""
