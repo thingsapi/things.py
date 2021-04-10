@@ -5,7 +5,7 @@ env:
   CI: true
 
 jobs:
-  test:
+  make-doc:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git commit -m "Updated docs" -a
+        git diff-index --quiet HEAD || git commit -m "Updated docs" -a
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:

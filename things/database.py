@@ -46,8 +46,17 @@ TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type =
 
 INDICES = ("index", "todayIndex")
 
-COLUMNS_TO_OMIT_IF_NONE = ("area", "area_title", "project", "project_title",
-                           "heading", "heading_title", "trashed", "checklist", "tags")
+COLUMNS_TO_OMIT_IF_NONE = (
+    "area",
+    "area_title",
+    "project",
+    "project_title",
+    "heading",
+    "heading_title",
+    "trashed",
+    "checklist",
+    "tags",
+)
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("trashed", "checklist", "tags")
 
 
@@ -97,11 +106,10 @@ class Database:
 
     # Variables
     debug = False
-    filter = ""
 
     # pylint: disable=R0913
     def __init__(self, filepath=None):
-        self.filepath = filepath or os.environ.get("THINGSDB") or DEFAULT_DATABASE_FILEPATH
+        self.filepath = filepath or os.getenv("THINGSDB") or DEFAULT_DATABASE_FILEPATH
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -115,20 +123,22 @@ class Database:
 
     # Core methods
 
-    def get_tasks(self,  # pylint: disable=R0914
-                  uuid=None,
-                  type=None,  # pylint: disable=W0622
-                  status=None,
-                  start=None,
-                  area=None,
-                  project=None,
-                  heading=None,
-                  tag=None,
-                  start_date=None,
-                  deadline=None,
-                  index="index",
-                  count_only=False,
-                  search_query=None):
+    def get_tasks(  # pylint: disable=R0914
+        self,
+        uuid=None,
+        type=None,  # pylint: disable=W0622
+        status=None,
+        start=None,
+        area=None,
+        project=None,
+        heading=None,
+        tag=None,
+        start_date=None,
+        deadline=None,
+        index="index",
+        count_only=False,
+        search_query=None,
+    ):
         """Get tasks. See `api.tasks` for details on parameters."""
 
         # Overwrites
@@ -239,7 +249,7 @@ class Database:
                 datetime(TASK.{self.DATE_CREATE}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{self.DATE_MOD}, "unixepoch", "localtime") AS modified,
                 TASK.'index',
-                TASK.todayIndex
+                TASK.todayIndex AS today_index
             FROM
                 {self.TABLE_TASK} AS TASK
             LEFT OUTER JOIN
@@ -258,12 +268,11 @@ class Database:
                 {self.TABLE_CHECKLIST_ITEM} CHECKLIST_ITEM
                 ON CHECKLIST_ITEM.task = TASK.uuid
             WHERE
-                {self.filter}
                 {where_predicate}
             """
 
     def get_task_rows(self, where_predicate):
-        """Executes SQL query with given WHERE clauses."""
+        """Executes SQL query with given WHERE predicate."""
         return self.execute_query(self.make_task_sql_query(where_predicate))
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
@@ -274,7 +283,11 @@ class Database:
             valid_tags = self.get_tags(titles_only=True)
             validate("tag", tag, [None] + list(valid_tags))
 
-        if (uuid and count_only is False and not self.get_areas(uuid=uuid, count_only=True)):
+        if (
+            uuid
+            and count_only is False
+            and not self.get_areas(uuid=uuid, count_only=True)
+        ):
             raise ValueError(f"No such area uuid found: {uuid!r}")
 
         # Query
@@ -350,10 +363,7 @@ class Database:
 
         sql_query = f"""
             SELECT
-                uuid,
-                'tag' AS type,
-                title,
-                shortcut
+                uuid, 'tag' AS type, title, shortcut
             FROM
                 {self.TABLE_TAG}
             WHERE
@@ -630,17 +640,6 @@ class Database:
         """Not implemented warning."""
         return [{"title": "not implemented"}]
 
-    functions = {
-        "trashed": get_trashed,
-        "areas": get_areas,
-        "lint": get_lint,
-        "empty": get_empty_projects,
-        "cleanup": get_cleanup,
-        "top-proj": get_largest_projects,
-        "stats-day": get_daystats,
-        "stats-min-today": get_minutes_today,
-    }
-
 
 # Helper functions
 
@@ -671,7 +670,10 @@ def list_factory(_cursor, row):
 
 
 def make_filter(column, value):
-    """Filter SQL query by AND {column} = "{value}"."""
+    """Return SQL filter 'AND {column} = "{value}"'.
+
+    Special handling if `value` is `bool` or `None`.
+    """
     default = f'AND {column} = "{value}"'
     # special options
     return {
@@ -706,7 +708,7 @@ def make_search_filter(query: str) -> str:
 def validate(parameter, argument, valid_arguments):
     """
     For a given parameter, check if its argument type is valid.
-    If not, then raise ValueError.
+    If not, then raise `ValueError`.
 
     Example
     -------
