@@ -685,12 +685,21 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(create_var, last):
+def make_date_filter(create_var_name, last):
+    """Returns SQL filter to limit date range of the SQL query.
+
+    Args:
+        create_var_name (string): Name of the column that has information on when each task was created.
+        last (string): A string comprised of an integer and a single character that can be 'd' or 'w' that determines whether to return all tasks for the past X days or weeks.
+
+    Returns:
+        string: A string to add into the filter for the SQL query.
+    """
     if (type(last) is str):
         if last[-1] == "d":
-            return f'AND datetime(TASK.{create_var}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])} days") AND datetime("now", "localtime")'
+            return f'AND datetime(TASK.{create_var_name}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])} days") AND datetime("now", "localtime")'
         elif last[-1] == "w":
-            return f'AND datetime(TASK.{create_var}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])*7} days") AND datetime("now", "localtime")'
+            return f'AND datetime(TASK.{create_var_name}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])*7} days") AND datetime("now", "localtime")'
         else:
             print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
     else:
