@@ -694,7 +694,10 @@ def make_date_filter(create_var, last):
         else:
             print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
     else:
-        print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
+        if last:
+            print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
+        else:
+            return ""
 
 
 def make_search_filter(query: str) -> str:

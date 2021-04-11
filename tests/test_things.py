@@ -120,6 +120,11 @@ class ThingsCase(unittest.TestCase):
         version = things.Database(**FILEPATH).get_version()
         self.assertEqual(18, version)
 
+    def test_last(self):
+        """Test last parameter"""
+        lastToDos = things.Database(**FILEPATH).get_tasks(last="1d")
+        self.assertEqual(len(lastToDos), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
