@@ -138,6 +138,7 @@ class Database:
         index="index",
         count_only=False,
         search_query=None,
+        last=None,
     ):
         """Get tasks. See `api.tasks` for details on parameters."""
 
@@ -185,6 +186,7 @@ class Database:
                     {make_filter(f"TASK.{self.DATE_DEADLINE}", deadline)}
                     {make_filter("TAG.title", tag)}
                     {make_search_filter(search_query)}
+                    {make_date_filter(self.DATE_CREATE, last)}
                     ORDER BY TASK."{index}"
                     """
 
@@ -681,6 +683,18 @@ def make_filter(column, value):
         False: f"AND {column} IS NULL",
         True: f"AND {column} IS NOT NULL",
     }.get(value, default)
+
+
+def make_date_filter(create_var, last):
+    if type(last) is str:
+        if last[-1] == "d":
+            return f'AND datetime(TASK.{create_var}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])} days") AND datetime("now", "localtime")'
+        elif last[-1] == "w":
+            return f'AND datetime(TASK.{create_var}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])} weeks") AND datetime("now", "localtime")'
+        else:
+            print("Please specify last as a two character string of the format 'Xd' where 'X' is an integer and 'd' states that it is measured in days")    
+    else:
+        print("Please specify last as a string of the format 'Xd' where X is an integer and 'd' states that it is measured in days")    
 
 
 def make_search_filter(query: str) -> str:
