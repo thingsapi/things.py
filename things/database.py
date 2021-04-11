@@ -279,7 +279,7 @@ class Database:
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
-
+    
         # Validation
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
