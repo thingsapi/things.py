@@ -14,6 +14,12 @@ FILEPATH = dict(filepath="tests/main.sqlite")
 class ThingsCase(unittest.TestCase):
     """Class documentation goes here."""
 
+    def test_get_api_token(self):
+        """Test get API token."""
+        expected = "vKkylosuSuGwxrz7qcklOw"
+        token = things.token(**FILEPATH)
+        self.assertEqual(token, expected)
+
     def test_search(self):
         """Test search."""
         tasks = things.search("wrong_query", **FILEPATH)
