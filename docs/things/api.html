@@ -79,6 +79,9 @@
                     <a class="function" href="#deadlines">deadlines</a>
             </li>
             <li>
+                    <a class="function" href="#token">token</a>
+            </li>
+            <li>
                     <a class="function" href="#link">link</a>
             </li>
             <li>
@@ -638,6 +641,17 @@
 
 
 <span class="c1"># Interact with Things app</span>
+
+<span class="k">def</span> <span class="nf">token</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the API token.</span>
+
+<span class="sd">    See &lt;a href=&quot;https://culturedcode.com/things/support/articles/2803573/&quot;&gt;</span>
+<span class="sd">    Things URL Scheme&lt;/a&gt; for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
@@ -1705,6 +1719,38 @@ See the <code>deadline</code> function instead.</p>
             <div class="docstring"><p>Read tasks with deadlines into dicts.</p>
 
 <p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+</div>
+
+
+                </section>
+                <section id="token">
+                            <div class="attr function"><a class="headerlink" href="#token">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">token</span><span class="signature">(**kwargs) -&gt; str</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">token</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the API token.</span>
+
+<span class="sd">    See &lt;a href=&quot;https://culturedcode.com/things/support/articles/2803573/&quot;&gt;</span>
+<span class="sd">    Things URL Scheme&lt;/a&gt; for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Returns the API token.</p>
+
+<p>See <a href="https://culturedcode.com/things/support/articles/2803573/">
+Things URL Scheme</a> for details.</p>
 </div>
 
 

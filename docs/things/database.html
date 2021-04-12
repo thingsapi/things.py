@@ -55,6 +55,9 @@
                                 <a class="variable" href="#Database.TABLE_META">TABLE_META</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Database.TABLE_SETTINGS">TABLE_SETTINGS</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Database.DATE_CREATE">DATE_CREATE</a>
                         </li>
                         <li>
@@ -152,6 +155,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Database.get_version">get_version</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Database.get_api_token">get_api_token</a>
                         </li>
                         <li>
                                 <a class="function" href="#Database.get_count">get_count</a>
@@ -312,6 +318,7 @@ and SQL database whenever possible.</p>
     <span class="n">TABLE_AREATAG</span> <span class="o">=</span> <span class="s2">&quot;TMAreaTag&quot;</span>
     <span class="n">TABLE_CHECKLIST_ITEM</span> <span class="o">=</span> <span class="s2">&quot;TMChecklistItem&quot;</span>
     <span class="n">TABLE_META</span> <span class="o">=</span> <span class="s2">&quot;Meta&quot;</span>
+    <span class="n">TABLE_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;TMSettings&quot;</span>
     <span class="n">DATE_CREATE</span> <span class="o">=</span> <span class="s2">&quot;creationDate&quot;</span>
     <span class="n">DATE_MOD</span> <span class="o">=</span> <span class="s2">&quot;userModificationDate&quot;</span>
     <span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;dueDate&quot;</span>
@@ -646,6 +653,21 @@ and SQL database whenever possible.</p>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="n">plist_bytes</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plistlib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">plist_bytes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_api_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Things API token.&quot;&quot;&quot;</span>
+
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                uriSchemeAuthenticationToken</span>
+<span class="s2">            FROM</span>
+<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_SETTINGS</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            WHERE</span>
+<span class="s2">                uuid = &#39;RhAzEf6qDxCD5PmnZVtBZR&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Count number of results.&quot;&quot;&quot;</span>
@@ -990,6 +1012,7 @@ and SQL database whenever possible.</p>
     <span class="n">TABLE_AREATAG</span> <span class="o">=</span> <span class="s2">&quot;TMAreaTag&quot;</span>
     <span class="n">TABLE_CHECKLIST_ITEM</span> <span class="o">=</span> <span class="s2">&quot;TMChecklistItem&quot;</span>
     <span class="n">TABLE_META</span> <span class="o">=</span> <span class="s2">&quot;Meta&quot;</span>
+    <span class="n">TABLE_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;TMSettings&quot;</span>
     <span class="n">DATE_CREATE</span> <span class="o">=</span> <span class="s2">&quot;creationDate&quot;</span>
     <span class="n">DATE_MOD</span> <span class="o">=</span> <span class="s2">&quot;userModificationDate&quot;</span>
     <span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;dueDate&quot;</span>
@@ -1325,6 +1348,21 @@ and SQL database whenever possible.</p>
         <span class="n">plist_bytes</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plistlib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">plist_bytes</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">get_api_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Things API token.&quot;&quot;&quot;</span>
+
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                uriSchemeAuthenticationToken</span>
+<span class="s2">            FROM</span>
+<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_SETTINGS</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            WHERE</span>
+<span class="s2">                uuid = &#39;RhAzEf6qDxCD5PmnZVtBZR&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Count number of results.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="si">{</span><span class="n">sql</span><span class="si">}</span><span class="s2">)&quot;&quot;&quot;</span>
@@ -1651,6 +1689,15 @@ If no path is provided, then access the default database path.</li>
                                             <div class="attr variable"><a class="headerlink" href="#Database.TABLE_META">#&nbsp;&nbsp</a>
 
         <span class="name">TABLE_META</span><span class="default_value"> = &#39;Meta&#39;</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Database.TABLE_SETTINGS" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Database.TABLE_SETTINGS">#&nbsp;&nbsp</a>
+
+        <span class="name">TABLE_SETTINGS</span><span class="default_value"> = &#39;TMSettings&#39;</span>
     </div>
 
     
@@ -2337,6 +2384,39 @@ If no path is provided, then access the default database path.</li>
         </details>
 
             <div class="docstring"><p>Get Things Database version.</p>
+</div>
+
+
+                            </div>
+                            <div id="Database.get_api_token" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Database.get_api_token">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_api_token</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_api_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Things API token.&quot;&quot;&quot;</span>
+
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                uriSchemeAuthenticationToken</span>
+<span class="s2">            FROM</span>
+<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">TABLE_SETTINGS</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            WHERE</span>
+<span class="s2">                uuid = &#39;RhAzEf6qDxCD5PmnZVtBZR&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get Things API token.</p>
 </div>
 
 
