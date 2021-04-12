@@ -702,7 +702,7 @@ def make_date_filter(created_column, offset):
         )
 
     suffix = offset[-1]
-    if not suffix in ("d", "w"):
+    if suffix not in ("d", "w"):
         raise ValueError(
             "Please specify last as a string of the format 'X[d/w]' where X is a non-negative integer followed by 'd' or 'w' that indicates days or weeks."
         )
