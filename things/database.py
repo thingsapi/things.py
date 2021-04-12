@@ -419,7 +419,14 @@ class Database:
     def get_api_token(self):
         """Get Things API token."""
 
-        sql_query = f"SELECT uriSchemeAuthenticationToken FROM {self.TABLE_SETTINGS} WHERE uuid = 'RhAzEf6qDxCD5PmnZVtBZR'"
+        sql_query = f"""
+            SELECT
+                uriSchemeAuthenticationToken
+            FROM
+                {self.TABLE_SETTINGS}
+            WHERE
+                uuid = 'RhAzEf6qDxCD5PmnZVtBZR'
+            """
         result = self.execute_query(sql_query, row_factory=list_factory)
 
         return result[0]
