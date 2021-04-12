@@ -19,11 +19,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv
         make deps-install
-    - name: Run lint
-      run: |
-        pip install black pycodestyle pylama pylint flake8 mypy
-        npm install pyright
-        make lint
     - name: Run tests
       run: |
         pip install coverage
@@ -32,3 +27,8 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         fail_ci_if_error: true
+    - name: Run lint
+      run: |
+        pip install black pycodestyle pylama pylint flake8 mypy
+        npm install pyright
+        make lint
