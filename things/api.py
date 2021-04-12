@@ -4,8 +4,6 @@
 Module implementing Things API.
 """
 
-__version__ = "0.0.7"
-
 import os
 from shlex import quote
 import sys
