@@ -80,6 +80,7 @@ class Database:
     TABLE_AREATAG = "TMAreaTag"
     TABLE_CHECKLIST_ITEM = "TMChecklistItem"
     TABLE_META = "Meta"
+    TABLE_SETTINGS = "TMSettings"
     DATE_CREATE = "creationDate"
     DATE_MOD = "userModificationDate"
     DATE_DEADLINE = "dueDate"
@@ -414,6 +415,14 @@ class Database:
         result = self.execute_query(sql_query, row_factory=list_factory)
         plist_bytes = result[0].encode()
         return plistlib.loads(plist_bytes)
+
+    def get_api_token(self):
+        """Get Things API token."""
+
+        sql_query = f"SELECT uriSchemeAuthenticationToken FROM {self.TABLE_SETTINGS} WHERE uuid = 'RhAzEf6qDxCD5PmnZVtBZR'"
+        result = self.execute_query(sql_query, row_factory=list_factory)
+
+        return result[0]
 
     def get_count(self, sql):
         """Count number of results."""

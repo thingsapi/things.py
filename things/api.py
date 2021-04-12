@@ -530,6 +530,14 @@ def deadlines(**kwargs):
 
 # Interact with Things app
 
+def token(**kwargs) -> str:
+    """
+    Returns the API token.
+    """
+    database = pop_database(kwargs)
+
+    return database.get_api_token()
+
 
 def link(uuid):
     """
