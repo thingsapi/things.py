@@ -94,7 +94,7 @@ feedback: ## Give feedback
 
 release: build ## Create a new release
 	@type gh >/dev/null 2>&1 || (echo "Run e.g. 'brew install gh' first." >&2 ; exit 1)
-	@gh release create "v$(VERSION)" -t "$(VERSION) - $(DATE)" 'dist/$(MAIN).py-$(VERSION).tar.gz'
+	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN).py-$(VERSION).tar.gz'
 
 build: clean ## Build the code
 	@$(PYTHON) setup.py sdist bdist_wheel
