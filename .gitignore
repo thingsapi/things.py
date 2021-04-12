@@ -13,3 +13,4 @@ package-lock.json
 .tox/
 package.json
 env
+.vscode

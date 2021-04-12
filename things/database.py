@@ -279,7 +279,7 @@ class Database:
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
-    
+
         # Validation
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
@@ -685,28 +685,38 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(create_var_name, last):
-    """Returns SQL filter to limit date range of the SQL query.
-
-    Args:
-        create_var_name (string): Name of the column that has information on when each task was created.
-        last (string): A string comprised of an integer and a single character that can be 'd' or 'w' that determines whether to return all tasks for the past X days or weeks.
-
-    Returns:
-        string: A string to add into the filter for the SQL query.
+def make_date_filter(created_column, offset):
     """
-    if (type(last) is str):
-        if last[-1] == "d":
-            return f'AND datetime(TASK.{create_var_name}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])} days") AND datetime("now", "localtime")'
-        elif last[-1] == "w":
-            return f'AND datetime(TASK.{create_var_name}, "unixepoch", "localtime") BETWEEN datetime("now", "-{int(last[:-1])*7} days") AND datetime("now", "localtime")'
-        else:
-            print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
-    else:
-        if last:
-            print("Please specify last as a string of the format 'Xd' where X is a non-negative integer and 'd' states that it is measured in days")    
-        else:
-            return ""
+    Returns SQL filter to limit date range of the SQL query.
+    """
+
+    # Offset not specified
+    if offset is None:
+        return ""
+
+    # Validation
+
+    if not isinstance(offset, str):
+        raise ValueError(
+            "Please specify last as a string of the format 'X[d/w]' where X is a non-negative integer followed by 'd' or 'w' that indicates days or weeks."
+        )
+
+    suffix = offset[-1]
+    if not suffix in ("d", "w"):
+        raise ValueError(
+            "Please specify last as a string of the format 'X[d/w]' where X is a non-negative integer followed by 'd' or 'w' that indicates days or weeks."
+        )
+
+    # Return
+
+    number = int(offset[:-1])
+
+    if suffix == "d":
+        modifier = f"-{number} days"
+    elif suffix == "w":
+        modifier = f"-{number*7} days"
+
+    return f"AND datetime(TASK.{created_column}, 'unixepoch', 'localtime') > datetime('now', '{modifier}')"
 
 
 def make_search_filter(query: str) -> str:
