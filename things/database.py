@@ -687,7 +687,22 @@ def make_filter(column, value):
 
 def make_date_filter(created_column, offset):
     """
-    Returns SQL filter to limit date range of the SQL query.
+    Returns SQL filter to limit the date range of the SQL query.
+
+    Parameters
+    ----------
+    created_column : str
+        Name of the column that has information on when each task was created.
+
+    offset : str or None
+        A string comprised of an integer and a single character that can be 'd'
+        or 'w' that determines whether to return all tasks for the past X days
+        or weeks.
+
+    Returns
+    -------
+    string
+        A string to add into the filter for the SQL query.
     """
 
     # Offset not specified
@@ -698,13 +713,15 @@ def make_date_filter(created_column, offset):
 
     if not isinstance(offset, str):
         raise ValueError(
-            "Please specify last as a string of the format 'X[d/w]' where X is a non-negative integer followed by 'd' or 'w' that indicates days or weeks."
+            f"Invalid last: {offset}\nPlease specify last as a string or None."
         )
 
     suffix = offset[-1]
     if suffix not in ("d", "w"):
         raise ValueError(
-            "Please specify last as a string of the format 'X[d/w]' where X is a non-negative integer followed by 'd' or 'w' that indicates days or weeks."
+            f"Invalid last: {offset}\nPlease specify last as a string of the format 'X[d/w]'"
+            "where X is a non-negative integer followed by 'd' or 'w' that indicates"
+            "days or weeks."
         )
 
     # Return
