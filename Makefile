@@ -1,4 +1,3 @@
-VERSION=0.0.7
 MAIN=things
 SRC_CORE=things
 SRC_TEST=tests
@@ -10,6 +9,7 @@ PIPENV=pipenv
 PDOC=pdoc
 
 DATE:=$(shell date +"%Y-%M-%d")
+VERSION=$(shell python3 -c 'import things; print(things.__version__)')
 
 help: ## Print help for each target
 	$(info Things low-level Python API.)
@@ -49,8 +49,9 @@ clean: ## Cleanup
 	@find . -name __pycache__ -delete
 	@rm -rf htmlcov
 	@rm -rf build dist *.egg-info
-	@rm -rf .mypy_cache/
+	@rm -rf .mypy_cache/ */.mypy_cache/
 	@rm -f .coverage
+	@rm -rf .tox
 
 auto-style: ## Style the code
 	@if type black >/dev/null 2>&1 ; then black $(SRC_CORE) ; \
