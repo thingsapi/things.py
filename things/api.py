@@ -533,6 +533,9 @@ def deadlines(**kwargs):
 def token(**kwargs) -> str:
     """
     Returns the API token.
+
+    See <a href="https://culturedcode.com/things/support/articles/2803573/">
+    Things URL Scheme</a> for details.
     """
     database = pop_database(kwargs)
 
