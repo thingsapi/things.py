@@ -701,8 +701,10 @@ def make_date_filter(created_column, offset):
 
     Returns
     -------
-    string
-        A string to add into the filter for the SQL query.
+    str
+        A date filter for the SQL query.
+    str (offset is None)
+        An empty string.
     """
 
     # Offset not specified
