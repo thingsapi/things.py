@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 
 """
-Module implementing Things API.
+Module implementing the Things API.
+
+The terms of the API aim to match those used in the Things app and
+Things URL Scheme. In some specific cases we instead choose to use terms
+that occur in the Things SQL database to closer reflect its underlying
+data structures. Whenever that happens, we define the new term here.
 """
 
 import os
 from shlex import quote
 import sys
-from typing import List, Dict
+from typing import Dict, List
 
-from .database import Database
+from things.database import Database
 
 
 # --------------------------------------------------
@@ -33,62 +38,65 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     uuid : str or None, optional
         Any valid task uuid. If None, then return all tasks matched.
 
-    include_items : boolean, default False
+    include_items : bool, default False
         Include items contained within a task. These might include
         checklist items, headings, and to-dos.
 
     type : {'to-do', 'heading', 'project', None}, optional
         Only return a specific type of task:
-
-        'to-do':    may have a checklist; may be in an area and have tags.
-        'project':  may have to-dos and headings; may be in an area and
-                    have tags.
-        'heading':  part of a project; groups tasks.
-         None:      return all types of tasks.
+        - `'to-do'`:    may have a checklist; may be in an area and have tags.
+        - `'project'`:  may have to-dos and headings; may be in an area and
+                        have tags.
+        - `'heading'`:  part of a project; groups tasks.
+        - `None` (default): return all types of tasks.
 
     status : {'incomplete', 'completed', 'canceled', None}, optional, \
         default 'incomplete'
 
-        Only include tasks matching that status. If the argument is `None`,
+        Only include tasks matching that status. If `status == None`,
         then include tasks with any status value.
 
     start : {'Inbox', 'Anytime', 'Someday', None}, optional
         Only include tasks matching that start value. If the argument is
         `None` (default), then include tasks with any start value.
 
-    area : str, bool, or None, optional
+    area : str or bool or None, optional
         Any valid uuid of an area. Only include tasks matching that area.
-        If the argument is `False`, only include tasks _without_ an area.
-        If the argument is `True`, only include tasks _with_ an area.
-        If the argument is `None` (default), then include all tasks.
+        Special cases:
+        - `area == False`, only include tasks _without_ an area.
+        - `area == True`, only include tasks _with_ an area.
+        - `area == None` (default), then include all tasks.
 
-    project : str or None, optional
+    project : str or bool or None, optional
         Any valid uuid of a project. Only include tasks matching that project.
-        If the argument is `False`, only include tasks _without_ a project.
-        If the argument is `True`, only include tasks _with_ a project.
-        If the argument is `None` (default), then include all tasks.
+        Special cases:
+        - `project == False`, only include tasks _without_ a project.
+        - `project == True`, only include tasks _with_ a project.
+        - `project == None` (default), then include all tasks.
 
     heading : str or None, optional
         Any valid uuid of a heading. Only include tasks matching that heading.
-        If the argument is `False`, only include tasks _without_ a heading.
-        If the argument is `True`, only include tasks _with_ a heading.
-        If the argument is `None` (default), then include all tasks.
+        Special cases:
+        - `heading == False`, only include tasks _without_ a heading.
+        - `heading == True`, only include tasks _with_ a heading.
+        - `heading == None` (default), then include all tasks.
 
-    tag : str or None, optional
+    tag : str or bool or None, optional
         Any valid title of a tag. Only include tasks matching that tag.
-        If the argument is `False`, only include tasks _without_ tags.
-        If the argument is `True`, only include tasks _with_ tags.
-        If the argument is `None` (default), then include all tasks.
+        Special cases:
+        - `tag == False`, only include tasks _without_ tags.
+        - `tag == True`, only include tasks _with_ tags.
+        - `tag == None` (default), then include all tasks.
 
     start_date : bool or None, optional
-        If the argument is `False`, only include tasks _without_ a start date.
-        If the argument is `True`, only include tasks _with_ a start date.
-        If the argument is `None` (default), then include all tasks.
+        - `start_date == False`, only include tasks _without_ a start date.
+        - `start_date == True`, only include tasks _with_ a start date.
+        - `start_date == None` (default), then include all tasks.
 
     deadline : bool or None, optional
-        If the argument is `False`, only include tasks _without_ a deadline.
-        If the argument is `True`, only include tasks _with_ a deadline.
-        If the argument is `None` (default), then include all tasks.
+        - `deadline == False`, only include tasks _without_ a deadline.
+        - `deadline == True`, only include tasks _with_ a deadline.
+        - `deadline == None` (default), then include all tasks.
 
     search_query : str, optional
         The string value is passed to the SQL LIKE operator. It can thus
@@ -98,24 +106,19 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         Currently titles and notes of to-dos, projects, headings, and areas
         are taken into account.
 
-        If the query is `False`, then return items where titles or notes
-        are empty.
-
-        If the query `None`, then return all items.
-
     index : {'index', 'todayIndex'}, default 'index'
         Database field to order result by.
 
-    count_only : boolean, default False
+    count_only : bool, default False
         Only output length of result. This is done by a SQL COUNT query.
 
     filepath : str, optional
         Any valid path of a SQLite database file generated by the Things app.
-        If the environment variable THINGSDB is set, then that path will be used.
+        If the environment variable `THINGSDB` is set, then use that path.
         Otherwise, access the default database path.
 
     database : things.database.Database, optional
-        Any valid `things.database.Database` object previously instantiated.
+        Any valid database object previously instantiated.
 
     Returns
     -------
@@ -123,7 +126,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         Representing multiple tasks.
     dict (if `uuid` is given)
         Representing a single task.
-    int (count_only == True)
+    int (`count_only == True`)
         Count of matching Tasks.
 
     Examples
@@ -198,17 +201,18 @@ def areas(uuid=None, include_items=False, **kwargs):
     uuid : str or None, optional
         Any valid uuid of an area. If None, then return all areas.
 
-    include_items : boolean, default False
+    include_items : bool, default False
         Include tasks and projects in each area.
 
-    tag : str or None, optional
+    tag : str or bool or None, optional
         Any valid title of a tag. Only include areas matching that tag.
-        If the argument is `False`, only include areas _without_ tags.
-        If the argument is `True`, only include areas _with_ tags.
-        If the argument is `None`, then ignore any tags present, that is,
-        include areas both with and without tags.
+        Special cases:
+        - `tag == False`, only include areas _without_ tags.
+        - `tag == True`, only include areas _with_ tags.
+        - `tag == None`, then ignore any tags present, that is,
+           include areas both with and without tags.
 
-    count_only : boolean, default False
+    count_only : bool, default False
         Only output length of result. This is done by a SQL COUNT query.
 
     filepath : str, optional
@@ -224,7 +228,7 @@ def areas(uuid=None, include_items=False, **kwargs):
         Representing Things areas.
     dict (if `uuid` is given)
         Representing a single Things area.
-    int (count_only == True)
+    int (`count_only == True`)
         Count of matching areas.
 
     Examples
@@ -268,7 +272,7 @@ def tags(title=None, include_items=False, **kwargs):
         Any valid title of a tag. Include all items of said tag.
         If None, then return all tags.
 
-    include_items : boolean, default False
+    include_items : bool, default False
         For each tag, include items tagged with that tag.
         Items may include areas, tasks, and projects.
 
@@ -286,7 +290,7 @@ def tags(title=None, include_items=False, **kwargs):
         If no path is provided, then access the default database path.
 
     database : things.database.Database, optional
-        Any valid `things.database.Database` object previously instantiated.
+        Any valid database object previously instantiated.
 
     Returns
     -------
@@ -390,7 +394,7 @@ def todos(uuid=None, **kwargs):
     """
     Read to-dos into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(uuid=uuid, type="to-do", **kwargs)
 
@@ -399,22 +403,29 @@ def projects(uuid=None, **kwargs):
     """
     Read projects into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(uuid=uuid, type="project", **kwargs)
 
 
 def checklist_items(uuid, **kwargs):
     """
-    Read checklist items into dicts.
-    See `things.api.tasks` for details.
+    Read checklist items of a to-do into dicts.
+
+    Note: this checklist is also contained in the return value of
+    `things.todos(uuid)` and `things.tasks(uuid)`.
+
+    Parameters
+    ----------
+    uuid : str
+        A valid to-do uuid.
 
     Returns
     -------
     list of dict
-        Representing checklist items. Or [] if none found.
+        Checklist items of the to-do. If none, then return empty list.
     """
-    return tasks(uuid=uuid, type="to-do", **kwargs).get("checklist", [])  # type: ignore
+    return tasks(uuid=uuid, **kwargs).get("checklist", [])  # type: ignore
 
 
 # Filter by collections in the Things app sidebar.
@@ -422,19 +433,23 @@ def checklist_items(uuid, **kwargs):
 
 def inbox(**kwargs):
     """
-    Read inbox into dicts.
+    Read Inbox into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(start="Inbox", **kwargs)
 
 
 def today(**kwargs):
     """
+    Read Today's tasks into dicts.
+
     Note: This might not produce desired results if the Things app hasn't
     been opened yet today and the yellow "OK" button clicked for new tasks.
     In general, you can assume that whatever state the Things app was in
     when you last opened it, that's the state reflected here by the API.
+
+    See `things.api.tasks` for details on the optional parameters.
     """
     database = pop_database(kwargs)
     if not database.was_modified_today():
@@ -456,35 +471,39 @@ def today(**kwargs):
 
 def upcoming(**kwargs):
     """
+    Read Upcoming tasks into dicts.
+
     Note: unscheduled tasks with a deadline are not included here.
-    See the `deadline` function instead.
+    See the `things.api.deadline` function instead.
+
+    For details on parameters, see `things.api.tasks`.
     """
     return tasks(start_date=True, start="Someday", **kwargs)
 
 
 def anytime(**kwargs):
     """
-    Read anytime tasks into dicts.
+    Read Anytime tasks into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(start="Anytime", **kwargs)
 
 
 def someday(**kwargs):
     """
-    Read someday tasks into dicts.
+    Read Someday tasks into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(start_date=False, start="Someday", **kwargs)
 
 
 def logbook(**kwargs):
     """
-    Read logbook tasks into dicts.
+    Read Logbook tasks into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     result = [*canceled(**kwargs), *completed(**kwargs)]
     result.sort(key=lambda task: task["stop_date"], reverse=True)
@@ -498,13 +517,17 @@ def canceled(**kwargs):
     """
     Read canceled tasks into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     return tasks(status="canceled", **kwargs)
 
 
 def completed(**kwargs):
     """
+    Read completed tasks into dicts.
+
+    See `things.api.tasks` for details on the optional parameters.
+
     Examples
     --------
     >>> things.completed(count_only=True)
@@ -519,7 +542,7 @@ def deadlines(**kwargs):
     """
     Read tasks with deadlines into dicts.
 
-    See `things.api.tasks` for details.
+    See `things.api.tasks` for details on the optional parameters.
     """
     result = tasks(deadline=True, **kwargs)
     result.sort(key=lambda task: task["deadline"])
@@ -528,16 +551,17 @@ def deadlines(**kwargs):
 
 # Interact with Things app
 
+
 def token(**kwargs) -> str:
     """
-    Returns the API token.
+    Read the Things URL scheme authentication token.
 
-    See [Things URL Scheme](https://culturedcode.com/things/support/articles/2803573)
-    for details.
+    You can make good use of this token to modify existing Things data
+    using the Things URL Scheme. For details, see
+    [here](https://culturedcode.com/things/help/url-scheme/).
     """
     database = pop_database(kwargs)
-
-    return database.get_api_token()
+    return database.get_url_scheme_auth_token()
 
 
 def link(uuid):

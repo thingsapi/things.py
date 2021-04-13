@@ -105,7 +105,12 @@
                     <h1 class="modulename">
 <a href="./../things.html">things</a>.api    </h1>
 
-                        <div class="docstring"><p>Module implementing Things API.</p>
+                        <div class="docstring"><p>Module implementing the Things API.</p>
+
+<p>The terms of the API aim to match those used in the Things app and
+Things URL Scheme. In some specific cases we instead choose to use terms
+that occur in the Things SQL database to closer reflect its underlying
+data structures. Whenever that happens, we define the new term here.</p>
 </div>
 
                         <details>
@@ -113,15 +118,20 @@
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module implementing Things API.</span>
+<span class="sd">Module implementing the Things API.</span>
+
+<span class="sd">The terms of the API aim to match those used in the Things app and</span>
+<span class="sd">Things URL Scheme. In some specific cases we instead choose to use terms</span>
+<span class="sd">that occur in the Things SQL database to closer reflect its underlying</span>
+<span class="sd">data structures. Whenever that happens, we define the new term here.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">shlex</span> <span class="kn">import</span> <span class="n">quote</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">.database</span> <span class="kn">import</span> <span class="n">Database</span>
+<span class="kn">from</span> <span class="nn">things.database</span> <span class="kn">import</span> <span class="n">Database</span>
 
 
 <span class="c1"># --------------------------------------------------</span>
@@ -145,62 +155,65 @@
 <span class="sd">    uuid : str or None, optional</span>
 <span class="sd">        Any valid task uuid. If None, then return all tasks matched.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        Include items contained within a task. These might include</span>
 <span class="sd">        checklist items, headings, and to-dos.</span>
 
 <span class="sd">    type : {&#39;to-do&#39;, &#39;heading&#39;, &#39;project&#39;, None}, optional</span>
 <span class="sd">        Only return a specific type of task:</span>
-
-<span class="sd">        &#39;to-do&#39;:    may have a checklist; may be in an area and have tags.</span>
-<span class="sd">        &#39;project&#39;:  may have to-dos and headings; may be in an area and</span>
-<span class="sd">                    have tags.</span>
-<span class="sd">        &#39;heading&#39;:  part of a project; groups tasks.</span>
-<span class="sd">         None:      return all types of tasks.</span>
+<span class="sd">        - `&#39;to-do&#39;`:    may have a checklist; may be in an area and have tags.</span>
+<span class="sd">        - `&#39;project&#39;`:  may have to-dos and headings; may be in an area and</span>
+<span class="sd">                        have tags.</span>
+<span class="sd">        - `&#39;heading&#39;`:  part of a project; groups tasks.</span>
+<span class="sd">        - `None` (default): return all types of tasks.</span>
 
 <span class="sd">    status : {&#39;incomplete&#39;, &#39;completed&#39;, &#39;canceled&#39;, None}, optional, \</span>
 <span class="sd">        default &#39;incomplete&#39;</span>
 
-<span class="sd">        Only include tasks matching that status. If the argument is `None`,</span>
+<span class="sd">        Only include tasks matching that status. If `status == None`,</span>
 <span class="sd">        then include tasks with any status value.</span>
 
 <span class="sd">    start : {&#39;Inbox&#39;, &#39;Anytime&#39;, &#39;Someday&#39;, None}, optional</span>
 <span class="sd">        Only include tasks matching that start value. If the argument is</span>
 <span class="sd">        `None` (default), then include tasks with any start value.</span>
 
-<span class="sd">    area : str, bool, or None, optional</span>
+<span class="sd">    area : str or bool or None, optional</span>
 <span class="sd">        Any valid uuid of an area. Only include tasks matching that area.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ an area.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ an area.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `area == False`, only include tasks _without_ an area.</span>
+<span class="sd">        - `area == True`, only include tasks _with_ an area.</span>
+<span class="sd">        - `area == None` (default), then include all tasks.</span>
 
-<span class="sd">    project : str or None, optional</span>
+<span class="sd">    project : str or bool or None, optional</span>
 <span class="sd">        Any valid uuid of a project. Only include tasks matching that project.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a project.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a project.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `project == False`, only include tasks _without_ a project.</span>
+<span class="sd">        - `project == True`, only include tasks _with_ a project.</span>
+<span class="sd">        - `project == None` (default), then include all tasks.</span>
 
 <span class="sd">    heading : str or None, optional</span>
 <span class="sd">        Any valid uuid of a heading. Only include tasks matching that heading.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a heading.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a heading.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `heading == False`, only include tasks _without_ a heading.</span>
+<span class="sd">        - `heading == True`, only include tasks _with_ a heading.</span>
+<span class="sd">        - `heading == None` (default), then include all tasks.</span>
 
-<span class="sd">    tag : str or None, optional</span>
+<span class="sd">    tag : str or bool or None, optional</span>
 <span class="sd">        Any valid title of a tag. Only include tasks matching that tag.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ tags.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ tags.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `tag == False`, only include tasks _without_ tags.</span>
+<span class="sd">        - `tag == True`, only include tasks _with_ tags.</span>
+<span class="sd">        - `tag == None` (default), then include all tasks.</span>
 
 <span class="sd">    start_date : bool or None, optional</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a start date.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a start date.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        - `start_date == False`, only include tasks _without_ a start date.</span>
+<span class="sd">        - `start_date == True`, only include tasks _with_ a start date.</span>
+<span class="sd">        - `start_date == None` (default), then include all tasks.</span>
 
 <span class="sd">    deadline : bool or None, optional</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a deadline.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a deadline.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        - `deadline == False`, only include tasks _without_ a deadline.</span>
+<span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
+<span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
 <span class="sd">    search_query : str, optional</span>
 <span class="sd">        The string value is passed to the SQL LIKE operator. It can thus</span>
@@ -210,24 +223,19 @@
 <span class="sd">        Currently titles and notes of to-dos, projects, headings, and areas</span>
 <span class="sd">        are taken into account.</span>
 
-<span class="sd">        If the query is `False`, then return items where titles or notes</span>
-<span class="sd">        are empty.</span>
-
-<span class="sd">        If the query `None`, then return all items.</span>
-
 <span class="sd">    index : {&#39;index&#39;, &#39;todayIndex&#39;}, default &#39;index&#39;</span>
 <span class="sd">        Database field to order result by.</span>
 
-<span class="sd">    count_only : boolean, default False</span>
+<span class="sd">    count_only : bool, default False</span>
 <span class="sd">        Only output length of result. This is done by a SQL COUNT query.</span>
 
 <span class="sd">    filepath : str, optional</span>
 <span class="sd">        Any valid path of a SQLite database file generated by the Things app.</span>
-<span class="sd">        If the environment variable THINGSDB is set, then that path will be used.</span>
+<span class="sd">        If the environment variable `THINGSDB` is set, then use that path.</span>
 <span class="sd">        Otherwise, access the default database path.</span>
 
 <span class="sd">    database : things.database.Database, optional</span>
-<span class="sd">        Any valid `things.database.Database` object previously instantiated.</span>
+<span class="sd">        Any valid database object previously instantiated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -235,7 +243,7 @@
 <span class="sd">        Representing multiple tasks.</span>
 <span class="sd">    dict (if `uuid` is given)</span>
 <span class="sd">        Representing a single task.</span>
-<span class="sd">    int (count_only == True)</span>
+<span class="sd">    int (`count_only == True`)</span>
 <span class="sd">        Count of matching Tasks.</span>
 
 <span class="sd">    Examples</span>
@@ -310,17 +318,18 @@
 <span class="sd">    uuid : str or None, optional</span>
 <span class="sd">        Any valid uuid of an area. If None, then return all areas.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        Include tasks and projects in each area.</span>
 
-<span class="sd">    tag : str or None, optional</span>
+<span class="sd">    tag : str or bool or None, optional</span>
 <span class="sd">        Any valid title of a tag. Only include areas matching that tag.</span>
-<span class="sd">        If the argument is `False`, only include areas _without_ tags.</span>
-<span class="sd">        If the argument is `True`, only include areas _with_ tags.</span>
-<span class="sd">        If the argument is `None`, then ignore any tags present, that is,</span>
-<span class="sd">        include areas both with and without tags.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `tag == False`, only include areas _without_ tags.</span>
+<span class="sd">        - `tag == True`, only include areas _with_ tags.</span>
+<span class="sd">        - `tag == None`, then ignore any tags present, that is,</span>
+<span class="sd">           include areas both with and without tags.</span>
 
-<span class="sd">    count_only : boolean, default False</span>
+<span class="sd">    count_only : bool, default False</span>
 <span class="sd">        Only output length of result. This is done by a SQL COUNT query.</span>
 
 <span class="sd">    filepath : str, optional</span>
@@ -336,7 +345,7 @@
 <span class="sd">        Representing Things areas.</span>
 <span class="sd">    dict (if `uuid` is given)</span>
 <span class="sd">        Representing a single Things area.</span>
-<span class="sd">    int (count_only == True)</span>
+<span class="sd">    int (`count_only == True`)</span>
 <span class="sd">        Count of matching areas.</span>
 
 <span class="sd">    Examples</span>
@@ -380,7 +389,7 @@
 <span class="sd">        Any valid title of a tag. Include all items of said tag.</span>
 <span class="sd">        If None, then return all tags.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        For each tag, include items tagged with that tag.</span>
 <span class="sd">        Items may include areas, tasks, and projects.</span>
 
@@ -398,7 +407,7 @@
 <span class="sd">        If no path is provided, then access the default database path.</span>
 
 <span class="sd">    database : things.database.Database, optional</span>
-<span class="sd">        Any valid `things.database.Database` object previously instantiated.</span>
+<span class="sd">        Any valid database object previously instantiated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -502,7 +511,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read to-dos into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -511,22 +520,29 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read projects into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">checklist_items</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read checklist items into dicts.</span>
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    Read checklist items of a to-do into dicts.</span>
+
+<span class="sd">    Note: this checklist is also contained in the return value of</span>
+<span class="sd">    `things.todos(uuid)` and `things.tasks(uuid)`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uuid : str</span>
+<span class="sd">        A valid to-do uuid.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list of dict</span>
-<span class="sd">        Representing checklist items. Or [] if none found.</span>
+<span class="sd">        Checklist items of the to-do. If none, then return empty list.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
 
 
 <span class="c1"># Filter by collections in the Things app sidebar.</span>
@@ -534,19 +550,23 @@
 
 <span class="k">def</span> <span class="nf">inbox</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read inbox into dicts.</span>
+<span class="sd">    Read Inbox into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;Inbox&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">today</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read Today&#39;s tasks into dicts.</span>
+
 <span class="sd">    Note: This might not produce desired results if the Things app hasn&#39;t</span>
 <span class="sd">    been opened yet today and the yellow &quot;OK&quot; button clicked for new tasks.</span>
 <span class="sd">    In general, you can assume that whatever state the Things app was in</span>
 <span class="sd">    when you last opened it, that&#39;s the state reflected here by the API.</span>
+
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">database</span><span class="o">.</span><span class="n">was_modified_today</span><span class="p">():</span>
@@ -568,35 +588,39 @@
 
 <span class="k">def</span> <span class="nf">upcoming</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read Upcoming tasks into dicts.</span>
+
 <span class="sd">    Note: unscheduled tasks with a deadline are not included here.</span>
-<span class="sd">    See the `deadline` function instead.</span>
+<span class="sd">    See the `things.api.deadline` function instead.</span>
+
+<span class="sd">    For details on parameters, see `things.api.tasks`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Someday&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">anytime</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read anytime tasks into dicts.</span>
+<span class="sd">    Read Anytime tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;Anytime&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">someday</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read someday tasks into dicts.</span>
+<span class="sd">    Read Someday tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Someday&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">logbook</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read logbook tasks into dicts.</span>
+<span class="sd">    Read Logbook tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">canceled</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="o">*</span><span class="n">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -610,13 +634,17 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read canceled tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;canceled&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read completed tasks into dicts.</span>
+
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
@@ -631,7 +659,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read tasks with deadlines into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">deadline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;deadline&quot;</span><span class="p">])</span>
@@ -640,16 +668,17 @@
 
 <span class="c1"># Interact with Things app</span>
 
+
 <span class="k">def</span> <span class="nf">token</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the API token.</span>
+<span class="sd">    Read the Things URL scheme authentication token.</span>
 
-<span class="sd">    See [Things URL Scheme](https://culturedcode.com/things/support/articles/2803573)</span>
-<span class="sd">    for details.</span>
+<span class="sd">    You can make good use of this token to modify existing Things data</span>
+<span class="sd">    using the Things URL Scheme. For details, see</span>
+<span class="sd">    [here](https://culturedcode.com/things/help/url-scheme/).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_url_scheme_auth_token</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
@@ -718,62 +747,65 @@
 <span class="sd">    uuid : str or None, optional</span>
 <span class="sd">        Any valid task uuid. If None, then return all tasks matched.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        Include items contained within a task. These might include</span>
 <span class="sd">        checklist items, headings, and to-dos.</span>
 
 <span class="sd">    type : {&#39;to-do&#39;, &#39;heading&#39;, &#39;project&#39;, None}, optional</span>
 <span class="sd">        Only return a specific type of task:</span>
-
-<span class="sd">        &#39;to-do&#39;:    may have a checklist; may be in an area and have tags.</span>
-<span class="sd">        &#39;project&#39;:  may have to-dos and headings; may be in an area and</span>
-<span class="sd">                    have tags.</span>
-<span class="sd">        &#39;heading&#39;:  part of a project; groups tasks.</span>
-<span class="sd">         None:      return all types of tasks.</span>
+<span class="sd">        - `&#39;to-do&#39;`:    may have a checklist; may be in an area and have tags.</span>
+<span class="sd">        - `&#39;project&#39;`:  may have to-dos and headings; may be in an area and</span>
+<span class="sd">                        have tags.</span>
+<span class="sd">        - `&#39;heading&#39;`:  part of a project; groups tasks.</span>
+<span class="sd">        - `None` (default): return all types of tasks.</span>
 
 <span class="sd">    status : {&#39;incomplete&#39;, &#39;completed&#39;, &#39;canceled&#39;, None}, optional, \</span>
 <span class="sd">        default &#39;incomplete&#39;</span>
 
-<span class="sd">        Only include tasks matching that status. If the argument is `None`,</span>
+<span class="sd">        Only include tasks matching that status. If `status == None`,</span>
 <span class="sd">        then include tasks with any status value.</span>
 
 <span class="sd">    start : {&#39;Inbox&#39;, &#39;Anytime&#39;, &#39;Someday&#39;, None}, optional</span>
 <span class="sd">        Only include tasks matching that start value. If the argument is</span>
 <span class="sd">        `None` (default), then include tasks with any start value.</span>
 
-<span class="sd">    area : str, bool, or None, optional</span>
+<span class="sd">    area : str or bool or None, optional</span>
 <span class="sd">        Any valid uuid of an area. Only include tasks matching that area.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ an area.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ an area.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `area == False`, only include tasks _without_ an area.</span>
+<span class="sd">        - `area == True`, only include tasks _with_ an area.</span>
+<span class="sd">        - `area == None` (default), then include all tasks.</span>
 
-<span class="sd">    project : str or None, optional</span>
+<span class="sd">    project : str or bool or None, optional</span>
 <span class="sd">        Any valid uuid of a project. Only include tasks matching that project.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a project.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a project.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `project == False`, only include tasks _without_ a project.</span>
+<span class="sd">        - `project == True`, only include tasks _with_ a project.</span>
+<span class="sd">        - `project == None` (default), then include all tasks.</span>
 
 <span class="sd">    heading : str or None, optional</span>
 <span class="sd">        Any valid uuid of a heading. Only include tasks matching that heading.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a heading.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a heading.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `heading == False`, only include tasks _without_ a heading.</span>
+<span class="sd">        - `heading == True`, only include tasks _with_ a heading.</span>
+<span class="sd">        - `heading == None` (default), then include all tasks.</span>
 
-<span class="sd">    tag : str or None, optional</span>
+<span class="sd">    tag : str or bool or None, optional</span>
 <span class="sd">        Any valid title of a tag. Only include tasks matching that tag.</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ tags.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ tags.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `tag == False`, only include tasks _without_ tags.</span>
+<span class="sd">        - `tag == True`, only include tasks _with_ tags.</span>
+<span class="sd">        - `tag == None` (default), then include all tasks.</span>
 
 <span class="sd">    start_date : bool or None, optional</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a start date.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a start date.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        - `start_date == False`, only include tasks _without_ a start date.</span>
+<span class="sd">        - `start_date == True`, only include tasks _with_ a start date.</span>
+<span class="sd">        - `start_date == None` (default), then include all tasks.</span>
 
 <span class="sd">    deadline : bool or None, optional</span>
-<span class="sd">        If the argument is `False`, only include tasks _without_ a deadline.</span>
-<span class="sd">        If the argument is `True`, only include tasks _with_ a deadline.</span>
-<span class="sd">        If the argument is `None` (default), then include all tasks.</span>
+<span class="sd">        - `deadline == False`, only include tasks _without_ a deadline.</span>
+<span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
+<span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
 <span class="sd">    search_query : str, optional</span>
 <span class="sd">        The string value is passed to the SQL LIKE operator. It can thus</span>
@@ -783,24 +815,19 @@
 <span class="sd">        Currently titles and notes of to-dos, projects, headings, and areas</span>
 <span class="sd">        are taken into account.</span>
 
-<span class="sd">        If the query is `False`, then return items where titles or notes</span>
-<span class="sd">        are empty.</span>
-
-<span class="sd">        If the query `None`, then return all items.</span>
-
 <span class="sd">    index : {&#39;index&#39;, &#39;todayIndex&#39;}, default &#39;index&#39;</span>
 <span class="sd">        Database field to order result by.</span>
 
-<span class="sd">    count_only : boolean, default False</span>
+<span class="sd">    count_only : bool, default False</span>
 <span class="sd">        Only output length of result. This is done by a SQL COUNT query.</span>
 
 <span class="sd">    filepath : str, optional</span>
 <span class="sd">        Any valid path of a SQLite database file generated by the Things app.</span>
-<span class="sd">        If the environment variable THINGSDB is set, then that path will be used.</span>
+<span class="sd">        If the environment variable `THINGSDB` is set, then use that path.</span>
 <span class="sd">        Otherwise, access the default database path.</span>
 
 <span class="sd">    database : things.database.Database, optional</span>
-<span class="sd">        Any valid `things.database.Database` object previously instantiated.</span>
+<span class="sd">        Any valid database object previously instantiated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -808,7 +835,7 @@
 <span class="sd">        Representing multiple tasks.</span>
 <span class="sd">    dict (if `uuid` is given)</span>
 <span class="sd">        Representing a single task.</span>
-<span class="sd">    int (count_only == True)</span>
+<span class="sd">    int (`count_only == True`)</span>
 <span class="sd">        Count of matching Tasks.</span>
 
 <span class="sd">    Examples</span>
@@ -890,73 +917,85 @@ want to include completed or canceled tasks in the result, check the
 <ul>
 <li><strong>uuid</strong> (str or None, optional):
 Any valid task uuid. If None, then return all tasks matched.</li>
-<li><strong>include_items</strong> (boolean, default False):
+<li><strong>include_items</strong> (bool, default False):
 Include items contained within a task. These might include
 checklist items, headings, and to-dos.</li>
-<li><p><strong>type</strong> ({'to-do', 'heading', 'project', None}, optional):
-Only return a specific type of task:</p>
-
-<p>'to-do':    may have a checklist; may be in an area and have tags.
-'project':  may have to-dos and headings; may be in an area and
-           have tags.
-'heading':  part of a project; groups tasks.
-None:      return all types of tasks.</p></li>
+<li><strong>type</strong> ({'to-do', 'heading', 'project', None}, optional):
+Only return a specific type of task:
+<ul>
+<li><code>'to-do'</code>:    may have a checklist; may be in an area and have tags.</li>
+<li><code>'project'</code>:  may have to-dos and headings; may be in an area and
+           have tags.</li>
+<li><code>'heading'</code>:  part of a project; groups tasks.</li>
+<li><code>None</code> (default): return all types of tasks.</li>
+</ul></li>
 <li><strong>status</strong> ({'incomplete', 'completed', 'canceled', None}, optional,         default 'incomplete'):
-Only include tasks matching that status. If the argument is <code>None</code>,
+Only include tasks matching that status. If <code>status == None</code>,
 then include tasks with any status value.</li>
 <li><strong>start</strong> ({'Inbox', 'Anytime', 'Someday', None}, optional):
 Only include tasks matching that start value. If the argument is
 <code>None</code> (default), then include tasks with any start value.</li>
-<li><strong>area</strong> (str, bool, or None, optional):
+<li><strong>area</strong> (str or bool or None, optional):
 Any valid uuid of an area. Only include tasks matching that area.
-If the argument is <code>False</code>, only include tasks _without_ an area.
-If the argument is <code>True</code>, only include tasks _with_ an area.
-If the argument is <code>None</code> (default), then include all tasks.</li>
-<li><strong>project</strong> (str or None, optional):
+Special cases:
+<ul>
+<li><code>area == False</code>, only include tasks _without_ an area.</li>
+<li><code>area == True</code>, only include tasks _with_ an area.</li>
+<li><code>area == None</code> (default), then include all tasks.</li>
+</ul></li>
+<li><strong>project</strong> (str or bool or None, optional):
 Any valid uuid of a project. Only include tasks matching that project.
-If the argument is <code>False</code>, only include tasks _without_ a project.
-If the argument is <code>True</code>, only include tasks _with_ a project.
-If the argument is <code>None</code> (default), then include all tasks.</li>
+Special cases:
+<ul>
+<li><code>project == False</code>, only include tasks _without_ a project.</li>
+<li><code>project == True</code>, only include tasks _with_ a project.</li>
+<li><code>project == None</code> (default), then include all tasks.</li>
+</ul></li>
 <li><strong>heading</strong> (str or None, optional):
 Any valid uuid of a heading. Only include tasks matching that heading.
-If the argument is <code>False</code>, only include tasks _without_ a heading.
-If the argument is <code>True</code>, only include tasks _with_ a heading.
-If the argument is <code>None</code> (default), then include all tasks.</li>
-<li><strong>tag</strong> (str or None, optional):
+Special cases:
+<ul>
+<li><code>heading == False</code>, only include tasks _without_ a heading.</li>
+<li><code>heading == True</code>, only include tasks _with_ a heading.</li>
+<li><code>heading == None</code> (default), then include all tasks.</li>
+</ul></li>
+<li><strong>tag</strong> (str or bool or None, optional):
 Any valid title of a tag. Only include tasks matching that tag.
-If the argument is <code>False</code>, only include tasks _without_ tags.
-If the argument is <code>True</code>, only include tasks _with_ tags.
-If the argument is <code>None</code> (default), then include all tasks.</li>
+Special cases:
+<ul>
+<li><code>tag == False</code>, only include tasks _without_ tags.</li>
+<li><code>tag == True</code>, only include tasks _with_ tags.</li>
+<li><code>tag == None</code> (default), then include all tasks.</li>
+</ul></li>
 <li><strong>start_date</strong> (bool or None, optional):
-If the argument is <code>False</code>, only include tasks _without_ a start date.
-If the argument is <code>True</code>, only include tasks _with_ a start date.
-If the argument is <code>None</code> (default), then include all tasks.</li>
+<ul>
+<li><code>start_date == False</code>, only include tasks _without_ a start date.</li>
+<li><code>start_date == True</code>, only include tasks _with_ a start date.</li>
+<li><code>start_date == None</code> (default), then include all tasks.</li>
+</ul></li>
 <li><strong>deadline</strong> (bool or None, optional):
-If the argument is <code>False</code>, only include tasks _without_ a deadline.
-If the argument is <code>True</code>, only include tasks _with_ a deadline.
-If the argument is <code>None</code> (default), then include all tasks.</li>
+<ul>
+<li><code>deadline == False</code>, only include tasks _without_ a deadline.</li>
+<li><code>deadline == True</code>, only include tasks _with_ a deadline.</li>
+<li><code>deadline == None</code> (default), then include all tasks.</li>
+</ul></li>
 <li><p><strong>search_query</strong> (str, optional):
 The string value is passed to the SQL LIKE operator. It can thus
 include placeholders such as '%' and '_'. Per default, it is
 wrapped in '% ... %'.</p>
 
 <p>Currently titles and notes of to-dos, projects, headings, and areas
-are taken into account.</p>
-
-<p>If the query is <code>False</code>, then return items where titles or notes
-are empty.</p>
-
-<p>If the query <code>None</code>, then return all items.</p></li>
+are taken into account.</p></li>
 <li><strong>index</strong> ({'index', 'todayIndex'}, default 'index'):
 Database field to order result by.</li>
-<li><strong>count_only</strong> (boolean, default False):
+<li><strong>count_only</strong> (bool, default False):
 Only output length of result. This is done by a SQL COUNT query.</li>
 <li><strong>filepath</strong> (str, optional):
 Any valid path of a SQLite database file generated by the Things app.
-If the environment variable THINGSDB is set, then that path will be used.
+If the environment variable <code>THINGSDB</code> is set, then use that path.
 Otherwise, access the default database path.</li>
 <li><strong>database</strong> (<a href="database.html#Database">things.database.Database</a>, optional):
-Any valid <code><a href="database.html#Database">things.database.Database</a></code> object previously instantiated.</li>
+Any valid database object previously instantiated.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -964,7 +1003,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <ul>
 <li><strong>list of dict (default)</strong>: Representing multiple tasks.</li>
 <li><strong>dict (if <code>uuid</code> is given)</strong>: Representing a single task.</li>
-<li><strong>int (count_only == True)</strong>: Count of matching Tasks.</li>
+<li><strong>int (<code>count_only == True</code>)</strong>: Count of matching Tasks.</li>
 </ul>
 
 <h6 id="examples">Examples</h6>
@@ -1001,17 +1040,18 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <span class="sd">    uuid : str or None, optional</span>
 <span class="sd">        Any valid uuid of an area. If None, then return all areas.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        Include tasks and projects in each area.</span>
 
-<span class="sd">    tag : str or None, optional</span>
+<span class="sd">    tag : str or bool or None, optional</span>
 <span class="sd">        Any valid title of a tag. Only include areas matching that tag.</span>
-<span class="sd">        If the argument is `False`, only include areas _without_ tags.</span>
-<span class="sd">        If the argument is `True`, only include areas _with_ tags.</span>
-<span class="sd">        If the argument is `None`, then ignore any tags present, that is,</span>
-<span class="sd">        include areas both with and without tags.</span>
+<span class="sd">        Special cases:</span>
+<span class="sd">        - `tag == False`, only include areas _without_ tags.</span>
+<span class="sd">        - `tag == True`, only include areas _with_ tags.</span>
+<span class="sd">        - `tag == None`, then ignore any tags present, that is,</span>
+<span class="sd">           include areas both with and without tags.</span>
 
-<span class="sd">    count_only : boolean, default False</span>
+<span class="sd">    count_only : bool, default False</span>
 <span class="sd">        Only output length of result. This is done by a SQL COUNT query.</span>
 
 <span class="sd">    filepath : str, optional</span>
@@ -1027,7 +1067,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <span class="sd">        Representing Things areas.</span>
 <span class="sd">    dict (if `uuid` is given)</span>
 <span class="sd">        Representing a single Things area.</span>
-<span class="sd">    int (count_only == True)</span>
+<span class="sd">    int (`count_only == True`)</span>
 <span class="sd">        Count of matching areas.</span>
 
 <span class="sd">    Examples</span>
@@ -1070,15 +1110,18 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <ul>
 <li><strong>uuid</strong> (str or None, optional):
 Any valid uuid of an area. If None, then return all areas.</li>
-<li><strong>include_items</strong> (boolean, default False):
+<li><strong>include_items</strong> (bool, default False):
 Include tasks and projects in each area.</li>
-<li><strong>tag</strong> (str or None, optional):
+<li><strong>tag</strong> (str or bool or None, optional):
 Any valid title of a tag. Only include areas matching that tag.
-If the argument is <code>False</code>, only include areas _without_ tags.
-If the argument is <code>True</code>, only include areas _with_ tags.
-If the argument is <code>None</code>, then ignore any tags present, that is,
+Special cases:
+<ul>
+<li><code>tag == False</code>, only include areas _without_ tags.</li>
+<li><code>tag == True</code>, only include areas _with_ tags.</li>
+<li><code>tag == None</code>, then ignore any tags present, that is,
 include areas both with and without tags.</li>
-<li><strong>count_only</strong> (boolean, default False):
+</ul></li>
+<li><strong>count_only</strong> (bool, default False):
 Only output length of result. This is done by a SQL COUNT query.</li>
 <li><strong>filepath</strong> (str, optional):
 Any valid path of a SQLite database file generated by the Things app.
@@ -1092,7 +1135,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <ul>
 <li><strong>list of dict (default)</strong>: Representing Things areas.</li>
 <li><strong>dict (if <code>uuid</code> is given)</strong>: Representing a single Things area.</li>
-<li><strong>int (count_only == True)</strong>: Count of matching areas.</li>
+<li><strong>int (<code>count_only == True</code>)</strong>: Count of matching areas.</li>
 </ul>
 
 <h6 id="examples">Examples</h6>
@@ -1130,7 +1173,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <span class="sd">        Any valid title of a tag. Include all items of said tag.</span>
 <span class="sd">        If None, then return all tags.</span>
 
-<span class="sd">    include_items : boolean, default False</span>
+<span class="sd">    include_items : bool, default False</span>
 <span class="sd">        For each tag, include items tagged with that tag.</span>
 <span class="sd">        Items may include areas, tasks, and projects.</span>
 
@@ -1148,7 +1191,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <span class="sd">        If no path is provided, then access the default database path.</span>
 
 <span class="sd">    database : things.database.Database, optional</span>
-<span class="sd">        Any valid `things.database.Database` object previously instantiated.</span>
+<span class="sd">        Any valid database object previously instantiated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1197,7 +1240,7 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <li><strong>title</strong> (str, optional):
 Any valid title of a tag. Include all items of said tag.
 If None, then return all tags.</li>
-<li><strong>include_items</strong> (boolean, default False):
+<li><strong>include_items</strong> (bool, default False):
 For each tag, include items tagged with that tag.
 Items may include areas, tasks, and projects.</li>
 <li><strong>area</strong> (str, optional):
@@ -1210,7 +1253,7 @@ If True, only return list of titles of tags.</li>
 Any valid path of a SQLite database file generated by the Things app.
 If no path is provided, then access the default database path.</li>
 <li><strong>database</strong> (<a href="database.html#Database">things.database.Database</a>, optional):
-Any valid <code><a href="database.html#Database">things.database.Database</a></code> object previously instantiated.</li>
+Any valid database object previously instantiated.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -1364,7 +1407,7 @@ heading, or area is matched.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read to-dos into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -1373,7 +1416,7 @@ heading, or area is matched.</p>
 
             <div class="docstring"><p>Read to-dos into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1392,7 +1435,7 @@ heading, or area is matched.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read projects into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -1401,7 +1444,7 @@ heading, or area is matched.</p>
 
             <div class="docstring"><p>Read projects into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1418,26 +1461,42 @@ heading, or area is matched.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checklist_items</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read checklist items into dicts.</span>
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    Read checklist items of a to-do into dicts.</span>
+
+<span class="sd">    Note: this checklist is also contained in the return value of</span>
+<span class="sd">    `things.todos(uuid)` and `things.tasks(uuid)`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uuid : str</span>
+<span class="sd">        A valid to-do uuid.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list of dict</span>
-<span class="sd">        Representing checklist items. Or [] if none found.</span>
+<span class="sd">        Checklist items of the to-do. If none, then return empty list.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checklist&quot;</span><span class="p">,</span> <span class="p">[])</span>  <span class="c1"># type: ignore</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Read checklist items into dicts.
-See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+            <div class="docstring"><p>Read checklist items of a to-do into dicts.</p>
+
+<p>Note: this checklist is also contained in the return value of
+<code><a href="../things.html#todos">things.todos</a>(uuid)</code> and <code><a href="../things.html#tasks">things.tasks</a>(uuid)</code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>uuid</strong> (str):
+A valid to-do uuid.</li>
+</ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>list of dict</strong>: Representing checklist items. Or [] if none found.</li>
+<li><strong>list of dict</strong>: Checklist items of the to-do. If none, then return empty list.</li>
 </ul>
 </div>
 
@@ -1455,18 +1514,18 @@ See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inbox</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read inbox into dicts.</span>
+<span class="sd">    Read Inbox into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;Inbox&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Read inbox into dicts.</p>
+            <div class="docstring"><p>Read Inbox into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1483,10 +1542,14 @@ See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">today</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read Today&#39;s tasks into dicts.</span>
+
 <span class="sd">    Note: This might not produce desired results if the Things app hasn&#39;t</span>
 <span class="sd">    been opened yet today and the yellow &quot;OK&quot; button clicked for new tasks.</span>
 <span class="sd">    In general, you can assume that whatever state the Things app was in</span>
 <span class="sd">    when you last opened it, that&#39;s the state reflected here by the API.</span>
+
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">database</span><span class="o">.</span><span class="n">was_modified_today</span><span class="p">():</span>
@@ -1508,10 +1571,14 @@ See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
 
         </details>
 
-            <div class="docstring"><p>Note: This might not produce desired results if the Things app hasn't
+            <div class="docstring"><p>Read Today's tasks into dicts.</p>
+
+<p>Note: This might not produce desired results if the Things app hasn't
 been opened yet today and the yellow "OK" button clicked for new tasks.
 In general, you can assume that whatever state the Things app was in
 when you last opened it, that's the state reflected here by the API.</p>
+
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1528,16 +1595,24 @@ when you last opened it, that's the state reflected here by the API.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upcoming</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read Upcoming tasks into dicts.</span>
+
 <span class="sd">    Note: unscheduled tasks with a deadline are not included here.</span>
-<span class="sd">    See the `deadline` function instead.</span>
+<span class="sd">    See the `things.api.deadline` function instead.</span>
+
+<span class="sd">    For details on parameters, see `things.api.tasks`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Someday&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Note: unscheduled tasks with a deadline are not included here.
-See the <code>deadline</code> function instead.</p>
+            <div class="docstring"><p>Read Upcoming tasks into dicts.</p>
+
+<p>Note: unscheduled tasks with a deadline are not included here.
+See the <code><a href="#deadline">things.api.deadline</a></code> function instead.</p>
+
+<p>For details on parameters, see <code><a href="#tasks">things.api.tasks</a></code>.</p>
 </div>
 
 
@@ -1554,18 +1629,18 @@ See the <code>deadline</code> function instead.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">anytime</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read anytime tasks into dicts.</span>
+<span class="sd">    Read Anytime tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;Anytime&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Read anytime tasks into dicts.</p>
+            <div class="docstring"><p>Read Anytime tasks into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1582,18 +1657,18 @@ See the <code>deadline</code> function instead.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">someday</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read someday tasks into dicts.</span>
+<span class="sd">    Read Someday tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Someday&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Read someday tasks into dicts.</p>
+            <div class="docstring"><p>Read Someday tasks into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1610,9 +1685,9 @@ See the <code>deadline</code> function instead.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">logbook</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read logbook tasks into dicts.</span>
+<span class="sd">    Read Logbook tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">canceled</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="o">*</span><span class="n">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;stop_date&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1621,9 +1696,9 @@ See the <code>deadline</code> function instead.</p>
 
         </details>
 
-            <div class="docstring"><p>Read logbook tasks into dicts.</p>
+            <div class="docstring"><p>Read Logbook tasks into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1642,7 +1717,7 @@ See the <code>deadline</code> function instead.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read canceled tasks into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;canceled&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -1651,7 +1726,7 @@ See the <code>deadline</code> function instead.</p>
 
             <div class="docstring"><p>Read canceled tasks into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1668,6 +1743,10 @@ See the <code>deadline</code> function instead.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">completed</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read completed tasks into dicts.</span>
+
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
@@ -1680,7 +1759,11 @@ See the <code>deadline</code> function instead.</p>
 
         </details>
 
-            <div class="docstring"><h6 id="examples">Examples</h6>
+            <div class="docstring"><p>Read completed tasks into dicts.</p>
+
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
+
+<h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">14</span>
@@ -1705,7 +1788,7 @@ See the <code>deadline</code> function instead.</p>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read tasks with deadlines into dicts.</span>
 
-<span class="sd">    See `things.api.tasks` for details.</span>
+<span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">deadline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;deadline&quot;</span><span class="p">])</span>
@@ -1716,7 +1799,7 @@ See the <code>deadline</code> function instead.</p>
 
             <div class="docstring"><p>Read tasks with deadlines into dicts.</p>
 
-<p>See <code><a href="#tasks">things.api.tasks</a></code> for details.</p>
+<p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
 </div>
 
 
@@ -1733,22 +1816,23 @@ See the <code>deadline</code> function instead.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">token</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the API token.</span>
+<span class="sd">    Read the Things URL scheme authentication token.</span>
 
-<span class="sd">    See [Things URL Scheme](https://culturedcode.com/things/support/articles/2803573)</span>
-<span class="sd">    for details.</span>
+<span class="sd">    You can make good use of this token to modify existing Things data</span>
+<span class="sd">    using the Things URL Scheme. For details, see</span>
+<span class="sd">    [here](https://culturedcode.com/things/help/url-scheme/).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_api_token</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">get_url_scheme_auth_token</span><span class="p">()</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Returns the API token.</p>
+            <div class="docstring"><p>Read the Things URL scheme authentication token.</p>
 
-<p>See <a href="https://culturedcode.com/things/support/articles/2803573">Things URL Scheme</a>
-for details.</p>
+<p>You can make good use of this token to modify existing Things data
+using the Things URL Scheme. For details, see
+<a href="https://culturedcode.com/things/help/url-scheme/">here</a>.</p>
 </div>
 
 
