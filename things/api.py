@@ -564,7 +564,7 @@ def deadlines(**kwargs):
 
 def last(offset, **kwargs):
     """
-    Read tasks created within last X days or weeks into dicts.
+    Read tasks created within last X days, weeks, or years into dicts.
 
     Per default, only incomplete tasks are included, but do see
     `things.api.tasks` for details on the optional parameters.
@@ -574,6 +574,11 @@ def last(offset, **kwargs):
     offset : str
         A valid date offset such as '3d', '5w', or '1y'.
         For details, see the `last` parameter of `things.api.tasks`.
+
+    Returns
+    -------
+    list of dict
+        Tasks within offset ordered by creation date. Newest first.
 
     Examples
     --------
@@ -588,7 +593,10 @@ def last(offset, **kwargs):
     if offset is None:
         raise ValueError(f"Invalid offset type: {offset!r}")
 
-    return tasks(last=offset, **kwargs)
+    result = tasks(last=offset, **kwargs)
+    result.sort(key=lambda task: task["created"], reverse=True)
+
+    return result
 
 
 # Interact with Things app
