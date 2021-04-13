@@ -166,6 +166,7 @@ class Database:
         index="index",
         count_only=False,
         search_query=None,
+        last=None,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
 
@@ -213,6 +214,7 @@ class Database:
                     {make_filter(f"TASK.{DATE_DEADLINE}", deadline)}
                     {make_filter("TAG.title", tag)}
                     {make_search_filter(search_query)}
+                    {make_date_filter(self.DATE_CREATE, last)}
                     ORDER BY TASK."{index}"
                     """
 
@@ -737,6 +739,59 @@ def make_filter(column, value):
         False: f"AND {column} IS NULL",
         True: f"AND {column} IS NOT NULL",
     }.get(value, default)
+
+
+def make_date_filter(created_column, offset):
+    """
+    Returns SQL filter to limit the date range of the SQL query.
+
+    Parameters
+    ----------
+    created_column : str
+        Name of the column that has information on when each task was created.
+
+    offset : str or None
+        A string comprised of an integer and a single character that can be 'd'
+        or 'w' that determines whether to return all tasks for the past X days
+        or weeks.
+
+    Returns
+    -------
+    str
+        A date filter for the SQL query.
+    str (offset is None)
+        An empty string.
+    """
+
+    # Offset not specified
+    if offset is None:
+        return ""
+
+    # Validation
+
+    if not isinstance(offset, str):
+        raise ValueError(
+            f"Invalid last: {offset}\nPlease specify last as a string or None."
+        )
+
+    suffix = offset[-1]
+    if suffix not in ("d", "w"):
+        raise ValueError(
+            f"Invalid last: {offset}\nPlease specify last as a string of the format 'X[d/w]'"
+            "where X is a non-negative integer followed by 'd' or 'w' that indicates"
+            "days or weeks."
+        )
+
+    # Return
+
+    number = int(offset[:-1])
+
+    if suffix == "d":
+        modifier = f"-{number} days"
+    elif suffix == "w":
+        modifier = f"-{number*7} days"
+
+    return f"AND datetime(TASK.{created_column}, 'unixepoch', 'localtime') > datetime('now', '{modifier}')"
 
 
 def make_search_filter(query: str) -> str:

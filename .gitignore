@@ -12,3 +12,5 @@ package-lock.json
 .eggs
 .tox/
 package.json
+env
+.vscode
