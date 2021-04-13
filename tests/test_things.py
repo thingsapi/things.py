@@ -152,8 +152,31 @@ class ThingsCase(unittest.TestCase):
 
     def test_last(self):
         """Test last parameter"""
-        lastToDos = things.Database(**FILEPATH).get_tasks(last="1d")
-        self.assertEqual(len(lastToDos), 0)
+        last_tasks = things.last("1d")
+        self.assertEqual(len(last_tasks), 0)
+
+        last_tasks = things.last("10000w")
+        self.assertEqual(len(last_tasks), 15)
+
+        last_tasks = things.last("100y", status="completed")
+        self.assertEqual(len(last_tasks), 10)
+
+        with self.assertRaises(ValueError):
+            things.last(None)
+
+        with self.assertRaises(ValueError):
+            things.last("XYZ")
+
+        with self.assertRaises(ValueError):
+            things.last("")
+
+        with self.assertRaises(ValueError):
+            things.last("3X")
+
+    def test_tasks(self):
+        """Test tasks"""
+        count = things.tasks(status="completed", last="100y", count_only=True)
+        self.assertEqual(count, 10)
 
 
 if __name__ == "__main__":

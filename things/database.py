@@ -163,10 +163,10 @@ class Database:
         tag=None,
         start_date=None,
         deadline=None,
+        last=None,
         index="index",
         count_only=False,
         search_query=None,
-        last=None,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
 
@@ -178,6 +178,7 @@ class Database:
         validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
         validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
         validate("index", index, list(INDICES))
+        validate_offset("last", last)
 
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
@@ -213,8 +214,8 @@ class Database:
                     {make_filter("TASK.startDate", start_date)}
                     {make_filter(f"TASK.{DATE_DEADLINE}", deadline)}
                     {make_filter("TAG.title", tag)}
+                    {make_date_filter(f"TASK.{DATE_CREATED}", last)}
                     {make_search_filter(search_query)}
-                    {make_date_filter(self.DATE_CREATE, last)}
                     ORDER BY TASK."{index}"
                     """
 
@@ -741,57 +742,55 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(created_column, offset):
+def make_date_filter(date_column, offset):
     """
     Returns SQL filter to limit the date range of the SQL query.
 
     Parameters
     ----------
-    created_column : str
-        Name of the column that has information on when each task was created.
+    date_column : str
+        Name of the column that has date information on a task.
 
     offset : str or None
-        A string comprised of an integer and a single character that can be 'd'
-        or 'w' that determines whether to return all tasks for the past X days
-        or weeks.
+        A string comprised of an integer and a single character that can
+        be 'd', 'w', or 'y' that determines whether to return all tasks
+        for the past X days, weeks, or years.
 
     Returns
     -------
     str
-        A date filter for the SQL query.
-    str (offset is None)
-        An empty string.
+        A date filter for the SQL query. If `offset == None`, then
+        return the empty string.
+
+    Examples
+    --------
+    >>> make_date_filter('created', '3d')
+    "AND datetime(created, 'unixepoch', 'localtime') > datetime('now', '-3 days')"
+
+    >>> make_date_filter('created', None)
+    ''
+
     """
 
     # Offset not specified
     if offset is None:
         return ""
 
-    # Validation
+    validate_offset("offset", offset)
 
-    if not isinstance(offset, str):
-        raise ValueError(
-            f"Invalid last: {offset}\nPlease specify last as a string or None."
-        )
-
-    suffix = offset[-1]
-    if suffix not in ("d", "w"):
-        raise ValueError(
-            f"Invalid last: {offset}\nPlease specify last as a string of the format 'X[d/w]'"
-            "where X is a non-negative integer followed by 'd' or 'w' that indicates"
-            "days or weeks."
-        )
-
-    # Return
-
-    number = int(offset[:-1])
+    number, suffix = int(offset[:-1]), offset[-1]
 
     if suffix == "d":
         modifier = f"-{number} days"
     elif suffix == "w":
-        modifier = f"-{number*7} days"
+        modifier = f"-{number * 7} days"
+    elif suffix == "y":
+        modifier = f"-{number} years"
 
-    return f"AND datetime(TASK.{created_column}, 'unixepoch', 'localtime') > datetime('now', '{modifier}')"
+    column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
+    offset_datetime = f"datetime('now', 'localtime', '{modifier}')"
+
+    return f"AND {column_datetime} > {offset_datetime}"
 
 
 def make_search_filter(query: str) -> str:
@@ -842,3 +841,35 @@ def validate(parameter, argument, valid_arguments):
     message = f"Unrecognized {parameter} type: {argument!r}"
     message += f"\nValid {parameter} types are {valid_arguments}"
     raise ValueError(message)
+
+
+def validate_offset(parameter, argument):
+    """
+    For a given offset parameter, check if its argument is valid.
+    If not, then raise `ValueError`.
+
+    Examples
+    --------
+    >>> validate_offset(parameter='last', argument='3d')
+
+    >>> validate_offset(parameter='last', argument='XYZ')
+    ValueError: Invalid last argument: 'XYZ'
+    ...
+    """
+    if argument is None:
+        return
+
+    if not isinstance(argument, str):
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n"
+            f"Please specify a string or None."
+        )
+
+    suffix = argument[-1:]  # slicing here to handle empty strings
+    if suffix not in ("d", "w", "y"):
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n"
+            f"Please specify a string of the format 'X[d/w/y]' "
+            "where X is a non-negative integer followed by 'd', 'w', or 'y' "
+            "that indicates days, weeks, or years."
+        )

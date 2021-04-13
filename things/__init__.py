@@ -18,6 +18,7 @@ from things.api import (  # noqa
     deadlines,
     get,
     inbox,
+    last,
     link,
     logbook,
     projects,
