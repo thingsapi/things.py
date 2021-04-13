@@ -208,6 +208,9 @@
                     <a class="function" href="#make_filter">make_filter</a>
             </li>
             <li>
+                    <a class="function" href="#make_date_filter">make_date_filter</a>
+            </li>
+            <li>
                     <a class="function" href="#make_search_filter">make_search_filter</a>
             </li>
             <li>
@@ -368,6 +371,7 @@ and SQL database whenever possible.</p>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
@@ -415,6 +419,7 @@ and SQL database whenever possible.</p>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
 
@@ -928,6 +933,59 @@ and SQL database whenever possible.</p>
     <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">created_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    created_column : str</span>
+<span class="sd">        Name of the column that has information on when each task was created.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised of an integer and a single character that can be &#39;d&#39;</span>
+<span class="sd">        or &#39;w&#39; that determines whether to return all tasks for the past X days</span>
+<span class="sd">        or weeks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query.</span>
+<span class="sd">    str (offset is None)</span>
+<span class="sd">        An empty string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Offset not specified</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Validation</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid last: </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="se">\n</span><span class="s2">Please specify last as a string or None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid last: </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="se">\n</span><span class="s2">Please specify last as a string of the format &#39;X[d/w]&#39;&quot;</span>
+            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39; or &#39;w&#39; that indicates&quot;</span>
+            <span class="s2">&quot;days or weeks.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return</span>
+
+    <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="mi">7</span><span class="si">}</span><span class="s2"> days&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND datetime(TASK.</span><span class="si">{</span><span class="n">created_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
+
 <span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example</span>
@@ -1062,6 +1120,7 @@ and SQL database whenever possible.</p>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
@@ -1109,6 +1168,7 @@ and SQL database whenever possible.</p>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
 
@@ -1929,7 +1989,8 @@ If no path is provided, then access the default database path.</li>
     deadline=None,
     index=&#39;index&#39;,
     count_only=False,
-    search_query=None
+    search_query=None,
+    last=None
 )</span>:
     </div>
 
@@ -1950,6 +2011,7 @@ If no path is provided, then access the default database path.</li>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `api.tasks` for details on parameters.&quot;&quot;&quot;</span>
 
@@ -1997,6 +2059,7 @@ If no path is provided, then access the default database path.</li>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DATE_CREATE</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
 
@@ -2943,6 +3006,94 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
             <div class="docstring"><p>Return SQL filter 'AND {column} = "{value}"'.</p>
 
 <p>Special handling if <code>value</code> is <code>bool</code> or <code>None</code>.</p>
+</div>
+
+
+                </section>
+                <section id="make_date_filter">
+                            <div class="attr function"><a class="headerlink" href="#make_date_filter">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">make_date_filter</span><span class="signature">(created_column, offset)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">created_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    created_column : str</span>
+<span class="sd">        Name of the column that has information on when each task was created.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised of an integer and a single character that can be &#39;d&#39;</span>
+<span class="sd">        or &#39;w&#39; that determines whether to return all tasks for the past X days</span>
+<span class="sd">        or weeks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query.</span>
+<span class="sd">    str (offset is None)</span>
+<span class="sd">        An empty string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Offset not specified</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Validation</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid last: </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="se">\n</span><span class="s2">Please specify last as a string or None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid last: </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="se">\n</span><span class="s2">Please specify last as a string of the format &#39;X[d/w]&#39;&quot;</span>
+            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39; or &#39;w&#39; that indicates&quot;</span>
+            <span class="s2">&quot;days or weeks.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return</span>
+
+    <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="mi">7</span><span class="si">}</span><span class="s2"> days&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND datetime(TASK.</span><span class="si">{</span><span class="n">created_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Returns SQL filter to limit the date range of the SQL query.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>created_column</strong> (str):
+Name of the column that has information on when each task was created.</li>
+<li><strong>offset</strong> (str or None):
+A string comprised of an integer and a single character that can be 'd'
+or 'w' that determines whether to return all tasks for the past X days
+or weeks.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>str</strong>: A date filter for the SQL query.</li>
+<li><strong>str (offset is None)</strong>: An empty string.</li>
+</ul>
 </div>
 
 
