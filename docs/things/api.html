@@ -684,7 +684,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read tasks created within last X days or weeks into dicts.</span>
+<span class="sd">    Read tasks created within last X days, weeks, or years into dicts.</span>
 
 <span class="sd">    Per default, only incomplete tasks are included, but do see</span>
 <span class="sd">    `things.api.tasks` for details on the optional parameters.</span>
@@ -694,6 +694,11 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    offset : str</span>
 <span class="sd">        A valid date offset such as &#39;3d&#39;, &#39;5w&#39;, or &#39;1y&#39;.</span>
 <span class="sd">        For details, see the `last` parameter of `things.api.tasks`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Tasks within offset ordered by creation date. Newest first.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -708,7 +713,10 @@ data structures. Whenever that happens, we define the new term here.</p>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="c1"># Interact with Things app</span>
@@ -1886,7 +1894,7 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read tasks created within last X days or weeks into dicts.</span>
+<span class="sd">    Read tasks created within last X days, weeks, or years into dicts.</span>
 
 <span class="sd">    Per default, only incomplete tasks are included, but do see</span>
 <span class="sd">    `things.api.tasks` for details on the optional parameters.</span>
@@ -1896,6 +1904,11 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <span class="sd">    offset : str</span>
 <span class="sd">        A valid date offset such as &#39;3d&#39;, &#39;5w&#39;, or &#39;1y&#39;.</span>
 <span class="sd">        For details, see the `last` parameter of `things.api.tasks`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Tasks within offset ordered by creation date. Newest first.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1910,12 +1923,15 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Read tasks created within last X days or weeks into dicts.</p>
+            <div class="docstring"><p>Read tasks created within last X days, weeks, or years into dicts.</p>
 
 <p>Per default, only incomplete tasks are included, but do see
 <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
@@ -1926,6 +1942,12 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <li><strong>offset</strong> (str):
 A valid date offset such as '3d', '5w', or '1y'.
 For details, see the <code><a href="#last">last</a></code> parameter of <code><a href="#tasks">things.api.tasks</a></code>.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>list of dict</strong>: Tasks within offset ordered by creation date. Newest first.</li>
 </ul>
 
 <h6 id="examples">Examples</h6>
