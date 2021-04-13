@@ -219,92 +219,15 @@ class Database:
                     ORDER BY TASK."{index}"
                     """
 
-        sql_query = self.make_task_sql_query(where_predicate)
+        sql_query = make_tasks_sql_query(where_predicate)
         if count_only:
             return self.get_count(sql_query)
 
         return self.execute_query(sql_query)
 
-    def make_task_sql_query(self, where_predicate):
-        """Make SQL query for Task table"""
-        return f"""
-            SELECT DISTINCT
-                TASK.uuid,
-                CASE
-                    WHEN TASK.{IS_TODO} THEN 'to-do'
-                    WHEN TASK.{IS_PROJECT} THEN 'project'
-                    WHEN TASK.{IS_HEADING} THEN 'heading'
-                END AS type,
-                CASE
-                    WHEN TASK.{IS_TRASHED} THEN 1
-                END AS trashed,
-                TASK.title,
-                CASE
-                    WHEN TASK.{IS_INCOMPLETE} THEN 'incomplete'
-                    WHEN TASK.{IS_COMPLETED} THEN 'completed'
-                    WHEN TASK.{IS_CANCELED} THEN 'canceled'
-                END AS status,
-                CASE
-                    WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
-                END AS area,
-                CASE
-                    WHEN AREA.uuid IS NOT NULL THEN AREA.title
-                END AS area_title,
-                CASE
-                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
-                END AS project,
-                CASE
-                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.title
-                END AS project_title,
-                CASE
-                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.uuid
-                END AS heading,
-                CASE
-                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.title
-                END AS heading_title,
-                TASK.notes,
-                CASE
-                    WHEN TAG.uuid IS NOT NULL THEN 1
-                END AS tags,
-                CASE
-                    WHEN TASK.{IS_INBOX} THEN 'Inbox'
-                    WHEN TASK.{IS_ANYTIME} THEN 'Anytime'
-                    WHEN TASK.{IS_SOMEDAY} THEN 'Someday'
-                END AS start,
-                CASE
-                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
-                END AS checklist,
-                date(TASK.startDate, "unixepoch") AS start_date,
-                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
-                date(TASK.stopDate, "unixepoch") AS "stop_date",
-                datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
-                datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
-                TASK.'index',
-                TASK.todayIndex AS today_index
-            FROM
-                {TABLE_TASK} AS TASK
-            LEFT OUTER JOIN
-                {TABLE_TASK} PROJECT ON TASK.project = PROJECT.uuid
-            LEFT OUTER JOIN
-                {TABLE_AREA} AREA ON TASK.area = AREA.uuid
-            LEFT OUTER JOIN
-                {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
-            LEFT OUTER JOIN
-                {TABLE_TASK} HEADPROJ ON HEADING.project = HEADPROJ.uuid
-            LEFT OUTER JOIN
-                {TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
-            LEFT OUTER JOIN
-                {TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
-            LEFT OUTER JOIN
-                {TABLE_CHECKLIST_ITEM} CHECKLIST_ITEM
-                ON CHECKLIST_ITEM.task = TASK.uuid
-            WHERE
-                {where_predicate}
-            """
-
     def get_task_rows(self, where_predicate):
         """Executes SQL query with given WHERE predicate."""
-        return self.execute_query(self.make_task_sql_query(where_predicate))
+        return self.execute_query(make_tasks_sql_query(where_predicate))
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
@@ -446,6 +369,7 @@ class Database:
         plist_bytes = result[0].encode()
         return plistlib.loads(plist_bytes)
 
+    # pylint: disable=R1710
     def get_url_scheme_auth_token(self):
         """Get the Things URL scheme authentication token."""
 
@@ -457,6 +381,7 @@ class Database:
             WHERE
                 uuid = 'RhAzEf6qDxCD5PmnZVtBZR'
             """
+
         if result := self.execute_query(sql_query, row_factory=list_factory):
             return result[0]
 
@@ -687,6 +612,84 @@ class Database:
 
 
 # Helper functions
+
+
+def make_tasks_sql_query(where_predicate):
+    """Make SQL query for Task table"""
+    return f"""
+            SELECT DISTINCT
+                TASK.uuid,
+                CASE
+                    WHEN TASK.{IS_TODO} THEN 'to-do'
+                    WHEN TASK.{IS_PROJECT} THEN 'project'
+                    WHEN TASK.{IS_HEADING} THEN 'heading'
+                END AS type,
+                CASE
+                    WHEN TASK.{IS_TRASHED} THEN 1
+                END AS trashed,
+                TASK.title,
+                CASE
+                    WHEN TASK.{IS_INCOMPLETE} THEN 'incomplete'
+                    WHEN TASK.{IS_COMPLETED} THEN 'completed'
+                    WHEN TASK.{IS_CANCELED} THEN 'canceled'
+                END AS status,
+                CASE
+                    WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
+                END AS area,
+                CASE
+                    WHEN AREA.uuid IS NOT NULL THEN AREA.title
+                END AS area_title,
+                CASE
+                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.uuid
+                END AS project,
+                CASE
+                    WHEN PROJECT.uuid IS NOT NULL THEN PROJECT.title
+                END AS project_title,
+                CASE
+                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.uuid
+                END AS heading,
+                CASE
+                    WHEN HEADING.uuid IS NOT NULL THEN HEADING.title
+                END AS heading_title,
+                TASK.notes,
+                CASE
+                    WHEN TAG.uuid IS NOT NULL THEN 1
+                END AS tags,
+                CASE
+                    WHEN TASK.{IS_INBOX} THEN 'Inbox'
+                    WHEN TASK.{IS_ANYTIME} THEN 'Anytime'
+                    WHEN TASK.{IS_SOMEDAY} THEN 'Someday'
+                END AS start,
+                CASE
+                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
+                END AS checklist,
+                date(TASK.startDate, "unixepoch") AS start_date,
+                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
+                date(TASK.stopDate, "unixepoch") AS "stop_date",
+                datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
+                datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
+                TASK.'index',
+                TASK.todayIndex AS today_index
+            FROM
+                {TABLE_TASK} AS TASK
+            LEFT OUTER JOIN
+                {TABLE_TASK} PROJECT ON TASK.project = PROJECT.uuid
+            LEFT OUTER JOIN
+                {TABLE_AREA} AREA ON TASK.area = AREA.uuid
+            LEFT OUTER JOIN
+                {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
+            LEFT OUTER JOIN
+                {TABLE_TASK} HEADPROJ ON HEADING.project = HEADPROJ.uuid
+            LEFT OUTER JOIN
+                {TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
+            LEFT OUTER JOIN
+                {TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
+            LEFT OUTER JOIN
+                {TABLE_CHECKLIST_ITEM} CHECKLIST_ITEM
+                ON CHECKLIST_ITEM.task = TASK.uuid
+            WHERE
+                {where_predicate}
+            """
 
 
 def dict_factory(cursor, row):
