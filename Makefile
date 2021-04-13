@@ -1,5 +1,5 @@
 MAIN=things
-SRC_CORE=things
+SRC_CORE=./things
 SRC_TEST=tests
 DST_DOCS=docs
 PYTHON=python3
