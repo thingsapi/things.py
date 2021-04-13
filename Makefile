@@ -8,7 +8,7 @@ PIP=pip3
 PIPENV=pipenv
 PDOC=pdoc
 
-DATE:=$(shell date +"%Y-%M-%d")
+DATE:=$(shell date +"%Y-%m-%d")
 VERSION=$(shell $(PYTHON) -c 'import things; print(things.__version__)')
 
 help: ## Print help for each target
