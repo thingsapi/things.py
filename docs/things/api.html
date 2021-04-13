@@ -79,6 +79,9 @@
                     <a class="function" href="#deadlines">deadlines</a>
             </li>
             <li>
+                    <a class="function" href="#last">last</a>
+            </li>
+            <li>
                     <a class="function" href="#token">token</a>
             </li>
             <li>
@@ -215,6 +218,15 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
 <span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
+<span class="sd">    last : str, optional</span>
+<span class="sd">        Limit returned tasks to tasks created in the last X days or weeks.</span>
+
+<span class="sd">        Takes as input an offset string of format &#39;X[d/w]&#39; where X is a</span>
+<span class="sd">        non-negative  integer that is followed by &#39;d&#39; or &#39;w&#39; which stand</span>
+<span class="sd">        for &#39;days&#39; and &#39;weeks&#39;, respectively.</span>
+
+<span class="sd">        For example: &#39;3d&#39; or &#39;5w&#39;.</span>
+
 <span class="sd">    search_query : str, optional</span>
 <span class="sd">        The string value is passed to the SQL LIKE operator. It can thus</span>
 <span class="sd">        include placeholders such as &#39;%&#39; and &#39;_&#39;. Per default, it is</span>
@@ -256,6 +268,8 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
 <span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39; count_only=True)</span>
+<span class="sd">    2</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -651,6 +665,8 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    14</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
 <span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
+<span class="sd">    ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -664,6 +680,35 @@ data structures. Whenever that happens, we define the new term here.</p>
     <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">deadline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;deadline&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read tasks created within last X days or weeks into dicts.</span>
+
+<span class="sd">    Per default, only incomplete tasks are included, but do see</span>
+<span class="sd">    `things.api.tasks` for details on the optional parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    offset : str</span>
+<span class="sd">        A valid date offset such as &#39;3d&#39;, &#39;5w&#39;, or &#39;1y&#39;.</span>
+<span class="sd">        For details, see the `last` parameter of `things.api.tasks`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;3d&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;1w&#39;, status=&#39;completed&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;1y&#39;, tag=&#39;Important&#39;, status=&#39;completed&#39;, count_only=True)</span>
+<span class="sd">    8</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="c1"># Interact with Things app</span>
@@ -807,6 +852,15 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
 <span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
+<span class="sd">    last : str, optional</span>
+<span class="sd">        Limit returned tasks to tasks created in the last X days or weeks.</span>
+
+<span class="sd">        Takes as input an offset string of format &#39;X[d/w]&#39; where X is a</span>
+<span class="sd">        non-negative  integer that is followed by &#39;d&#39; or &#39;w&#39; which stand</span>
+<span class="sd">        for &#39;days&#39; and &#39;weeks&#39;, respectively.</span>
+
+<span class="sd">        For example: &#39;3d&#39; or &#39;5w&#39;.</span>
+
 <span class="sd">    search_query : str, optional</span>
 <span class="sd">        The string value is passed to the SQL LIKE operator. It can thus</span>
 <span class="sd">        include placeholders such as &#39;%&#39; and &#39;_&#39;. Per default, it is</span>
@@ -848,6 +902,8 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
 <span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39; count_only=True)</span>
+<span class="sd">    2</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -979,6 +1035,14 @@ Special cases:
 <li><code>deadline == True</code>, only include tasks _with_ a deadline.</li>
 <li><code>deadline == None</code> (default), then include all tasks.</li>
 </ul></li>
+<li><p><strong>last</strong> (str, optional):
+Limit returned tasks to tasks created in the last X days or weeks.</p>
+
+<p>Takes as input an offset string of format 'X[d/w]' where X is a
+non-negative  integer that is followed by 'd' or 'w' which stand
+for 'days' and 'weeks', respectively.</p>
+
+<p>For example: '3d' or '5w'.</p></li>
 <li><p><strong>search_query</strong> (str, optional):
 The string value is passed to the SQL LIKE operator. It can thus
 include placeholders such as '%' and '_'. Per default, it is
@@ -1016,6 +1080,8 @@ Any valid database object previously instantiated.</li>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">2</span>
 </code></pre></div>
 </div>
 
@@ -1753,6 +1819,8 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <span class="sd">    14</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
 <span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
+<span class="sd">    ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -1769,6 +1837,8 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <span class="go">14</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;to-do&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
 </code></pre></div>
 </div>
 
@@ -1800,6 +1870,73 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
             <div class="docstring"><p>Read tasks with deadlines into dicts.</p>
 
 <p>See <code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
+</div>
+
+
+                </section>
+                <section id="last">
+                            <div class="attr function"><a class="headerlink" href="#last">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">last</span><span class="signature">(offset, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read tasks created within last X days or weeks into dicts.</span>
+
+<span class="sd">    Per default, only incomplete tasks are included, but do see</span>
+<span class="sd">    `things.api.tasks` for details on the optional parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    offset : str</span>
+<span class="sd">        A valid date offset such as &#39;3d&#39;, &#39;5w&#39;, or &#39;1y&#39;.</span>
+<span class="sd">        For details, see the `last` parameter of `things.api.tasks`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;3d&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;1w&#39;, status=&#39;completed&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; things.last(&#39;1y&#39;, tag=&#39;Important&#39;, status=&#39;completed&#39;, count_only=True)</span>
+<span class="sd">    8</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Read tasks created within last X days or weeks into dicts.</p>
+
+<p>Per default, only incomplete tasks are included, but do see
+<code><a href="#tasks">things.api.tasks</a></code> for details on the optional parameters.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>offset</strong> (str):
+A valid date offset such as '3d', '5w', or '1y'.
+For details, see the <code><a href="#last">last</a></code> parameter of <code><a href="#tasks">things.api.tasks</a></code>.</li>
+</ul>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;1w&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;1y&#39;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;Important&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">8</span>
+</code></pre></div>
 </div>
 
 

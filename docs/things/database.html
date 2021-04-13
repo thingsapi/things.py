@@ -115,10 +115,16 @@
                     <a class="function" href="#make_filter">make_filter</a>
             </li>
             <li>
+                    <a class="function" href="#make_date_filter">make_date_filter</a>
+            </li>
+            <li>
                     <a class="function" href="#make_search_filter">make_search_filter</a>
             </li>
             <li>
                     <a class="function" href="#validate">validate</a>
+            </li>
+            <li>
+                    <a class="function" href="#validate_offset">validate_offset</a>
             </li>
     </ul>
 
@@ -305,6 +311,7 @@
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -319,6 +326,7 @@
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">START_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
+        <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -354,6 +362,7 @@
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
@@ -881,6 +890,57 @@
     <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date_column : str</span>
+<span class="sd">        Name of the column that has date information on a task.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised of an integer and a single character that can</span>
+<span class="sd">        be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return all tasks</span>
+<span class="sd">        for the past X days, weeks, or years.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query. If `offset == None`, then</span>
+<span class="sd">        return the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, &#39;3d&#39;)</span>
+<span class="sd">    &quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Offset not specified</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="n">number</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span> <span class="o">*</span> <span class="mi">7</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
+
+    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
+    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
 <span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example</span>
@@ -929,6 +989,38 @@
     <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> type: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="s2">&quot;</span>
     <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Valid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> types are </span><span class="si">{</span><span class="n">valid_arguments</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+<span class="sd">    If not, then raise `ValueError`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
+<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
+    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
+            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
+            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
+        <span class="p">)</span>
 </pre></div>
 
         </details>
@@ -991,6 +1083,7 @@
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1005,6 +1098,7 @@
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">START_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
+        <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1040,6 +1134,7 @@
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
@@ -1584,6 +1679,7 @@ Otherwise, access the default database path.</li>
     tag=None,
     start_date=None,
     deadline=None,
+    last=None,
     index=&#39;index&#39;,
     count_only=False,
     search_query=None
@@ -1604,6 +1700,7 @@ Otherwise, access the default database path.</li>
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1618,6 +1715,7 @@ Otherwise, access the default database path.</li>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">START_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
+        <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1653,6 +1751,7 @@ Otherwise, access the default database path.</li>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    ORDER BY TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">                    &quot;&quot;&quot;</span>
@@ -2635,6 +2734,102 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
 
 
                 </section>
+                <section id="make_date_filter">
+                            <div class="attr function"><a class="headerlink" href="#make_date_filter">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">make_date_filter</span><span class="signature">(date_column, offset)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date_column : str</span>
+<span class="sd">        Name of the column that has date information on a task.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised of an integer and a single character that can</span>
+<span class="sd">        be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return all tasks</span>
+<span class="sd">        for the past X days, weeks, or years.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query. If `offset == None`, then</span>
+<span class="sd">        return the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, &#39;3d&#39;)</span>
+<span class="sd">    &quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Offset not specified</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="n">number</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span> <span class="o">*</span> <span class="mi">7</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
+
+    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
+    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Returns SQL filter to limit the date range of the SQL query.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>date_column</strong> (str):
+Name of the column that has date information on a task.</li>
+<li><strong>offset</strong> (str or None):
+A string comprised of an integer and a single character that can
+be 'd', 'w', or 'y' that determines whether to return all tasks
+for the past X days, weeks, or years.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>str</strong>: A date filter for the SQL query. If <code>offset == None</code>, then
+return the empty string.</li>
+</ul>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="go">&quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;&#39;</span>
+</code></pre></div>
+</div>
+
+
+                </section>
                 <section id="make_search_filter">
                             <div class="attr function"><a class="headerlink" href="#make_search_filter">#&nbsp;&nbsp</a>
 
@@ -2741,6 +2936,66 @@ If not, then raise <code>ValueError</code>.</p>
 <span class="go">)</span>
 <span class="go">ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
 <span class="go">Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</code></pre></div>
+</div>
+
+
+                </section>
+                <section id="validate_offset">
+                            <div class="attr function"><a class="headerlink" href="#validate_offset">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">validate_offset</span><span class="signature">(parameter, argument)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+<span class="sd">    If not, then raise `ValueError`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
+<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
+    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
+            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
+            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>For a given offset parameter, check if its argument is valid.
+If not, then raise <code>ValueError</code>.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s1">&#39;XYZ&#39;</span><span class="p">)</span>
+<span class="go">ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="gp">...</span>
 </code></pre></div>
 </div>
 
