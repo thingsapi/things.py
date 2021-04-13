@@ -100,10 +100,12 @@ build: clean ## Build the code
 	@$(PYTHON) setup.py sdist bdist_wheel
 
 upload: build ## Upload the code
+	@type twine >/dev/null 2>&1 || (echo "Run e.g. 'pip install twine' first." >&2 ; exit 1)
 	@echo "########################"
-	@echo "Using environment variable PYPI_API_TOKEN..."
+	@echo "Using ~/.pypirc or environment variables TWINE_USERNAME and TWINE_PASSWORD"
+	@echo "See: https://packaging.python.org/specifications/pypirc/#using-a-pypi-token"
 	@echo "########################"
-	@$(PYTHON) -m twine upload dist/things.py* -u __token__ -p "${PYPI_API_TOKEN}"
+	@twine upload dist/things.py*
 
 get-db:
 	@cp tests/main.sqlite* ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/
