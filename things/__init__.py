@@ -4,7 +4,7 @@ __author__ = ["Alexander Willner", "Michael Belfrage"]
 __copyright__ = "2021 Alexander Willner & Michael Belfrage"
 __credits__ = ["Alexander Willner", "Michael Belfrage"]
 __license__ = "Apache License 2.0"
-__version__ = "0.0.9.dev"
+__version__ = "0.0.11.dev"
 __maintainer__ = ["Alexander Willner", "Michael Belfrage"]
 __email__ = "alex@willner.ws"
 __status__ = "Development"
@@ -18,6 +18,7 @@ from things.api import (  # noqa
     deadlines,
     get,
     inbox,
+    last,
     link,
     logbook,
     projects,
