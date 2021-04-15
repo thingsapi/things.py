@@ -16,3 +16,12 @@ repos:
     rev: 3.9.0
     hooks:
     - id: flake8
+-   repo: local
+    hooks:
+    - id: unittest
+      name: unittest
+      entry: make test
+      language: python
+      'types': [python]
+      pass_filenames: false
+      stages: [commit]
