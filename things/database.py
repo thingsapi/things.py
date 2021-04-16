@@ -789,6 +789,8 @@ def make_date_filter(date_column, offset):
         modifier = f"-{number * 7} days"
     elif suffix == "y":
         modifier = f"-{number} years"
+    else:
+        raise ValueError(f"Invalid suffix: {suffix}\n")
 
     column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
     offset_datetime = f"datetime('now', 'localtime', '{modifier}')"

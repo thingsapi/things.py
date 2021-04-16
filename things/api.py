@@ -12,7 +12,7 @@ data structures. Whenever that happens, we define the new term here.
 import os
 from shlex import quote
 import sys
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from things.database import Database
 
@@ -601,7 +601,7 @@ def last(offset, **kwargs):
 # Interact with Things app
 
 
-def token(**kwargs) -> str:
+def token(**kwargs) -> Union[str, None]:
     """
     Read the Things URL scheme authentication token.
 
