@@ -99,13 +99,12 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == None` (default), then include all tasks.
 
     last : str, optional
-        Limit returned tasks to tasks created in the last X days or weeks.
+        Limit returned tasks to tasks created within the last X days,
+        weeks, or years. For example: '3d', '5w', or '1y'.
 
-        Takes as input an offset string of format 'X[d/w]' where X is a
-        non-negative  integer that is followed by 'd' or 'w' which stand
-        for 'days' and 'weeks', respectively.
-
-        For example: '3d' or '5w'.
+        Takes as input an offset string of the format 'X[d/w/y]' where X
+        is a non-negative  integer that is followed by 'd', 'w', or 'y'
+        which stand for 'days', 'weeks', and 'years', respectively.
 
     search_query : str, optional
         The string value is passed to the SQL LIKE operator. It can thus
