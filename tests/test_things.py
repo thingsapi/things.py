@@ -134,6 +134,8 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(10, len(todos))
         todos = things.todos(include_items=True)
         self.assertEqual(12, len(todos))
+        todos = things.tasks(include_items=True)
+        self.assertEqual(16, len(todos))
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
@@ -141,10 +143,16 @@ class ThingsCase(unittest.TestCase):
 
     def test_tags(self):
         """Test all tags."""
-        tags = things.tags()
+        tags = things.tags(include_items=True)
         self.assertEqual(5, len(tags))
         tasks = things.tasks(tag="Errand")
         self.assertEqual(1, len(tasks))
+        tag = things.tags(title="Errand")
+        self.assertEqual("Errand", tag["title"])
+
+    def test_get_link(self):
+        link = things.link("uuid")
+        self.assertEqual("things:///show?id=uuid", link)
 
     def test_projects(self):
         """Test all projects."""
@@ -153,8 +161,11 @@ class ThingsCase(unittest.TestCase):
 
     def test_areas(self):
         """Test all test_areas."""
-        areas = things.areas()
+        areas = things.areas(include_items=True)
         self.assertEqual(3, len(areas))
+        count = things.areas(count_only=True)
+        self.assertEqual(3, count)
+        things.areas(uuid="Y3JC4XeyGWxzDocQL4aobo")
 
     def test_database_version(self):
         """Test database version."""

@@ -468,7 +468,7 @@ def today(**kwargs):
     See `things.api.tasks` for details on the optional parameters.
     """
     database = pop_database(kwargs)
-    if not database.was_modified_today():
+    if not database.was_modified_today():  # pragma: no cover
         print(
             "[NOTE] The results reflect the state of the Things app "
             "when it was last run. If the results seem out of date, "
@@ -650,8 +650,8 @@ def show(uuid):
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])
     """
-    uri = link(uuid)
-    os.system(f"open {quote(uri)}")
+    uri = link(uuid)  # pragma: no cover
+    os.system(f"open {quote(uri)}")  # pragma: no cover
 
 
 # Helper functions
