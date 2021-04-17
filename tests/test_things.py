@@ -59,14 +59,13 @@ class ThingsCase(unittest.TestCase):
     def test_trashed(self):
         """Test getting trashed tasks."""
         tasks = things.trash()
-        self.assertEqual(2, len(tasks))
+        self.assertEqual(3, len(tasks))
         tasks = things.trash(status="canceled")
         self.assertEqual(1, len(tasks))
         tasks = things.trash(status="completed")
         self.assertEqual(1, len(tasks))
-        # TODO: implement getting trashed projects
-        # tasks = things.trash(type="project")
-        # self.assertEqual(1, len(tasks))
+        tasks = things.trash(type="project")
+        self.assertEqual(1, len(tasks))
 
     def test_upcoming(self):
         """Test upcoming."""
@@ -81,7 +80,7 @@ class ThingsCase(unittest.TestCase):
     def test_today(self):
         """Test today."""
         tasks = things.today()
-        self.assertEqual(2, len(tasks))
+        self.assertEqual(3, len(tasks))
 
     def test_checklist(self):
         """Test checklist."""
@@ -93,7 +92,7 @@ class ThingsCase(unittest.TestCase):
     def test_anytime(self):
         """Test anytime."""
         tasks = things.anytime()
-        self.assertEqual(11, len(tasks))
+        self.assertEqual(12, len(tasks))
         self.assertTrue(any(task.get("area_title") == "Area 1" for task in tasks))
 
     def test_logbook(self):
@@ -150,7 +149,7 @@ class ThingsCase(unittest.TestCase):
     def test_projects(self):
         """Test all projects."""
         projects = things.projects()
-        self.assertEqual(2, len(projects))
+        self.assertEqual(3, len(projects))
 
     def test_areas(self):
         """Test all test_areas."""
@@ -165,10 +164,10 @@ class ThingsCase(unittest.TestCase):
     def test_last(self):
         """Test last parameter"""
         last_tasks = things.last("1d")
-        self.assertEqual(len(last_tasks), 0)
+        self.assertEqual(len(last_tasks), 1)
 
         last_tasks = things.last("10000w")
-        self.assertEqual(len(last_tasks), 15)
+        self.assertEqual(len(last_tasks), 16)
 
         last_tasks = things.last("100y", status="completed")
         self.assertEqual(len(last_tasks), 10)
