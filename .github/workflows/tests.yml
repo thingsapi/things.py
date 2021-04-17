@@ -33,5 +33,5 @@ jobs:
     - name: Run lint
       run: |
         pip install black pycodestyle pylama pylint flake8 mypy
-        npm install pyright
+        npm install -g pyright
         make lint
