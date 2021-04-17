@@ -5,6 +5,8 @@
 
 import os
 import unittest
+import io
+import contextlib
 
 import things
 
@@ -187,6 +189,9 @@ class ThingsCase(unittest.TestCase):
             things.last(None)
 
         with self.assertRaises(ValueError):
+            things.last([])
+
+        with self.assertRaises(ValueError):
             things.last("XYZ")
 
         with self.assertRaises(ValueError):
@@ -199,6 +204,20 @@ class ThingsCase(unittest.TestCase):
         """Test tasks"""
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
+
+    def test_database(self):
+        """Test some database details"""
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            db = things.api.pop_database({})
+            db.debug = True
+            db.get_tags()
+        self.assertTrue("H96sVJwE7VJveAnv7itmux" in output.getvalue())
+        with contextlib.redirect_stdout(output):
+            things.areas(print_sql=True)
+        self.assertTrue("ORDER BY" in output.getvalue())
+        with self.assertRaises(SystemExit):  # TODO: should actually NOT crash
+            things.search('"')
 
 
 if __name__ == "__main__":
