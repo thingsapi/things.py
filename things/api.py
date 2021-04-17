@@ -339,6 +339,27 @@ def tags(title=None, include_items=False, **kwargs):
     return result
 
 
+def checklist_items(todo_uuid, **kwargs):
+    """
+    Read checklist items of to-dos into dicts.
+
+    Note: checklists are contained in the return value of
+    `things.todos(todo_uuid)` and `things.tasks(todo_uuid)`.
+
+    Parameters
+    ----------
+    todo_uuid : str, optional
+        A valid to-do uuid.
+
+    Returns
+    -------
+    list of dict
+        Checklist items.
+    """
+    database = pop_database(kwargs)
+    return database.get_checklist_items(todo_uuid=todo_uuid)
+
+
 # --------------------------------------------------
 # Utility API functions derived from above
 # --------------------------------------------------

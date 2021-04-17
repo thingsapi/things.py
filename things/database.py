@@ -270,32 +270,32 @@ class Database:
 
         return self.execute_query(sql_query)
 
-    def get_checklist_items(self, task_uuid=None):
+    def get_checklist_items(self, todo_uuid=None):
         """Get checklist items."""
         sql_query = f"""
-                SELECT
-                    CHECKLIST_ITEM.title,
-                    CASE
-                        WHEN CHECKLIST_ITEM.{IS_INCOMPLETE} THEN 'incomplete'
-                        WHEN CHECKLIST_ITEM.{IS_COMPLETED} THEN 'completed'
-                        WHEN CHECKLIST_ITEM.{IS_CANCELED} THEN 'canceled'
-                    END AS status,
-                    date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
-                    'checklist-item' as type,
-                    CHECKLIST_ITEM.uuid,
-                    datetime(
-                        CHECKLIST_ITEM.{DATE_MODIFIED}, "unixepoch", "localtime"
-                    ) AS created,
-                    datetime(
-                        CHECKLIST_ITEM.{DATE_MODIFIED}, "unixepoch", "localtime"
-                    ) AS modified
-                FROM
-                    {TABLE_CHECKLIST_ITEM} AS CHECKLIST_ITEM
-                WHERE
-                    CHECKLIST_ITEM.task = ?
-                ORDER BY CHECKLIST_ITEM."index"
-                """
-        return self.execute_query(sql_query, (task_uuid,))
+            SELECT
+                CHECKLIST_ITEM.title,
+                CASE
+                    WHEN CHECKLIST_ITEM.{IS_INCOMPLETE} THEN 'incomplete'
+                    WHEN CHECKLIST_ITEM.{IS_CANCELED} THEN 'canceled'
+                    WHEN CHECKLIST_ITEM.{IS_COMPLETED} THEN 'completed'
+                END AS status,
+                date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
+                'checklist-item' as type,
+                CHECKLIST_ITEM.uuid,
+                datetime(
+                    CHECKLIST_ITEM.{DATE_MODIFIED}, "unixepoch", "localtime"
+                ) AS created,
+                datetime(
+                    CHECKLIST_ITEM.{DATE_MODIFIED}, "unixepoch", "localtime"
+                ) AS modified
+            FROM
+                {TABLE_CHECKLIST_ITEM} AS CHECKLIST_ITEM
+            WHERE
+                CHECKLIST_ITEM.task = ?
+            ORDER BY CHECKLIST_ITEM."index"
+            """
+        return self.execute_query(sql_query, (todo_uuid,))
 
     def get_tags(self, title=None, area=None, task=None, titles_only=False):
         """Get tags. See `api.tags` for details on parameters."""
