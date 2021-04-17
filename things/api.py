@@ -526,6 +526,15 @@ def logbook(**kwargs):
     return result
 
 
+def trash(**kwargs):
+    """
+    Read Trash tasks into dicts.
+
+    See `things.api.tasks` for details on the optional parameters.
+    """
+    return tasks(trashed=True, **kwargs)
+
+
 # Filter by various task properties
 
 

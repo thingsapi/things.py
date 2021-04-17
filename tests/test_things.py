@@ -56,6 +56,18 @@ class ThingsCase(unittest.TestCase):
         tasks = things.inbox()
         self.assertEqual(2, len(tasks))
 
+    def test_trashed(self):
+        """Test getting trashed tasks."""
+        tasks = things.trash()
+        self.assertEqual(2, len(tasks))
+        tasks = things.trash(status="canceled")
+        self.assertEqual(1, len(tasks))
+        tasks = things.trash(status="completed")
+        self.assertEqual(1, len(tasks))
+        # TODO: implement getting trashed projects
+        # tasks = things.trash(type="project")
+        # self.assertEqual(1, len(tasks))
+
     def test_upcoming(self):
         """Test upcoming."""
         tasks = things.upcoming()

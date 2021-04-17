@@ -26,6 +26,8 @@ ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
 # Translate app language to database language
 
+BOOL_TO_FILTER = {True: "1", False: "0"}
+
 START_TO_FILTER = {
     "Inbox": "start = 0",
     "Anytime": "start = 1",
@@ -177,6 +179,7 @@ class Database:
         search_query=None,
         index="index",
         count_only=False,
+        trashed: bool = False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
 
@@ -209,9 +212,10 @@ class Database:
             start_filter = START_TO_FILTER.get(start, "")
             status_filter = STATUS_TO_FILTER.get(status, "")
             type_filter = TYPE_TO_FILTER.get(type, "")
+            trashed_filter = BOOL_TO_FILTER.get(trashed)
 
             where_predicate = f"""
-                TASK.{IS_NOT_TRASHED}
+                TASK.trashed = {trashed_filter}
                 {type_filter and f"AND TASK.{type_filter}"}
                 {start_filter and f"AND TASK.{start_filter}"}
                 {status_filter and f"AND TASK.{status_filter}"}
