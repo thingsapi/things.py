@@ -10,12 +10,11 @@ data structures. Whenever that happens, we define the new term here.
 """
 
 import os
-from shlex import quote
 import sys
+from shlex import quote
 from typing import Dict, List, Union
 
 from things.database import Database
-
 
 # --------------------------------------------------
 # Core functions

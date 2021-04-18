@@ -27,10 +27,10 @@ from things.api import (  # noqa
     someday,
     tags,
     tasks,
-    trash,
     today,
     todos,
     token,
+    trash,
     upcoming,
 )
 from things.database import Database  # noqa

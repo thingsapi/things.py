@@ -3,13 +3,12 @@
 
 """Module documentation goes here."""
 
-import io
 import contextlib
+import io
 import os
 import unittest
 
 import things
-
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 
