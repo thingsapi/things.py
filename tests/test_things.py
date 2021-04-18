@@ -206,8 +206,8 @@ class ThingsCase(unittest.TestCase):
 
     def test_last(self):
         """Test last parameter"""
-        last_tasks = things.last("2d")
-        self.assertEqual(len(last_tasks), 1)
+        last_tasks = things.last("0d")
+        self.assertEqual(len(last_tasks), 0)
 
         last_tasks = things.last("10000w")
         self.assertEqual(len(last_tasks), 16)

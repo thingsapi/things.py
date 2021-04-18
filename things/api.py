@@ -537,12 +537,7 @@ def trash(**kwargs):
 
     See `things.api.tasks` for details on the optional parameters.
     """
-    result = [
-        *tasks(trashed=True, **kwargs),
-        *tasks(trashed=True, status="canceled", **kwargs),
-        *tasks(trashed=True, status="completed", **kwargs),
-    ]
-    return result
+    return tasks(trashed=True, status=kwargs.pop("status", None), **kwargs)
 
 
 # Filter by various task properties
