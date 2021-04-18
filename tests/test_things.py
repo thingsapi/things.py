@@ -60,6 +60,7 @@ class ThingsCase(unittest.TestCase):
 
     def test_trashed(self):
         """Test getting trashed tasks."""
+        # TODO: get trashed items from trashed projects
         tasks = things.trash()
         self.assertEqual(3, len(tasks))
         tasks = things.trash(status="canceled")
