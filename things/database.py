@@ -11,6 +11,7 @@ import sqlite3
 import sys
 from textwrap import dedent
 
+
 # --------------------------------------------------
 # Core constants
 # --------------------------------------------------

@@ -10,6 +10,7 @@ import unittest
 
 import things
 
+
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH
@@ -191,7 +192,10 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(3, len(areas))
         count = things.areas(count_only=True)
         self.assertEqual(3, count)
-        things.areas(uuid="Y3JC4XeyGWxzDocQL4aobo")
+        with self.assertRaises(ValueError):
+            things.areas("wrong-uuid")
+        area = things.areas("Y3JC4XeyGWxzDocQL4aobo")
+        self.assertEqual("Area 3", area["title"])
 
     def test_database_version(self):
         """Test database version."""
@@ -240,8 +244,8 @@ class ThingsCase(unittest.TestCase):
         with contextlib.redirect_stdout(output):
             things.areas(print_sql=True)
         self.assertTrue("ORDER BY" in output.getvalue())
-        with self.assertRaises(SystemExit):  # TODO: should actually NOT crash
-            things.search('"')
+        with self.assertRaises(SystemExit):  # noqa TODO: should actually NOT crash
+            things.tasks(area='"')
 
 
 if __name__ == "__main__":
