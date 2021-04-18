@@ -54,6 +54,10 @@ clean: ## Cleanup
 	@rm -rf .tox
 
 auto-style: ## Style the code
+	@if type isort >/dev/null 2>&1 ; then isort . ; \
+	 else echo "SKIPPED. Run '$(PIP) install isort' first." >&2 ; fi
+	@if type autoflake >/dev/null 2>&1 ; then autoflake -r --in-place --remove-unused-variables . ; \
+	 else echo "SKIPPED. Run '$(PIP) install isort' first." >&2 ; fi
 	@if type black >/dev/null 2>&1 ; then black $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
@@ -107,8 +111,8 @@ upload: build ## Upload the code
 	@echo "########################"
 	@twine upload dist/things.py*
 
-get-db:
+db-to-things:
 	@cp tests/main.sqlite* ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/
 
-copy-db:
+db-from-things:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/

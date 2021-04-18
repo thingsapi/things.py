@@ -3,6 +3,8 @@
 
 """Module documentation goes here."""
 
+import contextlib
+import io
 import os
 import unittest
 
@@ -71,6 +73,26 @@ class ThingsCase(unittest.TestCase):
         tasks = things.inbox()
         self.assertEqual(2, len(tasks))
 
+    def test_trashed(self):
+        """Test getting trashed tasks."""
+        tasks = things.trash()
+        self.assertEqual(5, len(tasks))
+        todos = things.todos(trashed=True)
+        self.assertEqual(2, len(todos))
+        projects = things.projects(trashed=True)
+        self.assertEqual(1, len(projects))
+        projects = things.projects(trashed=None)
+        self.assertEqual(4, len(projects))
+        projects = things.trash(type="project")
+        self.assertEqual(1, len(projects))
+        projects = things.trash(type="project", include_items=True)
+        # TOOD: doesn't inlucde items
+        # self.assertEqual(1, len(projects[0]["items"]))
+        # tasks = list(
+        #     filter(lambda _: "in Deleted Project" in _["title"], projects[0]["items"])
+        # )
+        # self.assertEqual(1, len(tasks))
+
     def test_upcoming(self):
         """Test upcoming."""
         tasks = things.upcoming()
@@ -84,7 +106,7 @@ class ThingsCase(unittest.TestCase):
     def test_today(self):
         """Test today."""
         tasks = things.today()
-        self.assertEqual(2, len(tasks))
+        self.assertEqual(3, len(tasks))
 
     def test_checklist(self):
         """Test checklist."""
@@ -96,7 +118,7 @@ class ThingsCase(unittest.TestCase):
     def test_anytime(self):
         """Test anytime."""
         tasks = things.anytime()
-        self.assertEqual(11, len(tasks))
+        self.assertEqual(12, len(tasks))
         self.assertTrue(any(task.get("area_title") == "Area 1" for task in tasks))
 
     def test_logbook(self):
@@ -138,6 +160,8 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(10, len(todos))
         todos = things.todos(include_items=True)
         self.assertEqual(12, len(todos))
+        tasks = things.tasks(include_items=True)
+        self.assertEqual(16, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
@@ -147,18 +171,36 @@ class ThingsCase(unittest.TestCase):
         """Test all tags."""
         tags = things.tags()
         self.assertEqual(5, len(tags))
-        tasks = things.tasks(tag="Errand")
-        self.assertEqual(1, len(tasks))
+        tags = things.tags(include_items=True)
+        self.assertEqual(5, len(tags))
+        tags = things.tasks(tag="Errand")
+        self.assertEqual(1, len(tags))
+        tag = things.tags(title="Errand")
+        self.assertEqual("Errand", tag["title"])
+
+    def test_get_link(self):
+        link = things.link("uuid")
+        self.assertEqual("things:///show?id=uuid", link)
 
     def test_projects(self):
         """Test all projects."""
         projects = things.projects()
-        self.assertEqual(2, len(projects))
+        self.assertEqual(3, len(projects))
+        projects = things.projects(include_items=True)
+        self.assertEqual(2, len(projects[0]["items"]))
 
     def test_areas(self):
         """Test all test_areas."""
         areas = things.areas()
         self.assertEqual(3, len(areas))
+        areas = things.areas(include_items=True)
+        self.assertEqual(3, len(areas))
+        count = things.areas(count_only=True)
+        self.assertEqual(3, count)
+        with self.assertRaises(ValueError):
+            things.areas("wrong-uuid")
+        area = things.areas("Y3JC4XeyGWxzDocQL4aobo")
+        self.assertEqual("Area 3", area["title"])
 
     def test_database_version(self):
         """Test database version."""
@@ -167,17 +209,20 @@ class ThingsCase(unittest.TestCase):
 
     def test_last(self):
         """Test last parameter"""
-        last_tasks = things.last("1d")
+        last_tasks = things.last("0d")
         self.assertEqual(len(last_tasks), 0)
 
         last_tasks = things.last("10000w")
-        self.assertEqual(len(last_tasks), 15)
+        self.assertEqual(len(last_tasks), 16)
 
         last_tasks = things.last("100y", status="completed")
         self.assertEqual(len(last_tasks), 10)
 
         with self.assertRaises(ValueError):
             things.last(None)
+
+        with self.assertRaises(ValueError):
+            things.last([])
 
         with self.assertRaises(ValueError):
             things.last("XYZ")
@@ -192,7 +237,6 @@ class ThingsCase(unittest.TestCase):
         """Test tasks"""
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
-
         # special characters
         tasks = things.tasks(area='"')
         self.assertEqual(len(tasks), 0)
@@ -202,6 +246,20 @@ class ThingsCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             things.tasks(area="\0")
+
+    def test_database(self):
+        """Test some database details"""
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            db = things.api.pop_database({})
+            db.debug = True
+            db.get_tags()
+        self.assertTrue("H96sVJwE7VJveAnv7itmux" in output.getvalue())
+        with contextlib.redirect_stdout(output):
+            things.areas(print_sql=True)
+        self.assertTrue("ORDER BY" in output.getvalue())
+        with self.assertRaises(SystemExit):  # noqa TODO: should actually NOT crash
+            db.execute_query('"')
 
 
 if __name__ == "__main__":

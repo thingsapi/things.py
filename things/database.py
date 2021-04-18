@@ -40,6 +40,8 @@ STATUS_TO_FILTER = {
     "completed": "status = 3",
 }
 
+TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
+
 TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
 
 # Indices
@@ -116,8 +118,8 @@ RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
 RECURRING_HAS_NEXT_STARTDATE = "nextInstanceStartDate IS NOT NULL"
 
 # Trashed
-IS_NOT_TRASHED = "trashed = 0"
-IS_TRASHED = "trashed = 1"
+IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
+IS_TRASHED = TRASHED_TO_FILTER[True]
 
 
 # pylint: disable=R0904,R0902
@@ -175,6 +177,7 @@ class Database:
         tag=None,
         start_date=None,
         deadline=None,
+        trashed: bool = False,
         last=None,
         search_query=None,
         index="index",
@@ -186,9 +189,10 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
-        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
         validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
+        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
+        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
+        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
         validate("index", index, list(INDICES))
         validate_offset("last", last)
 
@@ -210,16 +214,17 @@ class Database:
         else:
             start_filter = START_TO_FILTER.get(start, "")
             status_filter = STATUS_TO_FILTER.get(status, "")
+            trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
             type_filter = TYPE_TO_FILTER.get(type, "")
 
             where_predicate = f"""
-                TASK.{IS_NOT_TRASHED}
+                TASK.{IS_NOT_RECURRING}
+                AND (PROJECT.title IS NULL OR PROJECT.{IS_NOT_TRASHED})
+                AND (HEADPROJ.title IS NULL OR HEADPROJ.{IS_NOT_TRASHED})
+                {trashed_filter and f"AND TASK.{trashed_filter}"}
                 {type_filter and f"AND TASK.{type_filter}"}
                 {start_filter and f"AND TASK.{start_filter}"}
                 {status_filter and f"AND TASK.{status_filter}"}
-                AND TASK.{IS_NOT_RECURRING}
-                AND (PROJECT.title IS NULL OR PROJECT.{IS_NOT_TRASHED})
-                AND (HEADPROJ.title IS NULL OR HEADPROJ.{IS_NOT_TRASHED})
                 {make_filter('TASK.uuid', uuid)}
                 {make_filter("TASK.area", area)}
                 {make_filter("TASK.project", project)}

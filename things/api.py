@@ -98,6 +98,11 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == True`, only include tasks _with_ a deadline.
         - `deadline == None` (default), then include all tasks.
 
+    trashed : bool or None, optional
+        - `trashed == True`, only include trashed tasks.
+        - `trashed == False`, (default), only include non-trashed tasks.
+        - `trashed == None`, include both kind of tasks.
+
     last : str, optional
         Limit returned tasks to tasks created within the last X days,
         weeks, or years. For example: '3d', '5w', or '1y'.
@@ -468,7 +473,7 @@ def today(**kwargs):
     See `things.api.tasks` for details on the optional parameters.
     """
     database = pop_database(kwargs)
-    if not database.was_modified_today():
+    if not database.was_modified_today():  # pragma: no cover
         print(
             "[NOTE] The results reflect the state of the Things app "
             "when it was last run. If the results seem out of date, "
@@ -524,6 +529,15 @@ def logbook(**kwargs):
     result = [*canceled(**kwargs), *completed(**kwargs)]
     result.sort(key=lambda task: task["stop_date"], reverse=True)
     return result
+
+
+def trash(**kwargs):
+    """
+    Read Trash tasks into dicts.
+
+    See `things.api.tasks` for details on the optional parameters.
+    """
+    return tasks(trashed=True, status=kwargs.pop("status", None), **kwargs)
 
 
 # Filter by various task properties
@@ -641,8 +655,8 @@ def show(uuid):
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])
     """
-    uri = link(uuid)
-    os.system(f"open {quote(uri)}")
+    uri = link(uuid)  # pragma: no cover
+    os.system(f"open {quote(uri)}")  # pragma: no cover
 
 
 # Helper functions

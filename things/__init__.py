@@ -30,6 +30,7 @@ from things.api import (  # noqa
     today,
     todos,
     token,
+    trash,
     upcoming,
 )
 from things.database import Database  # noqa
