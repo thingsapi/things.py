@@ -11,9 +11,11 @@ import sqlite3
 import sys
 from textwrap import dedent
 
+
 # --------------------------------------------------
 # Core constants
 # --------------------------------------------------
+
 
 # Database filepath
 
@@ -592,7 +594,7 @@ def make_filter(column, value):
     Examples
     --------
     >>> make_filter('title', 'Important')
-    'AND title = "Important"'
+    "AND title = 'Important'"
 
     >>> make_filter('startDate', True)
     'AND startDate IS NOT NULL'
@@ -603,7 +605,7 @@ def make_filter(column, value):
     >>> make_filter('title', None)
     ''
     """
-    default = f'AND {column} = "{value}"'
+    default = f"AND {column} = '{escape_string(str(value))}'"
     # special options
     return {
         None: "",

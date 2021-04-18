@@ -190,6 +190,16 @@ class ThingsCase(unittest.TestCase):
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
 
+        # special characters
+        tasks = things.tasks(area='"')
+        self.assertEqual(len(tasks), 0)
+
+        tasks = things.tasks(area="'")
+        self.assertEqual(len(tasks), 0)
+
+        with self.assertRaises(ValueError):
+            things.tasks(area="\0")
+
 
 if __name__ == "__main__":
     unittest.main()
