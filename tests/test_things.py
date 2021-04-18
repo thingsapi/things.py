@@ -232,6 +232,15 @@ class ThingsCase(unittest.TestCase):
         """Test tasks"""
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
+        # special characters
+        tasks = things.tasks(area='"')
+        self.assertEqual(len(tasks), 0)
+
+        tasks = things.tasks(area="'")
+        self.assertEqual(len(tasks), 0)
+
+        with self.assertRaises(ValueError):
+            things.tasks(area="\0")
 
     def test_database(self):
         """Test some database details"""
@@ -245,7 +254,7 @@ class ThingsCase(unittest.TestCase):
             things.areas(print_sql=True)
         self.assertTrue("ORDER BY" in output.getvalue())
         with self.assertRaises(SystemExit):  # noqa TODO: should actually NOT crash
-            things.tasks(area='"')
+            db.execute_query('"')
 
 
 if __name__ == "__main__":
