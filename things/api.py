@@ -97,10 +97,10 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == True`, only include tasks _with_ a deadline.
         - `deadline == None` (default), then include all tasks.
 
-    trash : bool, optional
-        - `trash == True`, only include trashed tasks.
-        - `trash == False`, (default), only include non-trashed tasks.
-        - `trash == None`, include both kind of tasks.
+    trashed : bool or None, optional
+        - `trashed == True`, only include trashed tasks.
+        - `trashed == False`, (default), only include non-trashed tasks.
+        - `trashed == None`, include both kind of tasks.
 
     last : str, optional
         Limit returned tasks to tasks created within the last X days,

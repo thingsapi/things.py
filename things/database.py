@@ -26,8 +26,6 @@ ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
 # Translate app language to database language
 
-TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
-
 START_TO_FILTER = {
     "Inbox": "start = 0",
     "Anytime": "start = 1",
@@ -39,6 +37,8 @@ STATUS_TO_FILTER = {
     "canceled": "status = 2",
     "completed": "status = 3",
 }
+
+TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
 TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
 
@@ -116,8 +116,8 @@ RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
 RECURRING_HAS_NEXT_STARTDATE = "nextInstanceStartDate IS NOT NULL"
 
 # Trashed
-IS_NOT_TRASHED = "trashed = 0"
-IS_TRASHED = "trashed = 1"
+IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
+IS_TRASHED = TRASHED_TO_FILTER[True]
 
 
 # pylint: disable=R0904,R0902
