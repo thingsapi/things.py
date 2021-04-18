@@ -73,22 +73,22 @@ class ThingsCase(unittest.TestCase):
     def test_trashed(self):
         """Test getting trashed tasks."""
         tasks = things.trash()
-        self.assertEqual(3, len(tasks))  # TODO: should be 4
-        # TODO: get trashed items from trashed projects
-        # tasks = list(filter(lambda _: "in Deleted Project" in _["title"], tasks))
-        # self.assertEqual(1, len(tasks))
+        self.assertEqual(5, len(tasks))
         todos = things.todos(trashed=True)
         self.assertEqual(2, len(todos))
         projects = things.projects(trashed=True)
         self.assertEqual(1, len(projects))
         projects = things.projects(trashed=None)
-        self.assertEqual(4, len(projects))  # TODO: later probably 5 (see above)
-        tasks = things.trash(status="canceled")
-        self.assertEqual(1, len(tasks))
-        tasks = things.trash(status="completed")
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(4, len(projects))
         projects = things.trash(type="project")
         self.assertEqual(1, len(projects))
+        projects = things.trash(type="project", include_items=True)
+        # TOOD: doesn't inlucde items
+        # self.assertEqual(1, len(projects[0]["items"]))
+        # tasks = list(
+        #     filter(lambda _: "in Deleted Project" in _["title"], projects[0]["items"])
+        # )
+        # self.assertEqual(1, len(tasks))
 
     def test_upcoming(self):
         """Test upcoming."""
