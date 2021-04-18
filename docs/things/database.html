@@ -82,6 +82,9 @@
                     <a class="function" href="#dict_factory">dict_factory</a>
             </li>
             <li>
+                    <a class="function" href="#escape_string">escape_string</a>
+            </li>
+            <li>
                     <a class="function" href="#list_factory">list_factory</a>
             </li>
             <li>
@@ -677,6 +680,30 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
+<span class="k">def</span> <span class="nf">escape_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Escape SQLite string literal.</span>
+
+<span class="sd">    Three notes:</span>
+
+<span class="sd">    1. A single quote within a SQLite string can be encoded by putting</span>
+<span class="sd">    two single quotes in a row. Escapes using the backslash character</span>
+<span class="sd">    are not supported in SQLite.</span>
+
+<span class="sd">    2. Null characters &#39;\0&#39; within strings can lead to surprising</span>
+<span class="sd">    behavior. However, `cursor.execute` will already throw a `ValueError`</span>
+<span class="sd">    if it finds a null character in the query, so we let it handle</span>
+<span class="sd">    this case for us.</span>
+
+<span class="sd">    3. Eventually we might want to make use of parameters instead of</span>
+<span class="sd">    manually escaping. Since this will require some refactoring,</span>
+<span class="sd">    we are going with the easiest solution for now.</span>
+
+<span class="sd">    See: https://www.sqlite.org/lang_expr.html#literal_values_constants_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">list_factory</span><span class="p">(</span><span class="n">_cursor</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert SQL selects of one column into a list.</span>
@@ -777,10 +804,12 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
+    <span class="n">query</span> <span class="o">=</span> <span class="n">escape_string</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
     <span class="c1"># noqa todo &#39;TMChecklistItem.title&#39;</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TASK.title&quot;</span><span class="p">,</span> <span class="s2">&quot;TASK.notes&quot;</span><span class="p">,</span> <span class="s2">&quot;AREA.title&quot;</span><span class="p">]</span>
 
-    <span class="n">sub_searches</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> LIKE &quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s1">%&quot;&#39;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="n">sub_searches</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> LIKE &#39;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&#39;&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND (</span><span class="si">{</span><span class="s1">&#39; OR &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub_searches</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 
@@ -1915,6 +1944,64 @@ https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.row_factory</p
 
 
                 </section>
+                <section id="escape_string">
+                            <div class="attr function"><a class="headerlink" href="#escape_string">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">escape_string</span><span class="signature">(string)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">escape_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Escape SQLite string literal.</span>
+
+<span class="sd">    Three notes:</span>
+
+<span class="sd">    1. A single quote within a SQLite string can be encoded by putting</span>
+<span class="sd">    two single quotes in a row. Escapes using the backslash character</span>
+<span class="sd">    are not supported in SQLite.</span>
+
+<span class="sd">    2. Null characters &#39;\0&#39; within strings can lead to surprising</span>
+<span class="sd">    behavior. However, `cursor.execute` will already throw a `ValueError`</span>
+<span class="sd">    if it finds a null character in the query, so we let it handle</span>
+<span class="sd">    this case for us.</span>
+
+<span class="sd">    3. Eventually we might want to make use of parameters instead of</span>
+<span class="sd">    manually escaping. Since this will require some refactoring,</span>
+<span class="sd">    we are going with the easiest solution for now.</span>
+
+<span class="sd">    See: https://www.sqlite.org/lang_expr.html#literal_values_constants_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Escape SQLite string literal.</p>
+
+<p>Three notes:</p>
+
+<ol>
+<li><p>A single quote within a SQLite string can be encoded by putting
+two single quotes in a row. Escapes using the backslash character
+are not supported in SQLite.</p></li>
+<li><p>Null characters '\0' within strings can lead to surprising
+behavior. However, <code>cursor.execute</code> will already throw a <code>ValueError</code>
+if it finds a null character in the query, so we let it handle
+this case for us.</p></li>
+<li><p>Eventually we might want to make use of parameters instead of
+manually escaping. Since this will require some refactoring,
+we are going with the easiest solution for now.</p></li>
+</ol>
+
+<p>See: https://www.sqlite.org/lang_expr.html#literal_values_constants_</p>
+</div>
+
+
+                </section>
                 <section id="list_factory">
                             <div class="attr function"><a class="headerlink" href="#list_factory">#&nbsp;&nbsp</a>
 
@@ -2124,10 +2211,12 @@ return the empty string.</li>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
+    <span class="n">query</span> <span class="o">=</span> <span class="n">escape_string</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
     <span class="c1"># noqa todo &#39;TMChecklistItem.title&#39;</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TASK.title&quot;</span><span class="p">,</span> <span class="s2">&quot;TASK.notes&quot;</span><span class="p">,</span> <span class="s2">&quot;AREA.title&quot;</span><span class="p">]</span>
 
-    <span class="n">sub_searches</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> LIKE &quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s1">%&quot;&#39;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="n">sub_searches</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> LIKE &#39;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&#39;&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND (</span><span class="si">{</span><span class="s1">&#39; OR &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub_searches</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 </pre></div>
