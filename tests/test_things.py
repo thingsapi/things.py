@@ -183,6 +183,8 @@ class ThingsCase(unittest.TestCase):
         """Test all projects."""
         projects = things.projects()
         self.assertEqual(3, len(projects))
+        projects = things.projects(include_items=True)
+        self.assertEqual(2, len(projects[0]["items"]))
 
     def test_areas(self):
         """Test all test_areas."""
@@ -204,7 +206,7 @@ class ThingsCase(unittest.TestCase):
 
     def test_last(self):
         """Test last parameter"""
-        last_tasks = things.last("1d")
+        last_tasks = things.last("2d")
         self.assertEqual(len(last_tasks), 1)
 
         last_tasks = things.last("10000w")
