@@ -49,6 +49,18 @@ class ThingsCase(unittest.TestCase):
         """Test search."""
         tasks = things.search("wrong_query")
         self.assertEqual(0, len(tasks))
+
+        # test some special characters
+        tasks = things.search("'")
+        self.assertEqual(0, len(tasks))
+
+        tasks = things.search('"')
+        self.assertEqual(0, len(tasks))
+
+        with self.assertRaises(ValueError):
+            things.search("To-Do\0Heading")
+
+        # Find "To-Do in Heading" but not "Completed To-Do in Heading".
         tasks = things.search("To-Do % Heading")
         self.assertEqual(1, len(tasks))
 

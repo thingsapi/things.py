@@ -557,6 +557,30 @@ def dict_factory(cursor, row):
     return result
 
 
+def escape_string(string):
+    r"""
+    Escape SQLite string literal.
+
+    Three notes:
+
+    1. A single quote within a SQLite string can be encoded by putting
+    two single quotes in a row. Escapes using the backslash character
+    are not supported in SQLite.
+
+    2. Null characters '\0' within strings can lead to surprising
+    behavior. However, `cursor.execute` will already throw a `ValueError`
+    if it finds a null character in the query, so we let it handle
+    this case for us.
+
+    3. Eventually we might want to make use of parameters instead of
+    manually escaping. Since this will require some refactoring,
+    we are going with the easiest solution for now.
+
+    See: https://www.sqlite.org/lang_expr.html#literal_values_constants_
+    """
+    return string.replace("'", "''")
+
+
 def list_factory(_cursor, row):
     """
     Convert SQL selects of one column into a list.
@@ -657,10 +681,12 @@ def make_search_filter(query: str) -> str:
     if not query:
         return ""
 
+    query = escape_string(query)
+
     # noqa todo 'TMChecklistItem.title'
     columns = ["TASK.title", "TASK.notes", "AREA.title"]
 
-    sub_searches = (f'{column} LIKE "%{query}%"' for column in columns)
+    sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)
 
     return f"AND ({' OR '.join(sub_searches)})"
 
