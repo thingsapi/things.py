@@ -658,7 +658,7 @@ def make_date_filter(date_column, offset):
         modifier = f"-{number} years"
 
     column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
-    offset_datetime = f"datetime('now', 'localtime', '{modifier}')"
+    offset_datetime = f"datetime('now', 'localtime', '{modifier}')"  # type: ignore
 
     return f"AND {column_datetime} > {offset_datetime}"
 
