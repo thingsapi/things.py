@@ -107,8 +107,8 @@ upload: build ## Upload the code
 	@echo "########################"
 	@twine upload dist/things.py*
 
-get-db:
+db-to-things:
 	@cp tests/main.sqlite* ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/
 
-copy-db:
+db-from-things:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
