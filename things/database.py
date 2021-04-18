@@ -188,9 +188,10 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
-        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
         validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
+        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
+        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
+        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
         validate("index", index, list(INDICES))
         validate_offset("last", last)
 
@@ -212,8 +213,8 @@ class Database:
         else:
             start_filter = START_TO_FILTER.get(start, "")
             status_filter = STATUS_TO_FILTER.get(status, "")
-            type_filter = TYPE_TO_FILTER.get(type, "")
             trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
+            type_filter = TYPE_TO_FILTER.get(type, "")
 
             where_predicate = f"""
                 TASK.{IS_NOT_RECURRING}
