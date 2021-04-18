@@ -138,9 +138,11 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
 
+
 <span class="c1"># --------------------------------------------------</span>
 <span class="c1"># Core constants</span>
 <span class="c1"># --------------------------------------------------</span>
+
 
 <span class="c1"># Database filepath</span>
 
@@ -719,7 +721,7 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;title&#39;, &#39;Important&#39;)</span>
-<span class="sd">    &#39;AND title = &quot;Important&quot;&#39;</span>
+<span class="sd">    &quot;AND title = &#39;Important&#39;&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;startDate&#39;, True)</span>
 <span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
@@ -730,7 +732,7 @@
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;title&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> = &quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> = &#39;</span><span class="si">{</span><span class="n">escape_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
     <span class="c1"># special options</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="kc">None</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -2044,7 +2046,7 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;title&#39;, &#39;Important&#39;)</span>
-<span class="sd">    &#39;AND title = &quot;Important&quot;&#39;</span>
+<span class="sd">    &quot;AND title = &#39;Important&#39;&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;startDate&#39;, True)</span>
 <span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
@@ -2055,7 +2057,7 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    &gt;&gt;&gt; make_filter(&#39;title&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> = &quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> = &#39;</span><span class="si">{</span><span class="n">escape_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
     <span class="c1"># special options</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="kc">None</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -2073,7 +2075,7 @@ we are going with the easiest solution for now.</p></li>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;Important&#39;</span><span class="p">)</span>
-<span class="go">&#39;AND title = &quot;Important&quot;&#39;</span>
+<span class="go">&quot;AND title = &#39;Important&#39;&quot;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
