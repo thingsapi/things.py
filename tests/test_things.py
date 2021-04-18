@@ -59,9 +59,12 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.search("To-Do\0Heading")
 
-        # Find "To-Do in Heading" but not "Completed To-Do in Heading".
-        tasks = things.search("To-Do % Heading")
-        self.assertEqual(1, len(tasks))
+        todos = things.search("To-Do % Heading", status=None)
+        # Assert finds
+        #   "To-Do in Heading",
+        #   "Completed To-Do in Heading",
+        #   "Canceled To-Do in Heading"
+        self.assertEqual(3, len(todos))
 
     def test_inbox(self):
         """Test inbox."""
