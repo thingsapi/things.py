@@ -3,10 +3,10 @@
 
 """Module documentation goes here."""
 
-import os
-import unittest
 import io
 import contextlib
+import os
+import unittest
 
 import things
 
@@ -65,12 +65,18 @@ class ThingsCase(unittest.TestCase):
         # TODO: get trashed items from trashed projects
         # tasks = list(filter(lambda _: "in Deleted Project" in _["title"], tasks))
         # self.assertEqual(1, len(tasks))
+        todos = things.todos(trashed=True)
+        self.assertEqual(2, len(todos))
+        projects = things.projects(trashed=True)
+        self.assertEqual(1, len(projects))
+        projects = things.projects(trashed=None)
+        self.assertEqual(4, len(projects))  # TODO: later probably 5 (see above)
         tasks = things.trash(status="canceled")
         self.assertEqual(1, len(tasks))
         tasks = things.trash(status="completed")
         self.assertEqual(1, len(tasks))
-        tasks = things.trash(type="project")
-        self.assertEqual(1, len(tasks))
+        projects = things.trash(type="project")
+        self.assertEqual(1, len(projects))
 
     def test_upcoming(self):
         """Test upcoming."""
@@ -139,8 +145,8 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(10, len(todos))
         todos = things.todos(include_items=True)
         self.assertEqual(12, len(todos))
-        todos = things.tasks(include_items=True)
-        self.assertEqual(16, len(todos))
+        tasks = things.tasks(include_items=True)
+        self.assertEqual(16, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
@@ -148,10 +154,12 @@ class ThingsCase(unittest.TestCase):
 
     def test_tags(self):
         """Test all tags."""
+        tags = things.tags()
+        self.assertEqual(5, len(tags))
         tags = things.tags(include_items=True)
         self.assertEqual(5, len(tags))
-        tasks = things.tasks(tag="Errand")
-        self.assertEqual(1, len(tasks))
+        tags = things.tasks(tag="Errand")
+        self.assertEqual(1, len(tags))
         tag = things.tags(title="Errand")
         self.assertEqual("Errand", tag["title"])
 
@@ -166,6 +174,8 @@ class ThingsCase(unittest.TestCase):
 
     def test_areas(self):
         """Test all test_areas."""
+        areas = things.areas()
+        self.assertEqual(3, len(areas))
         areas = things.areas(include_items=True)
         self.assertEqual(3, len(areas))
         count = things.areas(count_only=True)
