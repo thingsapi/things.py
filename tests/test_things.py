@@ -6,7 +6,6 @@
 import contextlib
 import io
 import os
-import sqlite3
 import unittest
 
 import things
