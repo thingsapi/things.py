@@ -16,7 +16,6 @@ def package_files(directory):
 
 
 APP = [""]
-APP_NAME = "Things"
 AUTHOR = "Alexander Willner, Michael B."
 AUTHOR_MAIL = "alex@willner.ws"
 DESCRIPTON = "A simple Python 3 library to read your Things app data."

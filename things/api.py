@@ -656,7 +656,7 @@ def link(uuid):
     return f"things:///show?id={uuid}"
 
 
-def show(uuid):
+def show(uuid):  # noqa
     """
     Show a certain uuid in the Things app.
 

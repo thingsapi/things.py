@@ -84,12 +84,12 @@ DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
-DATE_STOP = "stopDate"
+DATE_STOP = "stopDate"  # noqa TODO: never used
 
 # Filters
-IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
-IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
-IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
+IS_SCHEDULED = f"{DATE_START} IS NOT NULL"  # noqa TODO: never used
+IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"  # noqa TODO: never used
+IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"  # noqa TODO: never used
 
 # --------------------------------------------------
 # Various filters
@@ -111,13 +111,15 @@ IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
-IS_RECURRING = "recurrenceRule IS NOT NULL"
+IS_RECURRING = "recurrenceRule IS NOT NULL"  # noqa TODO: never used
 IS_NOT_RECURRING = "recurrenceRule IS NULL"
-RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
-RECURRING_HAS_NEXT_STARTDATE = "nextInstanceStartDate IS NOT NULL"
+RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"  # noqa TODO: never used
+RECURRING_HAS_NEXT_STARTDATE = (  # noqa TODO: never used
+    "nextInstanceStartDate IS NOT NULL"
+)
 
 # Trashed
-IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
+IS_NOT_TRASHED = TRASHED_TO_FILTER[False]  # noqa TODO: never used
 IS_TRASHED = TRASHED_TO_FILTER[True]
 
 

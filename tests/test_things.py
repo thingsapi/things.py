@@ -16,7 +16,7 @@ TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
 
-class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
+class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     """Class documentation goes here."""
 
     def setUp(self):
@@ -271,3 +271,4 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
 
 if __name__ == "__main__":
     unittest.main()
+    ThingsCase()  # For Vulture

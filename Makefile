@@ -63,7 +63,7 @@ auto-style: ## Style the code
 
 code-style: ## Test the code style
 	@echo Pycodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle . ; \
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 	@echo Pydocstyle...
 	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py $(SRC_TEST)/*.py  ; \
@@ -75,20 +75,22 @@ code-count: ## Count the code
 
 code-lint: code-style ## Lint the code
 	@echo Pylama...
-	@if type pylama >/dev/null 2>&1 ; then pylama . ; \
+	@if type pylama >/dev/null 2>&1 ; then pylama *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
-	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) $(SRC_TEST) ; \
+	@if type pylint >/dev/null 2>&1 ; then pylint *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Flake...
 	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 	@echo Pyright...
-	@if type pyright >/dev/null 2>&1 ; then pyright . ; \
+	@if type pyright >/dev/null 2>&1 ; then pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
-	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports . ; \
+	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
+	@if type vulture >/dev/null 2>&1 ; then vulture *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
+	 else echo "SKIPPED. Run '$(PIP) install vulture' first." >&2 ; fi
 
 lint: code-style code-lint  ## Lint everything
 
