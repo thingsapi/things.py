@@ -98,10 +98,21 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == True`, only include tasks _with_ a deadline.
         - `deadline == None` (default), then include all tasks.
 
-    trashed : bool or None, optional
+    trashed : bool or None, optional, default False
+        - `trashed == False` (default), only include non-trashed tasks.
         - `trashed == True`, only include trashed tasks.
-        - `trashed == False`, (default), only include non-trashed tasks.
         - `trashed == None`, include both kind of tasks.
+
+    context_trashed : bool or None, optional, default False
+        Some tasks may be within a context of a project or a heading.
+        This manages how to handle such tasks. The other tasks are not
+        affected by this setting.
+
+        - `context_trashed == False` (default), for tasks within a context,
+           only return tasks whose context has _not_ been trashed.
+        - `context_trashed == True`, for tasks within a context,
+           only return tasks whose context has been trashed.
+        - `context_trashed == None`, include both kind of tasks.
 
     last : str, optional
         Limit returned tasks to tasks created within the last X days,
@@ -192,6 +203,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
             project = task
             project["items"] = items = tasks(
                 project=project["uuid"],
+                context_trashed=None,
                 include_items=True,
                 database=database,
             )
@@ -202,6 +214,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
             heading["items"] = tasks(
                 type="to-do",
                 heading=heading["uuid"],
+                context_trashed=None,
                 include_items=True,
                 database=database,
             )
@@ -537,7 +550,12 @@ def trash(**kwargs):
 
     See `things.api.tasks` for details on the optional parameters.
     """
-    return tasks(trashed=True, status=kwargs.pop("status", None), **kwargs)
+    return tasks(
+        trashed=True,
+        context_trashed=kwargs.pop("context_trashed", None),
+        status=kwargs.pop("status", None),
+        **kwargs,
+    )
 
 
 # Filter by various task properties

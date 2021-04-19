@@ -8,7 +8,6 @@ import os
 import plistlib
 import re
 import sqlite3
-import sys
 from textwrap import dedent
 
 
@@ -150,7 +149,7 @@ class Database:
             or DEFAULT_FILEPATH
         )
         self.print_sql = print_sql
-        if print_sql:
+        if self.print_sql:
             self.execute_query_count = 0
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
@@ -177,7 +176,8 @@ class Database:
         tag=None,
         start_date=None,
         deadline=None,
-        trashed: bool = False,
+        trashed=False,
+        context_trashed=False,
         last=None,
         search_query=None,
         index="index",
@@ -193,6 +193,7 @@ class Database:
         validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
         validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
 
@@ -217,11 +218,22 @@ class Database:
             trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
             type_filter = TYPE_TO_FILTER.get(type, "")
 
+            # Sometimes a task is _not_ set to trashed, but its context
+            # (project or heading it is contained within) is set to trashed.
+            # In those cases, the task wouldn't show up in any app view
+            # except for "Trash".
+            project_trashed_filter = make_truthy_filter(
+                "PROJECT.trashed", context_trashed
+            )
+            project_of_heading_trashed_filter = make_truthy_filter(
+                "PROJECT_OF_HEADING.trashed", context_trashed
+            )
+
             where_predicate = f"""
                 TASK.{IS_NOT_RECURRING}
-                AND (PROJECT.title IS NULL OR PROJECT.{IS_NOT_TRASHED})
-                AND (HEADPROJ.title IS NULL OR HEADPROJ.{IS_NOT_TRASHED})
                 {trashed_filter and f"AND TASK.{trashed_filter}"}
+                {project_trashed_filter}
+                {project_of_heading_trashed_filter}
                 {type_filter and f"AND TASK.{type_filter}"}
                 {start_filter and f"AND TASK.{start_filter}"}
                 {status_filter and f"AND TASK.{status_filter}"}
@@ -410,12 +422,14 @@ class Database:
     # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
     def execute_query(self, sql_query, parameters=(), row_factory=None):
         """Run the actual SQL query"""
-        if self.debug is True:
-            print(self.filepath)
-            print(sql_query)
-
-        if self.print_sql:
+        if self.print_sql or self.debug:
+            if not hasattr(self, "execute_query_count"):
+                # This is needed for historical `self.debug`.
+                # TK: might consider removing `debug` flag.
+                self.execute_query_count = 0
             self.execute_query_count += 1
+            if self.debug:
+                print(f"/* Filepath {self.filepath!r} */")
             print(f"/* Query {self.execute_query_count} */")
             if parameters:
                 print(f"/* Parameters: {parameters!r} */")
@@ -423,23 +437,15 @@ class Database:
             print(prettify_sql(sql_query))
             print()
 
-        try:
-            # "ro" means read-only
-            # See: https://sqlite.org/uri.html#recognized_query_parameters
-            uri = f"file:{self.filepath}?mode=ro"
-            connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
-            connection.row_factory = row_factory or dict_factory
-            cursor = connection.cursor()
-            cursor.execute(sql_query, parameters)
-            rows = cursor.fetchall()
-            if self.debug:
-                for row in rows:
-                    print(row)
-            return rows
-        except sqlite3.OperationalError as error:  # pylint: disable=E1101
-            print(f"Could not query the database at: {self.filepath}.")
-            print(f"Details: {error}.")
-            sys.exit(2)
+        # "ro" means read-only
+        # See: https://sqlite.org/uri.html#recognized_query_parameters
+        uri = f"file:{self.filepath}?mode=ro"
+        connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
+        connection.row_factory = row_factory or dict_factory
+        cursor = connection.cursor()
+        cursor.execute(sql_query, parameters)
+
+        return cursor.fetchall()
 
     # -------- Utility methods --------
 
@@ -527,14 +533,15 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
             LEFT OUTER JOIN
                 {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
             LEFT OUTER JOIN
-                {TABLE_TASK} HEADPROJ ON HEADING.project = HEADPROJ.uuid
+                {TABLE_TASK} PROJECT_OF_HEADING
+                ON HEADING.project = PROJECT_OF_HEADING.uuid
             LEFT OUTER JOIN
                 {TABLE_TASKTAG} TAGS ON TASK.uuid = TAGS.tasks
             LEFT OUTER JOIN
                 {TABLE_TAG} TAG ON TAGS.tags = TAG.uuid
             LEFT OUTER JOIN
                 {TABLE_CHECKLIST_ITEM} CHECKLIST_ITEM
-                ON CHECKLIST_ITEM.task = TASK.uuid
+                ON TASK.uuid = CHECKLIST_ITEM.task
             WHERE
                 {where_predicate}
             ORDER BY
@@ -668,6 +675,35 @@ def make_date_filter(date_column, offset):
     offset_datetime = f"datetime('now', 'localtime', '{modifier}')"  # type: ignore
 
     return f"AND {column_datetime} > {offset_datetime}"
+
+
+def make_truthy_filter(column: str, value) -> str:
+    """
+    SQL filter to check if a boolean column is truthy or falsy.
+
+    Truthy means TRUE. Falsy means FALSE or NULL. This is akin
+    to how Python defines it natively.
+
+    Passing in `value == None` returns the empty string.
+
+    Examples
+    --------
+    >>> make_truthy_filter('PROJECT.trashed', True)
+    'AND PROJECT.trashed'
+
+    >>> make_truthy_filter('PROJECT.trashed', False)
+    'AND NOT IFNULL(PROJECT.trashed, 0)'
+
+    >>> make_truthy_filter('PROJECT.trashed', None)
+    ''
+    """
+    if value is None:
+        return ""
+
+    if value:
+        return f"AND {column}"
+
+    return f"AND NOT IFNULL({column}, 0)"
 
 
 def make_search_filter(query: str) -> str:
