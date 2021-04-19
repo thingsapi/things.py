@@ -62,15 +62,18 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@echo PyCodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle $(SRC_CORE) ; \
+	@echo Pycodestyle...
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle . ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
+	@echo Pydocstyle...
+	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py $(SRC_TEST)/*.py  ; \
+	 else echo "SKIPPED. Run '$(PIP) install pydocstyle' first." >&2 ; fi
 
 code-count: ## Count the code
 	@if type cloc >/dev/null 2>&1 ; then cloc $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run 'brew install cloc' first." >&2 ; fi
 
-code-lint: ## Lint the code
+code-lint: code-style ## Lint the code
 	@echo Pylama...
 	@if type pylama >/dev/null 2>&1 ; then pylama . ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi

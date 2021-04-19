@@ -215,7 +215,7 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         self.assertEqual(18, version)
 
     def test_last(self):
-        """Test last parameter"""
+        """Test last parameter."""
         last_tasks = things.last("0d")
         self.assertEqual(len(last_tasks), 0)
 
@@ -241,7 +241,7 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
             things.last("3X")
 
     def test_tasks(self):
-        """Test tasks"""
+        """Test tasks."""
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
         # special characters
@@ -255,7 +255,7 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
             things.tasks(area="\0")
 
     def test_database(self):
-        """Test some database details"""
+        """Test some database details."""
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
             things.areas(print_sql=True)

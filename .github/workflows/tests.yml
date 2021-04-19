@@ -32,6 +32,6 @@ jobs:
         fail_ci_if_error: true
     - name: Run lint
       run: |
-        pip install black pycodestyle pylama pylint flake8 mypy
+        pip install black pycodestyle pylama pylint flake8 mypy pydocstyle
         sudo npm install -g pyright
         make lint

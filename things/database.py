@@ -143,6 +143,7 @@ class Database:
 
     # pylint: disable=R0913
     def __init__(self, filepath=None, print_sql=False):
+        """Set up the database."""
         self.filepath = (
             filepath
             or os.getenv(ENVIRONMENT_VARIABLE_WITH_FILEPATH)
@@ -184,7 +185,6 @@ class Database:
         count_only=False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
-
         # Overwrites
         start = start and start.title()
 
@@ -258,7 +258,6 @@ class Database:
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
-
         # Validation
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
@@ -327,7 +326,6 @@ class Database:
 
     def get_tags(self, title=None, area=None, task=None, titles_only=False):
         """Get tags. See `api.tags` for details on parameters."""
-
         # Validation
         if title is not None:
             valid_titles = self.get_tags(titles_only=True)
@@ -357,7 +355,7 @@ class Database:
         return self.execute_query(sql_query)
 
     def get_tags_of_task(self, task_uuid):
-        """Get tag titles of task"""
+        """Get tag titles of task."""
         sql_query = f"""
             SELECT
                 TAG.title
@@ -374,7 +372,7 @@ class Database:
         )
 
     def get_tags_of_area(self, area_uuid):
-        """Get tag titles for area"""
+        """Get tag titles for area."""
         sql_query = f"""
             SELECT
                 AREA.title
@@ -392,7 +390,6 @@ class Database:
 
     def get_version(self):
         """Get Things Database version."""
-
         sql_query = f"SELECT value FROM {TABLE_META} WHERE key = 'databaseVersion'"
         result = self.execute_query(sql_query, row_factory=list_factory)
         plist_bytes = result[0].encode()
@@ -401,7 +398,6 @@ class Database:
     # pylint: disable=R1710
     def get_url_scheme_auth_token(self):
         """Get the Things URL scheme authentication token."""
-
         sql_query = f"""
             SELECT
                 uriSchemeAuthenticationToken
@@ -421,7 +417,7 @@ class Database:
 
     # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
     def execute_query(self, sql_query, parameters=(), row_factory=None):
-        """Run the actual SQL query"""
+        """Run the actual SQL query."""
         if self.print_sql or self.debug:
             if not hasattr(self, "execute_query_count"):
                 # This is needed for historical `self.debug`.
@@ -455,7 +451,7 @@ class Database:
         return datetime.datetime.fromtimestamp(mtime_seconds)
 
     def was_modified_today(self):
-        """Was task modified today?"""
+        """Check if task was modified today."""
         last_modified_date = self.last_modified().date()
         todays_date = datetime.datetime.now().date()
         return last_modified_date >= todays_date
@@ -465,8 +461,7 @@ class Database:
 
 
 def make_tasks_sql_query(where_predicate=None, order_predicate=None):
-    """Make SQL query for Task table"""
-
+    """Make SQL query for Task table."""
     where_predicate = where_predicate or "TRUE"
     order_predicate = order_predicate or 'TASK."index"'
 
@@ -592,9 +587,7 @@ def escape_string(string):
 
 
 def list_factory(_cursor, row):
-    """
-    Convert SQL selects of one column into a list.
-    """
+    """Convert SQL selects of one column into a list."""
     return row[0]
 
 
@@ -628,7 +621,7 @@ def make_filter(column, value):
 
 def make_date_filter(date_column, offset):
     """
-    Returns SQL filter to limit the date range of the SQL query.
+    Return an SQL filter to limit the date range of the SQL query.
 
     Parameters
     ----------
@@ -655,7 +648,6 @@ def make_date_filter(date_column, offset):
     ''
 
     """
-
     # Offset not specified
     if offset is None:
         return ""
@@ -679,7 +671,7 @@ def make_date_filter(date_column, offset):
 
 def make_truthy_filter(column: str, value) -> str:
     """
-    SQL filter to check if a boolean column is truthy or falsy.
+    Check via SQL filter if a boolean column is truthy or falsy.
 
     Truthy means TRUE. Falsy means FALSE or NULL. This is akin
     to how Python defines it natively.
@@ -708,8 +700,10 @@ def make_truthy_filter(column: str, value) -> str:
 
 def make_search_filter(query: str) -> str:
     """
-    Example
-    -------
+    Search the database.
+
+    Example:
+    --------
     >>> make_search_filter('dinner')
     'AND (
         TASK.title LIKE "%dinner%"
@@ -731,9 +725,7 @@ def make_search_filter(query: str) -> str:
 
 
 def prettify_sql(sql_query):
-    """
-    Make a SQL query easier to read for humans.
-    """
+    """Make a SQL query easier to read for humans."""
     # remove indentation and leading and trailing whitespace
     result = dedent(sql_query).strip()
     # remove empty lines
@@ -743,6 +735,7 @@ def prettify_sql(sql_query):
 def validate(parameter, argument, valid_arguments):
     """
     For a given parameter, check if its argument type is valid.
+
     If not, then raise `ValueError`.
 
     Examples
@@ -771,6 +764,7 @@ def validate(parameter, argument, valid_arguments):
 def validate_offset(parameter, argument):
     """
     For a given offset parameter, check if its argument is valid.
+
     If not, then raise `ValueError`.
 
     Examples
