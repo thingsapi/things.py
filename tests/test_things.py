@@ -6,6 +6,7 @@
 import contextlib
 import io
 import os
+import sqlite3
 import unittest
 
 import things
@@ -85,13 +86,19 @@ class ThingsCase(unittest.TestCase):
         self.assertEqual(4, len(projects))
         projects = things.trash(type="project")
         self.assertEqual(1, len(projects))
+
         projects = things.trash(type="project", include_items=True)
-        # TOOD: doesn't inlucde items
-        # self.assertEqual(1, len(projects[0]["items"]))
-        # tasks = list(
-        #     filter(lambda _: "in Deleted Project" in _["title"], projects[0]["items"])
-        # )
-        # self.assertEqual(1, len(tasks))
+        project_items = projects[0]["items"]
+        self.assertEqual(1, len(project_items))
+        filtered_project_items = [
+            item for item in project_items if "in Deleted Project" in item["title"]
+        ]
+        self.assertEqual(1, len(filtered_project_items))
+
+        # TK: Add this test case to the database:
+        # to-do with trashed = 1 and whose project also has trashed = 1.
+        tasks = things.tasks(type="to-do", trashed=True, context_trashed=True)
+        self.assertEqual(0, len(tasks))
 
     def test_upcoming(self):
         """Test upcoming."""
@@ -251,15 +258,15 @@ class ThingsCase(unittest.TestCase):
         """Test some database details"""
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            db = things.api.pop_database({})
-            db.debug = True
-            db.get_tags()
-        self.assertTrue("H96sVJwE7VJveAnv7itmux" in output.getvalue())
-        with contextlib.redirect_stdout(output):
             things.areas(print_sql=True)
         self.assertTrue("ORDER BY" in output.getvalue())
-        with self.assertRaises(SystemExit):  # noqa TODO: should actually NOT crash
-            db.execute_query('"')
+
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            db = things.database.Database()
+            db.debug = True
+            db.get_tags()
+        self.assertTrue("/* Filepath" in output.getvalue())
 
 
 if __name__ == "__main__":
