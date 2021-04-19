@@ -94,6 +94,9 @@
                     <a class="function" href="#make_date_filter">make_date_filter</a>
             </li>
             <li>
+                    <a class="function" href="#make_truthy_filter">make_truthy_filter</a>
+            </li>
+            <li>
                     <a class="function" href="#make_search_filter">make_search_filter</a>
             </li>
             <li>
@@ -135,7 +138,6 @@
 <span class="kn">import</span> <span class="nn">plistlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
 
 
@@ -277,7 +279,7 @@
             <span class="ow">or</span> <span class="n">DEFAULT_FILEPATH</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="o">=</span> <span class="n">print_sql</span>
-        <span class="k">if</span> <span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
@@ -304,7 +306,8 @@
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">trashed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">context_trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
@@ -320,6 +323,7 @@
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;trashed&quot;</span><span class="p">,</span> <span class="n">trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TRASHED_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TYPE_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+        <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;context_trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
         <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
@@ -344,11 +348,22 @@
             <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
+            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+            <span class="c1"># except for &quot;Trash&quot;.</span>
+            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+
             <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                AND (PROJECT.title IS NULL OR PROJECT.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">                AND (HEADPROJ.title IS NULL OR HEADPROJ.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
@@ -537,12 +552,14 @@
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
     <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
+                <span class="c1"># This is needed for historical `self.debug`.</span>
+                <span class="c1"># TK: might consider removing `debug` flag.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Filepath </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Query </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span><span class="si">}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Parameters: </span><span class="si">{</span><span class="n">parameters</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
@@ -550,23 +567,15 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">()</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># &quot;ro&quot; means read-only</span>
-            <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
-            <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
-            <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
-            <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
-            <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">rows</span>
-        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not query the database at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Details: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># &quot;ro&quot; means read-only</span>
+        <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
     <span class="c1"># -------- Utility methods --------</span>
 
@@ -654,14 +663,15 @@
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.actionGroup = HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADPROJ ON HEADING.project = HEADPROJ.uuid</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> PROJECT_OF_HEADING</span>
+<span class="s2">                ON HEADING.project = PROJECT_OF_HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASKTAG</span><span class="si">}</span><span class="s2"> TAGS ON TASK.uuid = TAGS.tasks</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TAG</span><span class="si">}</span><span class="s2"> TAG ON TAGS.tags = TAG.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_CHECKLIST_ITEM</span><span class="si">}</span><span class="s2"> CHECKLIST_ITEM</span>
-<span class="s2">                ON CHECKLIST_ITEM.task = TASK.uuid</span>
+<span class="s2">                ON TASK.uuid = CHECKLIST_ITEM.task</span>
 <span class="s2">            WHERE</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">where_predicate</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            ORDER BY</span>
@@ -795,6 +805,35 @@
     <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>  <span class="c1"># type: ignore</span>
 
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SQL filter to check if a boolean column is truthy or falsy.</span>
+
+<span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
+<span class="sd">    to how Python defines it natively.</span>
+
+<span class="sd">    Passing in `value == None` returns the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, True)</span>
+<span class="sd">    &#39;AND PROJECT.trashed&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, False)</span>
+<span class="sd">    &#39;AND NOT IFNULL(PROJECT.trashed, 0)&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND NOT IFNULL(</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">, 0)&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -932,7 +971,7 @@
             <span class="ow">or</span> <span class="n">DEFAULT_FILEPATH</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="o">=</span> <span class="n">print_sql</span>
-        <span class="k">if</span> <span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
@@ -959,7 +998,8 @@
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">trashed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">context_trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
@@ -975,6 +1015,7 @@
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;trashed&quot;</span><span class="p">,</span> <span class="n">trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TRASHED_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TYPE_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+        <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;context_trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
         <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
@@ -999,11 +1040,22 @@
             <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
+            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+            <span class="c1"># except for &quot;Trash&quot;.</span>
+            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+
             <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                AND (PROJECT.title IS NULL OR PROJECT.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">                AND (HEADPROJ.title IS NULL OR HEADPROJ.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
@@ -1192,12 +1244,14 @@
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
     <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
+                <span class="c1"># This is needed for historical `self.debug`.</span>
+                <span class="c1"># TK: might consider removing `debug` flag.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Filepath </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Query </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span><span class="si">}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Parameters: </span><span class="si">{</span><span class="n">parameters</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
@@ -1205,23 +1259,15 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">()</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># &quot;ro&quot; means read-only</span>
-            <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
-            <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
-            <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
-            <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
-            <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">rows</span>
-        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not query the database at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Details: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># &quot;ro&quot; means read-only</span>
+        <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
     <span class="c1"># -------- Utility methods --------</span>
 
@@ -1272,7 +1318,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <span class="ow">or</span> <span class="n">DEFAULT_FILEPATH</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="o">=</span> <span class="n">print_sql</span>
-        <span class="k">if</span> <span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
@@ -1317,7 +1363,8 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
     tag=None,
     start_date=None,
     deadline=None,
-    trashed: bool = False,
+    trashed=False,
+    context_trashed=False,
     last=None,
     search_query=None,
     index=&#39;index&#39;,
@@ -1339,7 +1386,8 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
         <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">trashed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">context_trashed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">last</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
@@ -1355,6 +1403,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">STATUS_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;trashed&quot;</span><span class="p">,</span> <span class="n">trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TRASHED_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">TYPE_TO_FILTER</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+        <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;context_trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">INDICES</span><span class="p">))</span>
         <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 
@@ -1379,11 +1428,22 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
+            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+            <span class="c1"># except for &quot;Trash&quot;.</span>
+            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+            <span class="p">)</span>
+
             <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                AND (PROJECT.title IS NULL OR PROJECT.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">                AND (HEADPROJ.title IS NULL OR HEADPROJ.</span><span class="si">{</span><span class="n">IS_NOT_TRASHED</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
@@ -1732,12 +1792,14 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
+                <span class="c1"># This is needed for historical `self.debug`.</span>
+                <span class="c1"># TK: might consider removing `debug` flag.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Filepath </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Query </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">execute_query_count</span><span class="si">}</span><span class="s2"> */&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/* Parameters: </span><span class="si">{</span><span class="n">parameters</span><span class="si">!r}</span><span class="s2"> */&quot;</span><span class="p">)</span>
@@ -1745,23 +1807,15 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <span class="nb">print</span><span class="p">(</span><span class="n">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">()</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># &quot;ro&quot; means read-only</span>
-            <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
-            <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
-            <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
-            <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
-            <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">rows</span>
-        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pylint: disable=E1101</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not query the database at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Details: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># &quot;ro&quot; means read-only</span>
+        <span class="c1"># See: https://sqlite.org/uri.html#recognized_query_parameters</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">?mode=ro&quot;</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1101</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">row_factory</span> <span class="ow">or</span> <span class="n">dict_factory</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1898,14 +1952,15 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.actionGroup = HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADPROJ ON HEADING.project = HEADPROJ.uuid</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> PROJECT_OF_HEADING</span>
+<span class="s2">                ON HEADING.project = PROJECT_OF_HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASKTAG</span><span class="si">}</span><span class="s2"> TAGS ON TASK.uuid = TAGS.tasks</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TAG</span><span class="si">}</span><span class="s2"> TAG ON TAGS.tags = TAG.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_CHECKLIST_ITEM</span><span class="si">}</span><span class="s2"> CHECKLIST_ITEM</span>
-<span class="s2">                ON CHECKLIST_ITEM.task = TASK.uuid</span>
+<span class="s2">                ON TASK.uuid = CHECKLIST_ITEM.task</span>
 <span class="s2">            WHERE</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">where_predicate</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            ORDER BY</span>
@@ -2195,6 +2250,71 @@ return the empty string.</li>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;&#39;</span>
+</code></pre></div>
+</div>
+
+
+                </section>
+                <section id="make_truthy_filter">
+                            <div class="attr function"><a class="headerlink" href="#make_truthy_filter">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">make_truthy_filter</span><span class="signature">(column: str, value) -&gt; str</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SQL filter to check if a boolean column is truthy or falsy.</span>
+
+<span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
+<span class="sd">    to how Python defines it natively.</span>
+
+<span class="sd">    Passing in `value == None` returns the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, True)</span>
+<span class="sd">    &#39;AND PROJECT.trashed&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, False)</span>
+<span class="sd">    &#39;AND NOT IFNULL(PROJECT.trashed, 0)&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_truthy_filter(&#39;PROJECT.trashed&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND NOT IFNULL(</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">, 0)&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>SQL filter to check if a boolean column is truthy or falsy.</p>
+
+<p>Truthy means TRUE. Falsy means FALSE or NULL. This is akin
+to how Python defines it natively.</p>
+
+<p>Passing in <code>value == None</code> returns the empty string.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_truthy_filter</span><span class="p">(</span><span class="s1">&#39;PROJECT.trashed&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39;AND PROJECT.trashed&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_truthy_filter</span><span class="p">(</span><span class="s1">&#39;PROJECT.trashed&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="go">&#39;AND NOT IFNULL(PROJECT.trashed, 0)&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_truthy_filter</span><span class="p">(</span><span class="s1">&#39;PROJECT.trashed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 <span class="go">&#39;&#39;</span>
 </code></pre></div>
 </div>

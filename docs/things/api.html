@@ -221,10 +221,21 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
 <span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
-<span class="sd">    trashed : bool or None, optional</span>
+<span class="sd">    trashed : bool or None, optional, default False</span>
+<span class="sd">        - `trashed == False` (default), only include non-trashed tasks.</span>
 <span class="sd">        - `trashed == True`, only include trashed tasks.</span>
-<span class="sd">        - `trashed == False`, (default), only include non-trashed tasks.</span>
 <span class="sd">        - `trashed == None`, include both kind of tasks.</span>
+
+<span class="sd">    context_trashed : bool or None, optional, default False</span>
+<span class="sd">        Some tasks may be within a context of a project or a heading.</span>
+<span class="sd">        This manages how to handle such tasks. The other tasks are not</span>
+<span class="sd">        affected by this setting.</span>
+
+<span class="sd">        - `context_trashed == False` (default), for tasks within a context,</span>
+<span class="sd">           only return tasks whose context has _not_ been trashed.</span>
+<span class="sd">        - `context_trashed == True`, for tasks within a context,</span>
+<span class="sd">           only return tasks whose context has been trashed.</span>
+<span class="sd">        - `context_trashed == None`, include both kind of tasks.</span>
 
 <span class="sd">    last : str, optional</span>
 <span class="sd">        Limit returned tasks to tasks created within the last X days,</span>
@@ -315,6 +326,7 @@ data structures. Whenever that happens, we define the new term here.</p>
             <span class="n">project</span> <span class="o">=</span> <span class="n">task</span>
             <span class="n">project</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
                 <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span>
+                <span class="n">context_trashed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
             <span class="p">)</span>
@@ -325,6 +337,7 @@ data structures. Whenever that happens, we define the new term here.</p>
             <span class="n">heading</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
                 <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span>
                 <span class="n">heading</span><span class="o">=</span><span class="n">heading</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span>
+                <span class="n">context_trashed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
             <span class="p">)</span>
@@ -660,7 +673,12 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 <span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">trashed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span>
+        <span class="n">trashed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">context_trashed</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;context_trashed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="c1"># Filter by various task properties</span>
@@ -885,10 +903,21 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">        - `deadline == True`, only include tasks _with_ a deadline.</span>
 <span class="sd">        - `deadline == None` (default), then include all tasks.</span>
 
-<span class="sd">    trashed : bool or None, optional</span>
+<span class="sd">    trashed : bool or None, optional, default False</span>
+<span class="sd">        - `trashed == False` (default), only include non-trashed tasks.</span>
 <span class="sd">        - `trashed == True`, only include trashed tasks.</span>
-<span class="sd">        - `trashed == False`, (default), only include non-trashed tasks.</span>
 <span class="sd">        - `trashed == None`, include both kind of tasks.</span>
+
+<span class="sd">    context_trashed : bool or None, optional, default False</span>
+<span class="sd">        Some tasks may be within a context of a project or a heading.</span>
+<span class="sd">        This manages how to handle such tasks. The other tasks are not</span>
+<span class="sd">        affected by this setting.</span>
+
+<span class="sd">        - `context_trashed == False` (default), for tasks within a context,</span>
+<span class="sd">           only return tasks whose context has _not_ been trashed.</span>
+<span class="sd">        - `context_trashed == True`, for tasks within a context,</span>
+<span class="sd">           only return tasks whose context has been trashed.</span>
+<span class="sd">        - `context_trashed == None`, include both kind of tasks.</span>
 
 <span class="sd">    last : str, optional</span>
 <span class="sd">        Limit returned tasks to tasks created within the last X days,</span>
@@ -979,6 +1008,7 @@ data structures. Whenever that happens, we define the new term here.</p>
             <span class="n">project</span> <span class="o">=</span> <span class="n">task</span>
             <span class="n">project</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
                 <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span>
+                <span class="n">context_trashed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
             <span class="p">)</span>
@@ -989,6 +1019,7 @@ data structures. Whenever that happens, we define the new term here.</p>
             <span class="n">heading</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
                 <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to-do&quot;</span><span class="p">,</span>
                 <span class="n">heading</span><span class="o">=</span><span class="n">heading</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span>
+                <span class="n">context_trashed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1077,11 +1108,23 @@ Special cases:
 <li><code>deadline == True</code>, only include tasks _with_ a deadline.</li>
 <li><code>deadline == None</code> (default), then include all tasks.</li>
 </ul></li>
-<li><strong>trashed</strong> (bool or None, optional):
+<li><strong>trashed</strong> (bool or None, optional, default False):
 <ul>
+<li><code>trashed == False</code> (default), only include non-trashed tasks.</li>
 <li><code>trashed == True</code>, only include trashed tasks.</li>
-<li><code>trashed == False</code>, (default), only include non-trashed tasks.</li>
 <li><code>trashed == None</code>, include both kind of tasks.</li>
+</ul></li>
+<li><p><strong>context_trashed</strong> (bool or None, optional, default False):
+Some tasks may be within a context of a project or a heading.
+This manages how to handle such tasks. The other tasks are not
+affected by this setting.</p>
+
+<ul>
+<li><code>context_trashed == False</code> (default), for tasks within a context,
+only return tasks whose context has _not_ been trashed.</li>
+<li><code>context_trashed == True</code>, for tasks within a context,
+only return tasks whose context has been trashed.</li>
+<li><code>context_trashed == None</code>, include both kind of tasks.</li>
 </ul></li>
 <li><p><strong>last</strong> (str, optional):
 Limit returned tasks to tasks created within the last X days,
@@ -1837,7 +1880,12 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 
 <span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">trashed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span>
+        <span class="n">trashed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">context_trashed</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;context_trashed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 
         </details>
