@@ -98,6 +98,10 @@ feedback: ## Give feedback
 
 release: build ## Create a new release
 	@type gh >/dev/null 2>&1 || (echo "Run e.g. 'brew install gh' first." >&2 ; exit 1)
+	@echo "########################"
+	@echo Making release for version "$(VERSION)". Press ENTER to continue...
+	@echo "########################"
+	@read
 	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN).py-$(VERSION).tar.gz'
 
 build: clean ## Build the code
