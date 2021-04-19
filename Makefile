@@ -58,7 +58,7 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install isort' first." >&2 ; fi
 	@if type autoflake >/dev/null 2>&1 ; then autoflake -r --in-place --remove-unused-variables . ; \
 	 else echo "SKIPPED. Run '$(PIP) install isort' first." >&2 ; fi
-	@if type black >/dev/null 2>&1 ; then black $(SRC_CORE) ; \
+	@if type black >/dev/null 2>&1 ; then black . ; \
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
@@ -72,19 +72,19 @@ code-count: ## Count the code
 
 code-lint: ## Lint the code
 	@echo Pylama...
-	@if type pylama >/dev/null 2>&1 ; then pylama $(SRC_CORE) ; \
+	@if type pylama >/dev/null 2>&1 ; then pylama . ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
-	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) ; \
+	@if type pylint >/dev/null 2>&1 ; then pylint $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Flake...
-	@if type flake8 >/dev/null 2>&1 ; then flake8 $(SRC_CORE) ; \
+	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 	@echo Pyright...
-	@if type pyright >/dev/null 2>&1 ; then pyright $(SRC_CORE) ; \
+	@if type pyright >/dev/null 2>&1 ; then pyright . ; \
 	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
-	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports $(SRC_CORE) ; \
+	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports . ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
 
 lint: code-style code-lint  ## Lint everything

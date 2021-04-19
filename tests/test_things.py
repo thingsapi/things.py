@@ -13,19 +13,19 @@ import things
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 
-THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH
+THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
 
-class ThingsCase(unittest.TestCase):
+class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
     """Class documentation goes here."""
 
     def setUp(self):
-        # set environment variable to test database
+        """Set environment variable to test database."""
         self.saved_filepath = os.getenv(THINGSDB)
         os.environ[THINGSDB] = TEST_DATABASE_FILEPATH
 
     def tearDown(self):
-        # restore environment variable to its previous value
+        """Restore environment variable to its previous value."""
         # or delete it if it wasn't set before running the test.
         if self.saved_filepath is None:
             if THINGSDB in os.environ:
@@ -38,7 +38,7 @@ class ThingsCase(unittest.TestCase):
         del os.environ[THINGSDB]
         tag_uuid = "Qt2AY87x2QDdowSn9HKTt1"
         tag = things.get(tag_uuid, filepath=TEST_DATABASE_FILEPATH)
-        self.assertEqual(tag["uuid"], tag_uuid)
+        self.assertEqual(tag["uuid"], tag_uuid)  # type: ignore
 
     def test_get_url_scheme_auth_token(self):
         """Test get url scheme auth token."""
@@ -154,7 +154,7 @@ class ThingsCase(unittest.TestCase):
         task = things.get("wrong_uuid", "NOT FOUND")
         self.assertEqual("NOT FOUND", task)
         task = things.get("Qt2AY87x2QDdowSn9HKTt1")
-        self.assertEqual(4, len(task.keys()))
+        self.assertEqual(4, len(task.keys()))  # type: ignore
 
     def test_todos(self):
         """Test all to-dos."""
@@ -171,7 +171,7 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.todos(status="wrong_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
-        self.assertEqual(16, len(todo.keys()))
+        self.assertEqual(16, len(todo.keys()))  # type: ignore
 
     def test_tags(self):
         """Test all tags."""
@@ -182,9 +182,10 @@ class ThingsCase(unittest.TestCase):
         tags = things.tasks(tag="Errand")
         self.assertEqual(1, len(tags))
         tag = things.tags(title="Errand")
-        self.assertEqual("Errand", tag["title"])
+        self.assertEqual("Errand", tag["title"])  # type: ignore
 
     def test_get_link(self):
+        """Test get link."""
         link = things.link("uuid")
         self.assertEqual("things:///show?id=uuid", link)
 
@@ -206,7 +207,7 @@ class ThingsCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             things.areas("wrong-uuid")
         area = things.areas("Y3JC4XeyGWxzDocQL4aobo")
-        self.assertEqual("Area 3", area["title"])
+        self.assertEqual("Area 3", area["title"])  # type: ignore
 
     def test_database_version(self):
         """Test database version."""
@@ -262,9 +263,9 @@ class ThingsCase(unittest.TestCase):
 
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            db = things.database.Database()
-            db.debug = True
-            db.get_tags()
+            database = things.database.Database()  # type: ignore
+            database.debug = True
+            database.get_tags()
         self.assertTrue("/* Filepath" in output.getvalue())
 
 

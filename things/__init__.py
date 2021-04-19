@@ -9,7 +9,7 @@ __maintainer__ = ["Alexander Willner", "Michael Belfrage"]
 __email__ = "alex@willner.ws"
 __status__ = "Development"
 
-from things.api import (  # noqa
+from things.api import (  # noqa  isort:skip
     anytime,
     areas,
     canceled,
@@ -33,4 +33,5 @@ from things.api import (  # noqa
     trash,
     upcoming,
 )
+
 from things.database import Database  # noqa
