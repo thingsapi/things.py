@@ -15,6 +15,7 @@ A simple Python 3 library to read your [Things app](https://culturedcode.com/thi
 
 - [Install](#install)
 - [Examples](#examples)
+- [Documentation](#documentation)
 - [Background](#background)
 - [Things URLs](#things-urls)
 
@@ -107,13 +108,18 @@ Here's the terminology used involving the database:
 - tag
 - task
   - type
-    - `'to-do'`: may have a checklist; may be in an area and have tags.
-    - `'project'`: may have to-dos and headings; may be in an area and have tags.
-    - `'heading'`:  part of a project; groups "tasks".
+    - `'to-do'`: can have checklists;
+    - `'project'`: can have to-dos and headings;
+    - `'heading'`:  part of a project; groups to-dos.
   - status:  `"incomplete"`,  `"canceled"`, or `"completed"`
   - trashed: `True` or `False`
   - start: `"Inbox"`, `"Anytime"`, or `"Someday"`
 - checklist item (contained within a to-do)
+
+
+## Documentation
+
+The full documentation can be found here: https://thingsapi.github.io/things.py/things/api.html
 
 ## Things URLs
 
