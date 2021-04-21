@@ -775,14 +775,11 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 
 <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a things:///show?id=uuid link.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="sd">&quot;&quot;&quot;Return a things:///show?id=uuid link.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;things:///show?id=</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>  <span class="c1"># noqa</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Show a certain uuid in the Things app.</span>
 
@@ -804,7 +801,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 
 <span class="k">def</span> <span class="nf">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;instantiate non-default database from `kwargs` if provided&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Instantiate non-default database from `kwargs` if provided.&quot;&quot;&quot;</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;database&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">print_sql</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;print_sql&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -2127,16 +2124,13 @@ using the Things URL Scheme. For details, see
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a things:///show?id=uuid link.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="sd">&quot;&quot;&quot;Return a things:///show?id=uuid link.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;things:///show?id=</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Returns a things:///show?id=uuid link.</p>
+            <div class="docstring"><p>Return a things:///show?id=uuid link.</p>
 </div>
 
 
@@ -2151,7 +2145,7 @@ using the Things URL Scheme. For details, see
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>  <span class="c1"># noqa</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Show a certain uuid in the Things app.</span>
 
@@ -2200,7 +2194,7 @@ A valid uuid of any Things object.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;instantiate non-default database from `kwargs` if provided&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Instantiate non-default database from `kwargs` if provided.&quot;&quot;&quot;</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;database&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">print_sql</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;print_sql&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -2212,7 +2206,7 @@ A valid uuid of any Things object.</li>
 
         </details>
 
-            <div class="docstring"><p>instantiate non-default database from <code>kwargs</code> if provided</p>
+            <div class="docstring"><p>Instantiate non-default database from <code>kwargs</code> if provided.</p>
 </div>
 
 

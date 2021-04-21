@@ -214,12 +214,12 @@
 <span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;dueDate&quot;</span>
 <span class="n">DATE_MODIFIED</span> <span class="o">=</span> <span class="s2">&quot;userModificationDate&quot;</span>
 <span class="n">DATE_START</span> <span class="o">=</span> <span class="s2">&quot;startDate&quot;</span>
-<span class="n">DATE_STOP</span> <span class="o">=</span> <span class="s2">&quot;stopDate&quot;</span>
+<span class="n">DATE_STOP</span> <span class="o">=</span> <span class="s2">&quot;stopDate&quot;</span>  <span class="c1"># noqa TODO: never used</span>
 
 <span class="c1"># Filters</span>
-<span class="n">IS_SCHEDULED</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2"> IS NOT NULL&quot;</span>
-<span class="n">IS_NOT_SCHEDULED</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2"> IS NULL&quot;</span>
-<span class="n">IS_DEADLINE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2"> IS NOT NULL&quot;</span>
+<span class="n">IS_SCHEDULED</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2"> IS NOT NULL&quot;</span>  <span class="c1"># noqa TODO: never used</span>
+<span class="n">IS_NOT_SCHEDULED</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2"> IS NULL&quot;</span>  <span class="c1"># noqa TODO: never used</span>
+<span class="n">IS_DEADLINE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2"> IS NOT NULL&quot;</span>  <span class="c1"># noqa TODO: never used</span>
 
 <span class="c1"># --------------------------------------------------</span>
 <span class="c1"># Various filters</span>
@@ -241,13 +241,15 @@
 <span class="n">IS_SOMEDAY</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="p">[</span><span class="s2">&quot;Someday&quot;</span><span class="p">]</span>
 
 <span class="c1"># Repeats</span>
-<span class="n">IS_RECURRING</span> <span class="o">=</span> <span class="s2">&quot;recurrenceRule IS NOT NULL&quot;</span>
+<span class="n">IS_RECURRING</span> <span class="o">=</span> <span class="s2">&quot;recurrenceRule IS NOT NULL&quot;</span>  <span class="c1"># noqa TODO: never used</span>
 <span class="n">IS_NOT_RECURRING</span> <span class="o">=</span> <span class="s2">&quot;recurrenceRule IS NULL&quot;</span>
-<span class="n">RECURRING_IS_NOT_PAUSED</span> <span class="o">=</span> <span class="s2">&quot;instanceCreationPaused = 0&quot;</span>
-<span class="n">RECURRING_HAS_NEXT_STARTDATE</span> <span class="o">=</span> <span class="s2">&quot;nextInstanceStartDate IS NOT NULL&quot;</span>
+<span class="n">RECURRING_IS_NOT_PAUSED</span> <span class="o">=</span> <span class="s2">&quot;instanceCreationPaused = 0&quot;</span>  <span class="c1"># noqa TODO: never used</span>
+<span class="n">RECURRING_HAS_NEXT_STARTDATE</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa TODO: never used</span>
+    <span class="s2">&quot;nextInstanceStartDate IS NOT NULL&quot;</span>
+<span class="p">)</span>
 
 <span class="c1"># Trashed</span>
-<span class="n">IS_NOT_TRASHED</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+<span class="n">IS_NOT_TRASHED</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>  <span class="c1"># noqa TODO: never used</span>
 <span class="n">IS_TRASHED</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
 
 
@@ -273,6 +275,7 @@
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_sql</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up the database.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">filepath</span>
             <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENVIRONMENT_VARIABLE_WITH_FILEPATH</span><span class="p">)</span>
@@ -314,7 +317,6 @@
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -388,7 +390,6 @@
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get areas. See `api.areas` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -457,7 +458,6 @@
 
     <span class="k">def</span> <span class="nf">get_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">titles_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tags. See `api.tags` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_titles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -487,7 +487,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_tags_of_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles of task&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles of task.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                TAG.title</span>
@@ -504,7 +504,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_tags_of_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles for area&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles for area.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                AREA.title</span>
@@ -522,7 +522,6 @@
 
     <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Things Database version.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT value FROM </span><span class="si">{</span><span class="n">TABLE_META</span><span class="si">}</span><span class="s2"> WHERE key = &#39;databaseVersion&#39;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="n">plist_bytes</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
@@ -531,7 +530,6 @@
     <span class="c1"># pylint: disable=R1710</span>
     <span class="k">def</span> <span class="nf">get_url_scheme_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the Things URL scheme authentication token.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                uriSchemeAuthenticationToken</span>
@@ -551,7 +549,7 @@
 
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
     <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Run the actual SQL query.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
                 <span class="c1"># This is needed for historical `self.debug`.</span>
@@ -585,7 +583,7 @@
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime_seconds</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Was task modified today?&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Check if task was modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -595,8 +593,7 @@
 
 
 <span class="k">def</span> <span class="nf">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order_predicate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make SQL query for Task table&quot;&quot;&quot;</span>
-
+    <span class="sd">&quot;&quot;&quot;Make SQL query for Task table.&quot;&quot;&quot;</span>
     <span class="n">where_predicate</span> <span class="o">=</span> <span class="n">where_predicate</span> <span class="ow">or</span> <span class="s2">&quot;TRUE&quot;</span>
     <span class="n">order_predicate</span> <span class="o">=</span> <span class="n">order_predicate</span> <span class="ow">or</span> <span class="s1">&#39;TASK.&quot;index&quot;&#39;</span>
 
@@ -722,9 +719,7 @@
 
 
 <span class="k">def</span> <span class="nf">list_factory</span><span class="p">(</span><span class="n">_cursor</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert SQL selects of one column into a list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Convert SQL selects of one column into a list.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
@@ -758,7 +753,7 @@
 
 <span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+<span class="sd">    Return an SQL filter to limit the date range of the SQL query.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -785,7 +780,6 @@
 <span class="sd">    &#39;&#39;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="c1"># Offset not specified</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
@@ -809,7 +803,7 @@
 
 <span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SQL filter to check if a boolean column is truthy or falsy.</span>
+<span class="sd">    Check via SQL filter if a boolean column is truthy or falsy.</span>
 
 <span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
 <span class="sd">    to how Python defines it natively.</span>
@@ -838,8 +832,10 @@
 
 <span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
+<span class="sd">    Search the database.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;)</span>
 <span class="sd">    &#39;AND (</span>
 <span class="sd">        TASK.title LIKE &quot;%dinner%&quot;</span>
@@ -861,9 +857,7 @@
 
 
 <span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Make a SQL query easier to read for humans.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
     <span class="c1"># remove indentation and leading and trailing whitespace</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="c1"># remove empty lines</span>
@@ -873,6 +867,7 @@
 <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given parameter, check if its argument type is valid.</span>
+
 <span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Examples</span>
@@ -901,6 +896,7 @@
 <span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+
 <span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Examples</span>
@@ -965,6 +961,7 @@
 
     <span class="c1"># pylint: disable=R0913</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_sql</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up the database.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">filepath</span>
             <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENVIRONMENT_VARIABLE_WITH_FILEPATH</span><span class="p">)</span>
@@ -1006,7 +1003,6 @@
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -1080,7 +1076,6 @@
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get areas. See `api.areas` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1149,7 +1144,6 @@
 
     <span class="k">def</span> <span class="nf">get_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">titles_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tags. See `api.tags` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_titles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1179,7 +1173,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_tags_of_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles of task&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles of task.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                TAG.title</span>
@@ -1196,7 +1190,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_tags_of_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles for area&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles for area.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                AREA.title</span>
@@ -1214,7 +1208,6 @@
 
     <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Things Database version.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT value FROM </span><span class="si">{</span><span class="n">TABLE_META</span><span class="si">}</span><span class="s2"> WHERE key = &#39;databaseVersion&#39;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="n">plist_bytes</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
@@ -1223,7 +1216,6 @@
     <span class="c1"># pylint: disable=R1710</span>
     <span class="k">def</span> <span class="nf">get_url_scheme_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the Things URL scheme authentication token.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                uriSchemeAuthenticationToken</span>
@@ -1243,7 +1235,7 @@
 
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
     <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Run the actual SQL query.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
                 <span class="c1"># This is needed for historical `self.debug`.</span>
@@ -1277,7 +1269,7 @@
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime_seconds</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Was task modified today?&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Check if task was modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -1312,6 +1304,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_sql</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up the database.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">filepath</span>
             <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENVIRONMENT_VARIABLE_WITH_FILEPATH</span><span class="p">)</span>
@@ -1334,7 +1327,9 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Set up the database.</p>
+</div>
+
 
                             </div>
                             <div id="Database.debug" class="classattr">
@@ -1394,7 +1389,6 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -1486,7 +1480,6 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get areas. See `api.areas` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1591,7 +1584,6 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">titles_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tags. See `api.tags` for details on parameters.&quot;&quot;&quot;</span>
-
         <span class="c1"># Validation</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">valid_titles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1639,7 +1631,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_tags_of_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles of task&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles of task.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                TAG.title</span>
@@ -1658,7 +1650,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Get tag titles of task</p>
+            <div class="docstring"><p>Get tag titles of task.</p>
 </div>
 
 
@@ -1674,7 +1666,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_tags_of_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area_uuid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get tag titles for area&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get tag titles for area.&quot;&quot;&quot;</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                AREA.title</span>
@@ -1693,7 +1685,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Get tag titles for area</p>
+            <div class="docstring"><p>Get tag titles for area.</p>
 </div>
 
 
@@ -1710,7 +1702,6 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get Things Database version.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT value FROM </span><span class="si">{</span><span class="n">TABLE_META</span><span class="si">}</span><span class="s2"> WHERE key = &#39;databaseVersion&#39;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="n">plist_bytes</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
@@ -1736,7 +1727,6 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_url_scheme_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the Things URL scheme authentication token.&quot;&quot;&quot;</span>
-
         <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                uriSchemeAuthenticationToken</span>
@@ -1791,7 +1781,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">row_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the actual SQL query&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Run the actual SQL query.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_sql</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;execute_query_count&quot;</span><span class="p">):</span>
                 <span class="c1"># This is needed for historical `self.debug`.</span>
@@ -1820,7 +1810,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Run the actual SQL query</p>
+            <div class="docstring"><p>Run the actual SQL query.</p>
 </div>
 
 
@@ -1859,7 +1849,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Was task modified today?&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Check if task was modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -1867,7 +1857,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Was task modified today?</p>
+            <div class="docstring"><p>Check if task was modified today.</p>
 </div>
 
 
@@ -1884,8 +1874,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order_predicate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make SQL query for Task table&quot;&quot;&quot;</span>
-
+    <span class="sd">&quot;&quot;&quot;Make SQL query for Task table.&quot;&quot;&quot;</span>
     <span class="n">where_predicate</span> <span class="o">=</span> <span class="n">where_predicate</span> <span class="ow">or</span> <span class="s2">&quot;TRUE&quot;</span>
     <span class="n">order_predicate</span> <span class="o">=</span> <span class="n">order_predicate</span> <span class="ow">or</span> <span class="s1">&#39;TASK.&quot;index&quot;&#39;</span>
 
@@ -1970,7 +1959,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Make SQL query for Task table</p>
+            <div class="docstring"><p>Make SQL query for Task table.</p>
 </div>
 
 
@@ -2082,9 +2071,7 @@ we are going with the easiest solution for now.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list_factory</span><span class="p">(</span><span class="n">_cursor</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert SQL selects of one column into a list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Convert SQL selects of one column into a list.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
@@ -2172,7 +2159,7 @@ we are going with the easiest solution for now.</p></li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns SQL filter to limit the date range of the SQL query.</span>
+<span class="sd">    Return an SQL filter to limit the date range of the SQL query.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2199,7 +2186,6 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    &#39;&#39;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="c1"># Offset not specified</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
@@ -2223,7 +2209,7 @@ we are going with the easiest solution for now.</p></li>
 
         </details>
 
-            <div class="docstring"><p>Returns SQL filter to limit the date range of the SQL query.</p>
+            <div class="docstring"><p>Return an SQL filter to limit the date range of the SQL query.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2268,7 +2254,7 @@ return the empty string.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SQL filter to check if a boolean column is truthy or falsy.</span>
+<span class="sd">    Check via SQL filter if a boolean column is truthy or falsy.</span>
 
 <span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
 <span class="sd">    to how Python defines it natively.</span>
@@ -2297,7 +2283,7 @@ return the empty string.</li>
 
         </details>
 
-            <div class="docstring"><p>SQL filter to check if a boolean column is truthy or falsy.</p>
+            <div class="docstring"><p>Check via SQL filter if a boolean column is truthy or falsy.</p>
 
 <p>Truthy means TRUE. Falsy means FALSE or NULL. This is akin
 to how Python defines it natively.</p>
@@ -2333,8 +2319,10 @@ to how Python defines it natively.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
+<span class="sd">    Search the database.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;)</span>
 <span class="sd">    &#39;AND (</span>
 <span class="sd">        TASK.title LIKE &quot;%dinner%&quot;</span>
@@ -2357,7 +2345,9 @@ to how Python defines it natively.</p>
 
         </details>
 
-            <div class="docstring"><h6 id="example">Example</h6>
+            <div class="docstring"><p>Search the database.</p>
+
+<h2 id="example">Example:</h2>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_search_filter</span><span class="p">(</span><span class="s1">&#39;dinner&#39;</span><span class="p">)</span>
 <span class="go">&#39;AND (</span>
@@ -2381,9 +2371,7 @@ to how Python defines it natively.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Make a SQL query easier to read for humans.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
     <span class="c1"># remove indentation and leading and trailing whitespace</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="c1"># remove empty lines</span>
@@ -2410,6 +2398,7 @@ to how Python defines it natively.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given parameter, check if its argument type is valid.</span>
+
 <span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Examples</span>
@@ -2437,8 +2426,9 @@ to how Python defines it natively.</p>
 
         </details>
 
-            <div class="docstring"><p>For a given parameter, check if its argument type is valid.
-If not, then raise <code>ValueError</code>.</p>
+            <div class="docstring"><p>For a given parameter, check if its argument type is valid.</p>
+
+<p>If not, then raise <code>ValueError</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -2474,6 +2464,7 @@ If not, then raise <code>ValueError</code>.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+
 <span class="sd">    If not, then raise `ValueError`.</span>
 
 <span class="sd">    Examples</span>
@@ -2505,8 +2496,9 @@ If not, then raise <code>ValueError</code>.</p>
 
         </details>
 
-            <div class="docstring"><p>For a given offset parameter, check if its argument is valid.
-If not, then raise <code>ValueError</code>.</p>
+            <div class="docstring"><p>For a given offset parameter, check if its argument is valid.</p>
+
+<p>If not, then raise <code>ValueError</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
