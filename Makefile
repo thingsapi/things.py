@@ -48,7 +48,7 @@ clean: ## Cleanup
 	@find . -name \*.pyc -delete
 	@find . -name __pycache__ -delete
 	@rm -rf htmlcov
-	@rm -rf build dist *.egg-info
+	@rm -rf build dist *.egg-info .eggs
 	@rm -rf .mypy_cache/ */.mypy_cache/
 	@rm -f .coverage
 	@rm -rf .tox
