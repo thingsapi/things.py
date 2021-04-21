@@ -652,14 +652,11 @@ def token(**kwargs) -> Union[str, None]:
 
 
 def link(uuid):
-    """
-    Returns a things:///show?id=uuid link.
-    """
-
+    """Return a things:///show?id=uuid link."""
     return f"things:///show?id={uuid}"
 
 
-def show(uuid):
+def show(uuid):  # noqa
     """
     Show a certain uuid in the Things app.
 
@@ -681,7 +678,7 @@ def show(uuid):
 
 
 def pop_database(kwargs):
-    """instantiate non-default database from `kwargs` if provided"""
+    """Instantiate non-default database from `kwargs` if provided."""
     filepath = kwargs.pop("filepath", None)
     database = kwargs.pop("database", None)
     print_sql = kwargs.pop("print_sql", False)
