@@ -581,12 +581,12 @@
     <span class="c1"># -------- Utility methods --------</span>
 
     <span class="k">def</span> <span class="nf">last_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get last modified time.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get last modified time of database filepath.&quot;&quot;&quot;</span>
         <span class="n">mtime_seconds</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime_seconds</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return true of modification date is `&gt;=` that todays date.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if database filepath was last modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -756,7 +756,7 @@
 
 <span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter to limit the date range of the SQL query.</span>
+<span class="sd">    Return a SQL filter to limit the date range of the SQL query.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -806,7 +806,7 @@
 
 <span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter adding a boolean column that is set to truthy or falsy.</span>
+<span class="sd">    Return a SQL filter that matches if a column is truthy or falsy.</span>
 
 <span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
 <span class="sd">    to how Python defines it natively.</span>
@@ -835,7 +835,7 @@
 
 <span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter that filters titles and notes by a string.</span>
+<span class="sd">    Return a SQL filter to search tasks by a string query.</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">    --------</span>
@@ -1267,12 +1267,12 @@
     <span class="c1"># -------- Utility methods --------</span>
 
     <span class="k">def</span> <span class="nf">last_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get last modified time.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get last modified time of database filepath.&quot;&quot;&quot;</span>
         <span class="n">mtime_seconds</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime_seconds</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return true of modification date is `&gt;=` that todays date.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if database filepath was last modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -1829,14 +1829,14 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">last_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get last modified time.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get last modified time of database filepath.&quot;&quot;&quot;</span>
         <span class="n">mtime_seconds</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime_seconds</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Get last modified time.</p>
+            <div class="docstring"><p>Get last modified time of database filepath.</p>
 </div>
 
 
@@ -1852,7 +1852,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">was_modified_today</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return true of modification date is `&gt;=` that todays date.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if database filepath was last modified today.&quot;&quot;&quot;</span>
         <span class="n">last_modified_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_modified</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">last_modified_date</span> <span class="o">&gt;=</span> <span class="n">todays_date</span>
@@ -1860,7 +1860,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         </details>
 
-            <div class="docstring"><p>Return true of modification date is <code>&gt;=</code> that todays date.</p>
+            <div class="docstring"><p>Return True if database filepath was last modified today.</p>
 </div>
 
 
@@ -2162,7 +2162,7 @@ we are going with the easiest solution for now.</p></li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter to limit the date range of the SQL query.</span>
+<span class="sd">    Return a SQL filter to limit the date range of the SQL query.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2212,7 +2212,7 @@ we are going with the easiest solution for now.</p></li>
 
         </details>
 
-            <div class="docstring"><p>Return an SQL filter to limit the date range of the SQL query.</p>
+            <div class="docstring"><p>Return a SQL filter to limit the date range of the SQL query.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2257,7 +2257,7 @@ return the empty string.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter adding a boolean column that is set to truthy or falsy.</span>
+<span class="sd">    Return a SQL filter that matches if a column is truthy or falsy.</span>
 
 <span class="sd">    Truthy means TRUE. Falsy means FALSE or NULL. This is akin</span>
 <span class="sd">    to how Python defines it natively.</span>
@@ -2286,7 +2286,7 @@ return the empty string.</li>
 
         </details>
 
-            <div class="docstring"><p>Return an SQL filter adding a boolean column that is set to truthy or falsy.</p>
+            <div class="docstring"><p>Return a SQL filter that matches if a column is truthy or falsy.</p>
 
 <p>Truthy means TRUE. Falsy means FALSE or NULL. This is akin
 to how Python defines it natively.</p>
@@ -2322,7 +2322,7 @@ to how Python defines it natively.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_search_filter</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an SQL filter that filters titles and notes by a string.</span>
+<span class="sd">    Return a SQL filter to search tasks by a string query.</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">    --------</span>
@@ -2348,7 +2348,7 @@ to how Python defines it natively.</p>
 
         </details>
 
-            <div class="docstring"><p>Return an SQL filter that filters titles and notes by a string.</p>
+            <div class="docstring"><p>Return a SQL filter to search tasks by a string query.</p>
 
 <h2 id="example">Example:</h2>
 
