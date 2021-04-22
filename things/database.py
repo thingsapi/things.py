@@ -83,13 +83,6 @@ TABLE_SETTINGS = "TMSettings"
 DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
-DATE_START = "startDate"
-DATE_STOP = "stopDate"  # noqa TODO: never used
-
-# Filters
-IS_SCHEDULED = f"{DATE_START} IS NOT NULL"  # noqa TODO: never used
-IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"  # noqa TODO: never used
-IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"  # noqa TODO: never used
 
 # --------------------------------------------------
 # Various filters
@@ -111,19 +104,29 @@ IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
-IS_RECURRING = "recurrenceRule IS NOT NULL"  # noqa TODO: never used
 IS_NOT_RECURRING = "recurrenceRule IS NULL"
-RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"  # noqa TODO: never used
-RECURRING_HAS_NEXT_STARTDATE = (  # noqa TODO: never used
-    "nextInstanceStartDate IS NOT NULL"
-)
 
-# Trashed
-IS_NOT_TRASHED = TRASHED_TO_FILTER[False]  # noqa TODO: never used
+# Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
 
+# --------------------------------------------------
+# Fields and filters not yet used in the implementation.
+# This information might be of relevance in the future.
+# --------------------------------------------------
+#
+# DATE_START = "startDate"
+# DATE_STOP = "stopDate"
+# IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
+# IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
+# IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
+# RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
+# IS_RECURRING = "recurrenceRule IS NOT NULL"
+# RECURRING_HAS_NEXT_STARTDATE = ("nextInstanceStartDate IS NOT NULL")
+# IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
+
+
 class Database:
     """
     Access Things SQL database.
@@ -453,7 +456,7 @@ class Database:
         return datetime.datetime.fromtimestamp(mtime_seconds)
 
     def was_modified_today(self):
-        """Check if task was modified today."""
+        """Return true of modification date is `>=` that todays date."""
         last_modified_date = self.last_modified().date()
         todays_date = datetime.datetime.now().date()
         return last_modified_date >= todays_date
@@ -673,7 +676,7 @@ def make_date_filter(date_column, offset):
 
 def make_truthy_filter(column: str, value) -> str:
     """
-    Check via SQL filter if a boolean column is truthy or falsy.
+    Return an SQL filter adding a boolean column that is set to truthy or falsy.
 
     Truthy means TRUE. Falsy means FALSE or NULL. This is akin
     to how Python defines it natively.
@@ -702,7 +705,7 @@ def make_truthy_filter(column: str, value) -> str:
 
 def make_search_filter(query: str) -> str:
     """
-    Search the database.
+    Return an SQL filter that filters titles and notes by a string.
 
     Example:
     --------
