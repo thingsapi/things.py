@@ -20,12 +20,14 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     """Class documentation goes here."""
 
     def setUp(self):
-        """Set environment variable to test database."""
+        """Set up environment variables."""
+        # Set environment variable to test database
         self.saved_filepath = os.getenv(THINGSDB)
         os.environ[THINGSDB] = TEST_DATABASE_FILEPATH
 
     def tearDown(self):
-        """Restore environment variable to its previous value."""
+        """Restore environment variables."""
+        # Restore environment variable to its previous value
         # or delete it if it wasn't set before running the test.
         if self.saved_filepath is None:
             if THINGSDB in os.environ:
@@ -148,7 +150,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(1, len(tasks))
 
     def test_get(self):
-        """Test get."""
+        """Test the function to find an object by `uuid`."""
         task = things.get("wrong_uuid")
         self.assertEqual(None, task)
         task = things.get("wrong_uuid", "NOT FOUND")
