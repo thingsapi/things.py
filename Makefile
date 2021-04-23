@@ -66,7 +66,7 @@ code-style: ## Test the code style
 	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 	@echo Pydocstyle...
-	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py ; \
+	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
 	 else echo "SKIPPED. Run '$(PIP) install pydocstyle' first." >&2 ; fi
 
 code-count: ## Count the code
