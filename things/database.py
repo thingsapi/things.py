@@ -451,12 +451,12 @@ class Database:
     # -------- Utility methods --------
 
     def last_modified(self):
-        """Get last modified time."""
+        """Get last modified time of database filepath."""
         mtime_seconds = os.path.getmtime(self.filepath)
         return datetime.datetime.fromtimestamp(mtime_seconds)
 
     def was_modified_today(self):
-        """Return true of modification date is `>=` that todays date."""
+        """Return True if database filepath was last modified today."""
         last_modified_date = self.last_modified().date()
         todays_date = datetime.datetime.now().date()
         return last_modified_date >= todays_date
@@ -626,7 +626,7 @@ def make_filter(column, value):
 
 def make_date_filter(date_column, offset):
     """
-    Return an SQL filter to limit the date range of the SQL query.
+    Return a SQL filter to limit the date range of the SQL query.
 
     Parameters
     ----------
@@ -676,7 +676,7 @@ def make_date_filter(date_column, offset):
 
 def make_truthy_filter(column: str, value) -> str:
     """
-    Return an SQL filter adding a boolean column that is set to truthy or falsy.
+    Return a SQL filter that matches if a column is truthy or falsy.
 
     Truthy means TRUE. Falsy means FALSE or NULL. This is akin
     to how Python defines it natively.
@@ -705,7 +705,7 @@ def make_truthy_filter(column: str, value) -> str:
 
 def make_search_filter(query: str) -> str:
     """
-    Return an SQL filter that filters titles and notes by a string.
+    Return a SQL filter to search tasks by a string query.
 
     Example:
     --------
