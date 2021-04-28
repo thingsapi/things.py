@@ -40,6 +40,9 @@
                                 <a class="function" href="#Database.get_tasks">get_tasks</a>
                         </li>
                         <li>
+                                <a class="function" href="#Database.get_task_by_uuid">get_task_by_uuid</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Database.get_areas">get_areas</a>
                         </li>
                         <li>
@@ -128,10 +131,7 @@
 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
-
-<span class="sd">&quot;&quot;&quot;Read from the Things SQLite database using SQL queries.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;Read from the Things SQLite database using SQL queries.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -206,10 +206,9 @@
 <span class="n">TABLE_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;TMSettings&quot;</span>
 
 <span class="c1"># --------------------------------------------------</span>
-<span class="c1"># Dates</span>
+<span class="c1"># Date Columns</span>
 <span class="c1"># --------------------------------------------------</span>
 
-<span class="c1"># Columns</span>
 <span class="n">DATE_CREATED</span> <span class="o">=</span> <span class="s2">&quot;creationDate&quot;</span>
 <span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;dueDate&quot;</span>
 <span class="n">DATE_MODIFIED</span> <span class="o">=</span> <span class="s2">&quot;userModificationDate&quot;</span>
@@ -320,6 +319,9 @@
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_task_by_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="n">count_only</span><span class="p">)</span>
+
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -336,53 +338,43 @@
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-
         <span class="c1"># Query</span>
         <span class="c1"># TK: might consider executing SQL with parameters instead.</span>
         <span class="c1"># See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TRUE </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
-            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
-            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
-            <span class="c1"># except for &quot;Trash&quot;.</span>
-            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
-            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
+        <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+        <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+        <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+        <span class="c1"># except for &quot;Trash&quot;.</span>
+        <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span><span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">)</span>
+        <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+            <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+        <span class="p">)</span>
 
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                &quot;&quot;&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">,</span> <span class="n">order_predicate</span><span class="p">)</span>
 
@@ -390,6 +382,21 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_task_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a task by uuid. Raise `ValueError` if not found.&quot;&quot;&quot;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="s2">&quot;TASK.uuid = ?&quot;</span>
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">(</span><span class="n">uuid</span><span class="p">,)</span>
+
+        <span class="k">if</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get areas. See `api.areas` for details on parameters.&quot;&quot;&quot;</span>
@@ -544,10 +551,12 @@
         <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;Count number of results.&quot;&quot;&quot;</span>
-        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+        <span class="n">count_sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql_query</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+            <span class="n">count_sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
@@ -1006,6 +1015,9 @@
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_task_by_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="n">count_only</span><span class="p">)</span>
+
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -1022,53 +1034,43 @@
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-
         <span class="c1"># Query</span>
         <span class="c1"># TK: might consider executing SQL with parameters instead.</span>
         <span class="c1"># See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TRUE </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
-            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
-            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
-            <span class="c1"># except for &quot;Trash&quot;.</span>
-            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
-            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
+        <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+        <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+        <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+        <span class="c1"># except for &quot;Trash&quot;.</span>
+        <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span><span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">)</span>
+        <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+            <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+        <span class="p">)</span>
 
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                &quot;&quot;&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">,</span> <span class="n">order_predicate</span><span class="p">)</span>
 
@@ -1076,6 +1078,21 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_task_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a task by uuid. Raise `ValueError` if not found.&quot;&quot;&quot;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="s2">&quot;TASK.uuid = ?&quot;</span>
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">(</span><span class="n">uuid</span><span class="p">,)</span>
+
+        <span class="k">if</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">get_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get areas. See `api.areas` for details on parameters.&quot;&quot;&quot;</span>
@@ -1230,10 +1247,12 @@
         <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;Count number of results.&quot;&quot;&quot;</span>
-        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+        <span class="n">count_sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql_query</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+            <span class="n">count_sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)</span>
@@ -1392,6 +1411,9 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
         <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get tasks. See `things.api.tasks` for details on parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_task_by_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="n">count_only</span><span class="p">)</span>
+
         <span class="c1"># Overwrites</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
@@ -1408,53 +1430,43 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
             <span class="n">valid_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">titles_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_tags</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">count_only</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tasks</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-
         <span class="c1"># Query</span>
         <span class="c1"># TK: might consider executing SQL with parameters instead.</span>
         <span class="c1"># See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute</span>
 
-        <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TRUE </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">start_filter</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">status_filter</span> <span class="o">=</span> <span class="n">STATUS_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">trashed_filter</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trashed</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">type_filter</span> <span class="o">=</span> <span class="n">TYPE_TO_FILTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
-            <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
-            <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
-            <span class="c1"># except for &quot;Trash&quot;.</span>
-            <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
-            <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
-                <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
-            <span class="p">)</span>
+        <span class="c1"># Sometimes a task is _not_ set to trashed, but its context</span>
+        <span class="c1"># (project or heading it is contained within) is set to trashed.</span>
+        <span class="c1"># In those cases, the task wouldn&#39;t show up in any app view</span>
+        <span class="c1"># except for &quot;Trash&quot;.</span>
+        <span class="n">project_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span><span class="s2">&quot;PROJECT.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span><span class="p">)</span>
+        <span class="n">project_of_heading_trashed_filter</span> <span class="o">=</span> <span class="n">make_truthy_filter</span><span class="p">(</span>
+            <span class="s2">&quot;PROJECT_OF_HEADING.trashed&quot;</span><span class="p">,</span> <span class="n">context_trashed</span>
+        <span class="p">)</span>
 
-            <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                &quot;&quot;&quot;</span>
-            <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            TASK.</span><span class="si">{</span><span class="n">IS_NOT_RECURRING</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">trashed_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">trashed_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">project_of_heading_trashed_filter</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">type_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">type_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">start_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">start_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">status_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;AND TASK.</span><span class="si">{</span><span class="n">status_filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.startDate&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">,</span> <span class="n">order_predicate</span><span class="p">)</span>
 
@@ -1467,6 +1479,39 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
         </details>
 
             <div class="docstring"><p>Get tasks. See <code><a href="api.html#tasks">things.api.tasks</a></code> for details on parameters.</p>
+</div>
+
+
+                            </div>
+                            <div id="Database.get_task_by_uuid" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Database.get_task_by_uuid">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_task_by_uuid</span><span class="signature">(self, uuid, count_only=False)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_task_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a task by uuid. Raise `ValueError` if not found.&quot;&quot;&quot;</span>
+        <span class="n">where_predicate</span> <span class="o">=</span> <span class="s2">&quot;TASK.uuid = ?&quot;</span>
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="n">make_tasks_sql_query</span><span class="p">(</span><span class="n">where_predicate</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">(</span><span class="n">uuid</span><span class="p">,)</span>
+
+        <span class="k">if</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such task uuid found: </span><span class="si">{</span><span class="n">uuid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get a task by uuid. Raise <code>ValueError</code> if not found.</p>
 </div>
 
 
@@ -1754,15 +1799,17 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 
         
             <span class="def">def</span>
-            <span class="name">get_count</span><span class="signature">(self, sql)</span>:
+            <span class="name">get_count</span><span class="signature">(self, sql_query, parameters=())</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;Count number of results.&quot;&quot;&quot;</span>
-        <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">)</span>
+        <span class="n">count_sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT COUNT(uuid) FROM (</span><span class="se">\n</span><span class="si">{</span><span class="n">sql_query</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+            <span class="n">count_sql_query</span><span class="p">,</span> <span class="n">row_factory</span><span class="o">=</span><span class="n">list_factory</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
