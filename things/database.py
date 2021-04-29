@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """Read from the Things SQLite database using SQL queries."""
 
 import datetime
@@ -76,10 +73,9 @@ TABLE_TASKTAG = "TMTaskTag"
 TABLE_SETTINGS = "TMSettings"
 
 # --------------------------------------------------
-# Dates
+# Date Columns
 # --------------------------------------------------
 
-# Columns
 DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
@@ -190,6 +186,9 @@ class Database:
         count_only=False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
+        if uuid:
+            return self.get_task_by_uuid(uuid, count_only=count_only)
+
         # Overwrites
         start = start and start.title()
 
@@ -206,53 +205,43 @@ class Database:
             valid_tags = self.get_tags(titles_only=True)
             validate("tag", tag, [None] + list(valid_tags))
 
-        if uuid:
-            if count_only is False and not self.get_tasks(uuid=uuid, count_only=True):
-                raise ValueError(f"No such task uuid found: {uuid!r}")
-
         # Query
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        if uuid:
-            where_predicate = f"TRUE {make_filter('TASK.uuid', uuid)}"
-            order_predicate = None
-        else:
-            start_filter = START_TO_FILTER.get(start, "")
-            status_filter = STATUS_TO_FILTER.get(status, "")
-            trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
-            type_filter = TYPE_TO_FILTER.get(type, "")
+        start_filter = START_TO_FILTER.get(start, "")
+        status_filter = STATUS_TO_FILTER.get(status, "")
+        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
+        type_filter = TYPE_TO_FILTER.get(type, "")
 
-            # Sometimes a task is _not_ set to trashed, but its context
-            # (project or heading it is contained within) is set to trashed.
-            # In those cases, the task wouldn't show up in any app view
-            # except for "Trash".
-            project_trashed_filter = make_truthy_filter(
-                "PROJECT.trashed", context_trashed
-            )
-            project_of_heading_trashed_filter = make_truthy_filter(
-                "PROJECT_OF_HEADING.trashed", context_trashed
-            )
+        # Sometimes a task is _not_ set to trashed, but its context
+        # (project or heading it is contained within) is set to trashed.
+        # In those cases, the task wouldn't show up in any app view
+        # except for "Trash".
+        project_trashed_filter = make_truthy_filter("PROJECT.trashed", context_trashed)
+        project_of_heading_trashed_filter = make_truthy_filter(
+            "PROJECT_OF_HEADING.trashed", context_trashed
+        )
 
-            where_predicate = f"""
-                TASK.{IS_NOT_RECURRING}
-                {trashed_filter and f"AND TASK.{trashed_filter}"}
-                {project_trashed_filter}
-                {project_of_heading_trashed_filter}
-                {type_filter and f"AND TASK.{type_filter}"}
-                {start_filter and f"AND TASK.{start_filter}"}
-                {status_filter and f"AND TASK.{status_filter}"}
-                {make_filter('TASK.uuid', uuid)}
-                {make_filter("TASK.area", area)}
-                {make_filter("TASK.project", project)}
-                {make_filter("TASK.actionGroup", heading)}
-                {make_filter("TASK.startDate", start_date)}
-                {make_filter(f"TASK.{DATE_DEADLINE}", deadline)}
-                {make_filter("TAG.title", tag)}
-                {make_date_filter(f"TASK.{DATE_CREATED}", last)}
-                {make_search_filter(search_query)}
-                """
-            order_predicate = f'TASK."{index}"'
+        where_predicate = f"""
+            TASK.{IS_NOT_RECURRING}
+            {trashed_filter and f"AND TASK.{trashed_filter}"}
+            {project_trashed_filter}
+            {project_of_heading_trashed_filter}
+            {type_filter and f"AND TASK.{type_filter}"}
+            {start_filter and f"AND TASK.{start_filter}"}
+            {status_filter and f"AND TASK.{status_filter}"}
+            {make_filter('TASK.uuid', uuid)}
+            {make_filter("TASK.area", area)}
+            {make_filter("TASK.project", project)}
+            {make_filter("TASK.actionGroup", heading)}
+            {make_filter("TASK.startDate", start_date)}
+            {make_filter(f"TASK.{DATE_DEADLINE}", deadline)}
+            {make_filter("TAG.title", tag)}
+            {make_date_filter(f"TASK.{DATE_CREATED}", last)}
+            {make_search_filter(search_query)}
+            """
+        order_predicate = f'TASK."{index}"'
 
         sql_query = make_tasks_sql_query(where_predicate, order_predicate)
 
@@ -260,6 +249,21 @@ class Database:
             return self.get_count(sql_query)
 
         return self.execute_query(sql_query)
+
+    def get_task_by_uuid(self, uuid, count_only=False):
+        """Get a task by uuid. Raise `ValueError` if not found."""
+        where_predicate = "TASK.uuid = ?"
+        sql_query = make_tasks_sql_query(where_predicate)
+        parameters = (uuid,)
+
+        if count_only:
+            return self.get_count(sql_query, parameters)
+
+        result = self.execute_query(sql_query, parameters)
+        if not result:
+            raise ValueError(f"No such task uuid found: {uuid!r}")
+
+        return result
 
     def get_areas(self, uuid=None, tag=None, count_only=False):
         """Get areas. See `api.areas` for details on parameters."""
@@ -414,10 +418,12 @@ class Database:
         rows = self.execute_query(sql_query, row_factory=list_factory)
         return rows[0]
 
-    def get_count(self, sql):
+    def get_count(self, sql_query, parameters=()):
         """Count number of results."""
-        sql_query = f"""SELECT COUNT(uuid) FROM (\n{sql}\n)"""
-        rows = self.execute_query(sql_query, row_factory=list_factory)
+        count_sql_query = f"""SELECT COUNT(uuid) FROM (\n{sql_query}\n)"""
+        rows = self.execute_query(
+            count_sql_query, row_factory=list_factory, parameters=parameters
+        )
         return rows[0]
 
     # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)

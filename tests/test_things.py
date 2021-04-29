@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# pylint: disable=C0116
 
 """Module documentation goes here."""
 
@@ -46,7 +44,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(token, expected)
 
     def test_search(self):
-        tasks = things.search("wrong_query")
+        tasks = things.search("invalid_query")
         self.assertEqual(0, len(tasks))
 
         # test some special characters
@@ -135,9 +133,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(1, len(tasks))
 
     def test_get_by_uuid(self):
-        task = things.get("wrong_uuid")
+        task = things.get("invalid_uuid")
         self.assertEqual(None, task)
-        task = things.get("wrong_uuid", "NOT FOUND")
+        task = things.get("invalid_uuid", "NOT FOUND")
         self.assertEqual("NOT FOUND", task)
         task = things.get("Qt2AY87x2QDdowSn9HKTt1")
         self.assertEqual(4, len(task.keys()))  # type: ignore
@@ -154,7 +152,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.tasks(include_items=True)
         self.assertEqual(16, len(tasks))
         with self.assertRaises(ValueError):
-            things.todos(status="wrong_value")
+            things.todos(status="invalid_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
         self.assertEqual(16, len(todo.keys()))  # type: ignore
 
@@ -186,7 +184,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         count = things.areas(count_only=True)
         self.assertEqual(3, count)
         with self.assertRaises(ValueError):
-            things.areas("wrong-uuid")
+            things.areas("invalid_uuid")
         area = things.areas("Y3JC4XeyGWxzDocQL4aobo")
         self.assertEqual("Area 3", area["title"])  # type: ignore
 
@@ -222,6 +220,17 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_tasks(self):
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
+
+        # get task by uuid
+        count = things.tasks(uuid="5pUx6PESj3ctFYbgth1PXY", count_only=True)
+        self.assertEqual(count, 1)
+
+        count = things.tasks(uuid="invalid_uuid", count_only=True)
+        self.assertEqual(count, 0)
+
+        with self.assertRaises(ValueError):
+            things.tasks(uuid="invalid_uuid")
+
         # special characters
         tasks = things.tasks(area='"')
         self.assertEqual(len(tasks), 0)
