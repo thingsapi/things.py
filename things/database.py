@@ -605,7 +605,7 @@ def list_factory(_cursor, row):
 def make_filter(column, value):
     """Return SQL filter 'AND {column} = "{value}"'.
 
-    Special handling if `value` is `bool` or `None`.
+    Special handling if `value` is `bool`, `list` or `None`.
 
     Examples
     --------
@@ -620,9 +620,20 @@ def make_filter(column, value):
 
     >>> make_filter('title', None)
     ''
+
+    >>> make_filter('startDate', ["<=", "strftime('%s', 'now')"])
+    'AND startDate <= strftime('%s', 'now')'
     """
-    default = f"AND {column} = '{escape_string(str(value))}'"
-    # special options
+    # special case, e.g., to allow showing "yellow" tasks
+    if isinstance(value, list):
+        operator = str(value[0])
+        expression = str(value[1])
+        value = value[1]
+    else:
+        operator = "="
+        expression = f"'{escape_string(str(value))}'"
+
+    default = f"AND {column} {operator} {expression}"
     return {
         None: "",
         False: f"AND {column} IS NULL",

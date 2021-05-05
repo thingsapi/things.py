@@ -89,6 +89,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     start_date : bool or None, optional
         - `start_date == False`, only include tasks _without_ a start date.
         - `start_date == True`, only include tasks _with_ a start date.
+        - `start_date == list`, with list[0] as compare operator and list[1] as expression.
         - `start_date == None` (default), then include all tasks.
 
     deadline : bool or None, optional
@@ -484,6 +485,8 @@ def today(**kwargs):
     See `things.api.tasks` for details on the optional parameters.
     """
     database = pop_database(kwargs)
+
+    # todo: remove this warning and note above after further testing
     if not database.was_modified_today():  # pragma: no cover
         print(
             "[NOTE] The results reflect the state of the Things app "
@@ -492,13 +495,24 @@ def today(**kwargs):
             "to update Today's to-dos and projects.",
             file=sys.stderr,
         )
-    return tasks(
+
+    unconfirmed_today_tasks = tasks(
+        start_date=["<=", "strftime('%s', 'now')"],
+        start="Someday",
+        index="todayIndex",
+        database=database,
+        **kwargs,
+    )
+
+    regular_today_tasks = tasks(
         start_date=True,
         start="Anytime",
         index="todayIndex",
         database=database,
         **kwargs,
     )
+
+    return regular_today_tasks + unconfirmed_today_tasks
 
 
 def upcoming(**kwargs):
