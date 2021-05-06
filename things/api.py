@@ -9,7 +9,6 @@ data structures. Whenever that happens, we define the new term here.
 
 import os
 from shlex import quote
-import sys
 from typing import Dict, List, Union
 
 from things.database import Database
@@ -479,6 +478,7 @@ def today(**kwargs):
 
     Note: This might not produce desired results if the Things app hasn't
     been opened yet today and the yellow "OK" button clicked for new tasks.
+    However, this case is explicitly covered by now.
     In general, you can assume that whatever state the Things app was in
     when you last opened it, that's the state reflected here by the API.
 
@@ -486,15 +486,16 @@ def today(**kwargs):
     """
     database = pop_database(kwargs)
 
-    # todo: remove this warning and note above after further testing
-    if not database.was_modified_today():  # pragma: no cover
-        print(
-            "[NOTE] The results reflect the state of the Things app "
-            "when it was last run. If the results seem out of date, "
-            "then run the Things app and click the yellow 'OK' button "
-            "to update Today's to-dos and projects.",
-            file=sys.stderr,
-        )
+    # This warning is most probably not needed anymore.
+    # We keep it around in case we might need this functionality again.
+    # if not database.was_modified_today():  # pragma: no cover
+    #     print(
+    #         "[NOTE] The results reflect the state of the Things app "
+    #         "when it was last run. If the results seem out of date, "
+    #         "then run the Things app and click the yellow 'OK' button "
+    #         "to update Today's to-dos and projects.",
+    #         file=sys.stderr,
+    #     )
 
     unconfirmed_today_tasks = tasks(
         start_date=["<=", "strftime('%s', 'now')"],
@@ -524,7 +525,7 @@ def upcoming(**kwargs):
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date=True, start="Someday", **kwargs)
+    return tasks(start_date=[">", "strftime('%s', 'now')"], start="Someday", **kwargs)
 
 
 def anytime(**kwargs):
