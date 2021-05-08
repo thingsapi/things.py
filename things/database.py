@@ -188,6 +188,12 @@ class Database:
         if uuid:
             return self.get_task_by_uuid(uuid, count_only=count_only)
 
+        # Yellow task handling
+        if start_date == "Future":
+            start_date = [">", "strftime('%s', 'now')"]
+        elif start_date == "Past":
+            start_date = ["<=", "strftime('%s', 'now')"]
+
         # Overwrites
         start = start and start.title()
 
