@@ -1,6 +1,5 @@
 """Read from the Things SQLite database using SQL queries."""
 
-import datetime
 import os
 import plistlib
 import re
@@ -188,6 +187,12 @@ class Database:
         """Get tasks. See `things.api.tasks` for details on parameters."""
         if uuid:
             return self.get_task_by_uuid(uuid, count_only=count_only)
+
+        # Yellow task handling
+        if start_date == "Future":
+            start_date = [">", "strftime('%s', 'now')"]
+        elif start_date == "Past":
+            start_date = ["<=", "strftime('%s', 'now')"]
 
         # Overwrites
         start = start and start.title()
@@ -456,16 +461,20 @@ class Database:
 
     # -------- Utility methods --------
 
-    def last_modified(self):
-        """Get last modified time of database filepath."""
-        mtime_seconds = os.path.getmtime(self.filepath)
-        return datetime.datetime.fromtimestamp(mtime_seconds)
+    # This utility method was needed to indicate that yellow tasks are shown.
+    # We keep it around in case we might need this functionality again.
+    # def last_modified(self):
+    #     """Get last modified time of database filepath."""
+    #     mtime_seconds = os.path.getmtime(self.filepath)
+    #     return datetime.datetime.fromtimestamp(mtime_seconds)
 
-    def was_modified_today(self):
-        """Return True if database filepath was last modified today."""
-        last_modified_date = self.last_modified().date()
-        todays_date = datetime.datetime.now().date()
-        return last_modified_date >= todays_date
+    # This utility method was needed to indicate that yellow tasks are shown.
+    # We keep it around in case we might need this functionality again.
+    # def was_modified_today(self):
+    #     """Return True if database filepath was last modified today."""
+    #     last_modified_date = self.last_modified().date()
+    #     todays_date = datetime.datetime.now().date()
+    #     return last_modified_date >= todays_date
 
 
 # Helper functions
@@ -605,7 +614,7 @@ def list_factory(_cursor, row):
 def make_filter(column, value):
     """Return SQL filter 'AND {column} = "{value}"'.
 
-    Special handling if `value` is `bool` or `None`.
+    Special handling if `value` is `bool`, `list` or `None`.
 
     Examples
     --------
@@ -620,9 +629,20 @@ def make_filter(column, value):
 
     >>> make_filter('title', None)
     ''
+
+    >>> make_filter('startDate', ["<=", "strftime('%s', 'now')"])
+    'AND startDate <= strftime('%s', 'now')'
     """
-    default = f"AND {column} = '{escape_string(str(value))}'"
-    # special options
+    # special case, e.g., to allow showing "yellow" tasks
+    if isinstance(value, list):
+        operator = str(value[0])
+        expression = str(value[1])
+        value = value[1]
+    else:
+        operator = "="
+        expression = f"'{escape_string(str(value))}'"
+
+    default = f"AND {column} {operator} {expression}"
     return {
         None: "",
         False: f"AND {column} IS NULL",

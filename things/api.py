@@ -9,7 +9,6 @@ data structures. Whenever that happens, we define the new term here.
 
 import os
 from shlex import quote
-import sys
 from typing import Dict, List, Union
 
 from things.database import Database
@@ -86,9 +85,11 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `tag == True`, only include tasks _with_ tags.
         - `tag == None` (default), then include all tasks.
 
-    start_date : bool or None, optional
+    start_date : bool, str or None, optional
         - `start_date == False`, only include tasks _without_ a start date.
         - `start_date == True`, only include tasks _with_ a start date.
+        - `start_date == 'Future'`, only include tasks with a future start date.
+        - `start_date == 'Past'`, only include tasks with a past start date.
         - `start_date == None` (default), then include all tasks.
 
     deadline : bool or None, optional
@@ -478,27 +479,42 @@ def today(**kwargs):
 
     Note: This might not produce desired results if the Things app hasn't
     been opened yet today and the yellow "OK" button clicked for new tasks.
+    However, this case is explicitly covered by now.
     In general, you can assume that whatever state the Things app was in
     when you last opened it, that's the state reflected here by the API.
 
     See `things.api.tasks` for details on the optional parameters.
     """
     database = pop_database(kwargs)
-    if not database.was_modified_today():  # pragma: no cover
-        print(
-            "[NOTE] The results reflect the state of the Things app "
-            "when it was last run. If the results seem out of date, "
-            "then run the Things app and click the yellow 'OK' button "
-            "to update Today's to-dos and projects.",
-            file=sys.stderr,
-        )
-    return tasks(
+
+    # This warning is most probably not needed anymore.
+    # We keep it around in case we might need this functionality again.
+    # if not database.was_modified_today():  # pragma: no cover
+    #     print(
+    #         "[NOTE] The results reflect the state of the Things app "
+    #         "when it was last run. If the results seem out of date, "
+    #         "then run the Things app and click the yellow 'OK' button "
+    #         "to update Today's to-dos and projects.",
+    #         file=sys.stderr,
+    #     )
+
+    unconfirmed_today_tasks = tasks(
+        start_date="Past",
+        start="Someday",
+        index="todayIndex",
+        database=database,
+        **kwargs,
+    )
+
+    regular_today_tasks = tasks(
         start_date=True,
         start="Anytime",
         index="todayIndex",
         database=database,
         **kwargs,
     )
+
+    return regular_today_tasks + unconfirmed_today_tasks
 
 
 def upcoming(**kwargs):
@@ -510,7 +526,7 @@ def upcoming(**kwargs):
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date=True, start="Someday", **kwargs)
+    return tasks(start_date="Future", start="Someday", **kwargs)
 
 
 def anytime(**kwargs):

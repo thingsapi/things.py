@@ -103,7 +103,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_today(self):
         tasks = things.today()
-        self.assertEqual(3, len(tasks))
+        self.assertEqual(4, len(tasks))
 
     def test_checklist(self):
         checklist_items = things.checklist_items("3Eva4XFof6zWb9iSfYy4ej")
@@ -148,9 +148,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         todos = things.todos(status="completed")
         self.assertEqual(10, len(todos))
         todos = things.todos(include_items=True)
-        self.assertEqual(12, len(todos))
+        self.assertEqual(13, len(todos))
         tasks = things.tasks(include_items=True)
-        self.assertEqual(16, len(tasks))
+        self.assertEqual(17, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="invalid_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
@@ -197,7 +197,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(len(last_tasks), 0)
 
         last_tasks = things.last("10000w")
-        self.assertEqual(len(last_tasks), 16)
+        self.assertEqual(len(last_tasks), 17)
 
         last_tasks = things.last("100y", status="completed")
         self.assertEqual(len(last_tasks), 10)
