@@ -99,7 +99,13 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_deadlines(self):
         tasks = things.deadlines()
+        self.assertEqual(2, len(tasks))
+        tasks = things.tasks(deadline="past")
         self.assertEqual(1, len(tasks))
+        tasks = things.tasks(deadline="future")
+        self.assertEqual(1, len(tasks))
+        with self.assertRaises(ValueError):
+            tasks = things.tasks(deadline="invalid_value")
 
     def test_today(self):
         tasks = things.today()

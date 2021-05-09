@@ -88,13 +88,15 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     start_date : bool, str or None, optional
         - `start_date == False`, only include tasks _without_ a start date.
         - `start_date == True`, only include tasks _with_ a start date.
-        - `start_date == 'Future'`, only include tasks with a future start date.
-        - `start_date == 'Past'`, only include tasks with a past start date.
+        - `start_date == 'future'`, only include tasks with a future start date.
+        - `start_date == 'past'`, only include tasks with a past start date.
         - `start_date == None` (default), then include all tasks.
 
     deadline : bool or None, optional
         - `deadline == False`, only include tasks _without_ a deadline.
         - `deadline == True`, only include tasks _with_ a deadline.
+        - `deadline == 'future'`, only include tasks with a deadline in the future.
+        - `deadline == 'past'`, only include tasks with a deadline in the past.
         - `deadline == None` (default), then include all tasks.
 
     trashed : bool or None, optional, default False
@@ -499,7 +501,7 @@ def today(**kwargs):
     #     )
 
     unconfirmed_today_tasks = tasks(
-        start_date="Past",
+        start_date="past",
         start="Someday",
         index="todayIndex",
         database=database,
@@ -526,7 +528,7 @@ def upcoming(**kwargs):
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date="Future", start="Someday", **kwargs)
+    return tasks(start_date="future", start="Someday", **kwargs)
 
 
 def anytime(**kwargs):
