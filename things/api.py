@@ -92,12 +92,18 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `start_date == 'past'`, only include tasks with a past start date.
         - `start_date == None` (default), then include all tasks.
 
-    deadline : bool or None, optional
+    deadline : bool, str or None, optional
         - `deadline == False`, only include tasks _without_ a deadline.
         - `deadline == True`, only include tasks _with_ a deadline.
         - `deadline == 'future'`, only include tasks with a deadline in the future.
         - `deadline == 'past'`, only include tasks with a deadline in the past.
         - `deadline == None` (default), then include all tasks.
+
+    suppressed : bool or None, optional
+        - `suppressed == True`, only include tasks with a deadline
+          that have been removed from the today view.
+        - `suppressed == False`, only include tasks with a deadline
+          that have not been removed from the today view.
 
     trashed : bool or None, optional, default False
         - `trashed == False` (default), only include non-trashed tasks.
@@ -491,10 +497,19 @@ def today(**kwargs):
     """
     database = pop_database(kwargs)
 
-    unconfirmed_today_tasks = tasks(
+    unconfirmed_scheduled_tasks = tasks(
         start_date="past",
         start="Someday",
         index="todayIndex",
+        database=database,
+        **kwargs,
+    )
+
+    unconfirmed_overdue_tasks = tasks(
+        start_date=False,
+        deadline="past",
+        start="Anytime",
+        suppressed=False,
         database=database,
         **kwargs,
     )
@@ -507,7 +522,7 @@ def today(**kwargs):
         **kwargs,
     )
 
-    return regular_today_tasks + unconfirmed_today_tasks
+    return regular_today_tasks + unconfirmed_scheduled_tasks + unconfirmed_overdue_tasks
 
 
 def upcoming(**kwargs):

@@ -14,6 +14,31 @@ TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
+# AW: to be continued, helps updating the test expectations when modifying the DB
+HEADINGS = 3
+INBOX = 2
+TRASHED_TODOS = 2
+TRASHED_PROJECTS = 1
+TRASHED_CANCELLED = 1
+TRASHED_COMPLETED = 1
+TRASHED_PROJECT_TODOS = 1
+TRASHED_PROJECT_TRASHED_TODOS = 1
+TRASHED = (
+    TRASHED_TODOS
+    + TRASHED_PROJECTS
+    + TRASHED_CANCELLED
+    + TRASHED_COMPLETED
+    + TRASHED_PROJECT_TRASHED_TODOS
+)
+PROJECTS = 4
+UPCOMING = 1
+DEADLINE_PAST = 3
+DEADLINE_FUTURE = 1
+DEADLINE = DEADLINE_PAST + DEADLINE_FUTURE
+TODAY_PROJECTS = 1
+TODAY_TASKS = 4
+TODAY = TODAY_PROJECTS + TODAY_TASKS
+
 
 class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     """Class documentation goes here."""
@@ -62,54 +87,59 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         #   "To-Do in Heading",
         #   "Completed To-Do in Heading",
         #   "Canceled To-Do in Heading"
-        self.assertEqual(3, len(todos))
+        self.assertEqual(HEADINGS, len(todos))
 
     def test_inbox(self):
         tasks = things.inbox()
-        self.assertEqual(2, len(tasks))
+        self.assertEqual(INBOX, len(tasks))
 
     def test_trashed(self):
-        tasks = things.trash()
-        self.assertEqual(5, len(tasks))
         todos = things.todos(trashed=True)
-        self.assertEqual(2, len(todos))
+        self.assertEqual(TRASHED_TODOS, len(todos))
         projects = things.projects(trashed=True)
-        self.assertEqual(1, len(projects))
+        self.assertEqual(TRASHED_PROJECTS, len(projects))
         projects = things.projects(trashed=None)
-        self.assertEqual(4, len(projects))
+        self.assertEqual(PROJECTS, len(projects))
         projects = things.trash(type="project")
-        self.assertEqual(1, len(projects))
+        self.assertEqual(TRASHED_PROJECTS, len(projects))
+        tasks = things.trash()
+        self.assertEqual(TRASHED, len(tasks))
 
         projects = things.trash(type="project", include_items=True)
         project_items = projects[0]["items"]
-        self.assertEqual(1, len(project_items))
+        self.assertEqual(TRASHED_PROJECTS, len(project_items))
         filtered_project_items = [
             item for item in project_items if "in Deleted Project" in item["title"]
         ]
-        self.assertEqual(1, len(filtered_project_items))
+        self.assertEqual(TRASHED_PROJECT_TODOS, len(filtered_project_items))
 
         # TK: Add this test case to the database:
         # to-do with trashed = 1 and whose project also has trashed = 1.
+        # AW: These are actually not shown in the GUI
         tasks = things.tasks(type="to-do", trashed=True, context_trashed=True)
         self.assertEqual(0, len(tasks))
 
     def test_upcoming(self):
         tasks = things.upcoming()
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(UPCOMING, len(tasks))
 
     def test_deadlines(self):
-        tasks = things.deadlines()
-        self.assertEqual(2, len(tasks))
         tasks = things.tasks(deadline="past")
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(DEADLINE_PAST, len(tasks))
         tasks = things.tasks(deadline="future")
-        self.assertEqual(1, len(tasks))
+        self.assertEqual(DEADLINE_FUTURE, len(tasks))
+        tasks = things.deadlines()
+        self.assertEqual(DEADLINE, len(tasks))
         with self.assertRaises(ValueError):
             tasks = things.tasks(deadline="invalid_value")
 
     def test_today(self):
+        projects = things.today(type="project")
+        self.assertEqual(TODAY_PROJECTS, len(projects))
+        tasks = things.today(type="to-do")
+        self.assertEqual(TODAY_TASKS, len(tasks))
         tasks = things.today()
-        self.assertEqual(4, len(tasks))
+        self.assertEqual(TODAY, len(tasks))
 
     def test_checklist(self):
         checklist_items = things.checklist_items("3Eva4XFof6zWb9iSfYy4ej")
@@ -119,7 +149,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_anytime(self):
         tasks = things.anytime()
-        self.assertEqual(12, len(tasks))
+        self.assertEqual(14, len(tasks))
         self.assertTrue(any(task.get("area_title") == "Area 1" for task in tasks))
 
     def test_logbook(self):
@@ -147,28 +177,28 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(4, len(task.keys()))  # type: ignore
 
     def test_todos(self):
-        todos = things.todos(start="Anytime")
-        self.assertEqual(8, len(todos))
         todos = things.todos(start="Anytime", status="completed")
         self.assertEqual(6, len(todos))
+        todos = things.todos(start="Anytime")
+        self.assertEqual(10, len(todos))
         todos = things.todos(status="completed")
         self.assertEqual(10, len(todos))
         todos = things.todos(include_items=True)
-        self.assertEqual(13, len(todos))
+        self.assertEqual(15, len(todos))
         tasks = things.tasks(include_items=True)
-        self.assertEqual(17, len(tasks))
+        self.assertEqual(19, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="invalid_value")
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
         self.assertEqual(16, len(todo.keys()))  # type: ignore
 
     def test_tags(self):
+        tags = things.tasks(tag="Errand")
+        self.assertEqual(1, len(tags))
         tags = things.tags()
         self.assertEqual(5, len(tags))
         tags = things.tags(include_items=True)
         self.assertEqual(5, len(tags))
-        tags = things.tasks(tag="Errand")
-        self.assertEqual(1, len(tags))
         tag = things.tags(title="Errand")
         self.assertEqual("Errand", tag["title"])  # type: ignore
 
@@ -180,7 +210,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         projects = things.projects()
         self.assertEqual(3, len(projects))
         projects = things.projects(include_items=True)
-        self.assertEqual(2, len(projects[0]["items"]))
+        self.assertEqual(4, len(projects[0]["items"]))
 
     def test_areas(self):
         areas = things.areas()
@@ -203,7 +233,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(len(last_tasks), 0)
 
         last_tasks = things.last("10000w")
-        self.assertEqual(len(last_tasks), 17)
+        self.assertEqual(len(last_tasks), 19)
 
         last_tasks = things.last("100y", status="completed")
         self.assertEqual(len(last_tasks), 10)
