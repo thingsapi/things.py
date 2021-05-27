@@ -485,23 +485,26 @@ def today(**kwargs):
     """
     Read Today's tasks into dicts.
 
-    Note: Some tasks might be highlighted in yellow within the Things app.
-    These tasks have either been scheduled to show up in the today view on that day
-    (or earlier) or are repeating tasks that are scheduled for that day (or earlier).
-    These tasks are also returned by calling this method, altough the internal structure
-    might change after the yellow "OK" button has been clicked for new tasks.
-    In general, you can assume that whatever state the Things app was in
-    when you last opened it, that's the state reflected here by the API.
+    Note: This method is a bit tricky. The API reflects the status of the database
+    when you last opened it with the app. However, there is the concept of "yellow"
+    time-related tasks. Some cases (e.g., scheduled or due tasks) are handled by the
+    API and are automatically shown. In other cases, however, such as with repeating
+    tasks, the database gets modified when opened with the app. These cases are not
+    covered before the app got launched.
 
     See `things.api.tasks` for details on the optional parameters.
     """
-    database = pop_database(kwargs)
+    regular_today_tasks = tasks(
+        start_date=True,
+        start="Anytime",
+        index="todayIndex",
+        **kwargs,
+    )
 
     unconfirmed_scheduled_tasks = tasks(
         start_date="past",
         start="Someday",
         index="todayIndex",
-        database=database,
         **kwargs,
     )
 
@@ -510,19 +513,17 @@ def today(**kwargs):
         deadline="past",
         start="Anytime",
         suppressed=False,
-        database=database,
         **kwargs,
     )
 
-    regular_today_tasks = tasks(
-        start_date=True,
-        start="Anytime",
-        index="todayIndex",
-        database=database,
-        **kwargs,
-    )
+    result = [
+        *regular_today_tasks,
+        *unconfirmed_scheduled_tasks,
+        *unconfirmed_overdue_tasks,
+    ]
+    result.sort(key=lambda task: task["today_index"])
 
-    return regular_today_tasks + unconfirmed_scheduled_tasks + unconfirmed_overdue_tasks
+    return result
 
 
 def upcoming(**kwargs):

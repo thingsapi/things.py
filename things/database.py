@@ -79,10 +79,10 @@ TABLE_SETTINGS = "TMSettings"
 # Date Columns
 # --------------------------------------------------
 
-DATE_START = "startDate"
 DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
+DATE_START = "startDate"
 
 # --------------------------------------------------
 # Various filters
@@ -618,7 +618,7 @@ def list_factory(_cursor, row):
 def make_filter(column, value):
     """Return SQL filter 'AND {column} = "{value}"'.
 
-    Special handling if `value` is `bool`, `list` or `None`.
+    Special handling if `value` is `bool`, or `None`.
 
     Examples
     --------
@@ -656,7 +656,7 @@ def make_date_filter(date_column: str, offset) -> str:
         be 'd', 'w', or 'y' that determines whether to return all tasks
         for the past X days, weeks, or years; or the string "future" or "past"
         that detemines that a specific date is in the future or in the past
-        (e.g. "yellow tasks).
+        (e.g. "yellow" tasks).
         Or a boolean value indicating that a start date is
         set or not (see `make_filter`)
 
