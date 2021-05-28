@@ -140,6 +140,15 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(TODAY_TASKS, len(tasks))
         tasks = things.today()
         self.assertEqual(TODAY, len(tasks))
+        tasks_today = [
+            "Upcoming To-Do in Today (yellow)",
+            "Project in Today",
+            "To-Do in Today",
+            "Repeating To-Do",
+            "Overdue Todo automatically shown in Today",
+        ]
+        for count, value in enumerate(tasks_today):
+            self.assertEqual(value, tasks[count]["title"])
 
     def test_checklist(self):
         checklist_items = things.checklist_items("3Eva4XFof6zWb9iSfYy4ej")
