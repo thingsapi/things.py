@@ -521,7 +521,7 @@ def today(**kwargs):
         *unconfirmed_scheduled_tasks,
         *unconfirmed_overdue_tasks,
     ]
-    result.sort(key=lambda task: task["today_index"])
+    result.sort(key=lambda task: (task["today_index"], task["start_date"]))
 
     return result
 
