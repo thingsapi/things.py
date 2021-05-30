@@ -485,12 +485,12 @@ def today(**kwargs):
     """
     Read Today's tasks into dicts.
 
-    Note: This method is a bit tricky. The API reflects the status of the database
-    when you last opened it with the app. However, there is the concept of "yellow"
-    time-related tasks. Some cases (e.g., scheduled or due tasks) are handled by the
-    API and are automatically shown. In other cases, however, such as with repeating
-    tasks, the database gets modified when opened with the app. These cases are not
-    covered before the app got launched.
+    Note: This method is a bit tricky.
+    The Things database reflects the status of the Things app when it was last opened.
+    When you open the Things app, new to-dos might have appeared in the Today view.
+    Those to-dos are indicated by a yellow dot in the app.
+    We try to predict what those new to-dos would be and return them as well.
+    Some cases, however, are not yet covered. This includes repeating to-dos.
 
     See `things.api.tasks` for details on the optional parameters.
     """
