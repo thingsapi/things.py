@@ -182,7 +182,7 @@ class Database:
         tag=None,
         start_date=None,
         deadline=None,
-        suppressed=None,
+        deadline_suppressed=None,
         trashed=False,
         context_trashed=False,
         last=None,
@@ -199,7 +199,7 @@ class Database:
 
         # Validation
         validate("deadline", deadline, [None] + list(DATES))  # type: ignore
-        validate("suppressed", suppressed, [None, True, False])  # type: ignore
+        validate("deadline_suppressed", deadline_suppressed, [None, True, False])  # type: ignore
         validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
         validate("start_date", start_date, [None] + list(DATES))  # type: ignore
         validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
@@ -243,7 +243,7 @@ class Database:
             {make_filter("TASK.area", area)}
             {make_filter("TASK.project", project)}
             {make_filter("TASK.actionGroup", heading)}
-            {make_filter("TASK.dueDateSuppressionDate", suppressed)}
+            {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}

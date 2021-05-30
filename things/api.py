@@ -99,11 +99,11 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == 'past'`, only include tasks with a deadline in the past.
         - `deadline == None` (default), then include all tasks.
 
-    suppressed : bool or None, optional
-        - `suppressed == True`, only include tasks with a deadline
-          that have been removed from the today view.
-        - `suppressed == False`, only include tasks with a deadline
-          that have not been removed from the today view.
+    deadline_suppressed : bool or None, optional
+        - `deadline_suppressed == True`, only include tasks with a overdue deadline
+          that have been moved from the today view (Inbox, Anytime, Someday).
+        - `deadline_suppressed == False`, only include tasks with an overdue deadline
+          that have not been moved from the today view to another view (Inbox, Anytime, Someday).
 
     trashed : bool or None, optional, default False
         - `trashed == False` (default), only include non-trashed tasks.
@@ -512,7 +512,7 @@ def today(**kwargs):
         start_date=False,
         deadline="past",
         start="Anytime",
-        suppressed=False,
+        deadline_suppressed=False,
         **kwargs,
     )
 
