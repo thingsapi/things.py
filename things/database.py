@@ -463,23 +463,6 @@ class Database:
 
         return cursor.fetchall()
 
-    # -------- Utility methods --------
-
-    # This utility method was needed to indicate that yellow tasks are shown.
-    # We keep it around in case we might need this functionality again.
-    # def last_modified(self):
-    #     """Get last modified time of database filepath."""
-    #     mtime_seconds = os.path.getmtime(self.filepath)
-    #     return datetime.datetime.fromtimestamp(mtime_seconds)
-
-    # This utility method was needed to indicate that yellow tasks are shown.
-    # We keep it around in case we might need this functionality again.
-    # def was_modified_today(self):
-    #     """Return True if database filepath was last modified today."""
-    #     last_modified_date = self.last_modified().date()
-    #     todays_date = datetime.datetime.now().date()
-    #     return last_modified_date >= todays_date
-
 
 # Helper functions
 
