@@ -618,7 +618,7 @@ def list_factory(_cursor, row):
 def make_filter(column, value):
     """Return SQL filter 'AND {column} = "{value}"'.
 
-    Special handling if `value` is `bool`, or `None`.
+    Special handling if `value` is `bool` or `None`.
 
     Examples
     --------
