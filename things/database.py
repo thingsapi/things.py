@@ -627,7 +627,7 @@ def make_filter(column, value):
 
 def make_date_filter(date_column: str, offset) -> str:
     """
-    Return a SQL filter to limit the date range of the SQL query.
+    Return a SQL filter to limit the date (range) of the SQL query.
 
     Parameters
     ----------
@@ -661,11 +661,24 @@ def make_date_filter(date_column: str, offset) -> str:
     # Offset not specified
     if offset is None:
         return ""
+
     # Offset is bool
     if isinstance(offset, bool):
         return make_filter(date_column, offset)
 
+    # Offset needs to be processed
+    return make_date_range_filter(date_column, offset)
+
+
+def make_date_range_filter(date_column: str, offset: str) -> str:
+    """
+    Return a SQL filter to limit the date range of the SQL query.
+
+    See `make_date_filter` for details.
+    """
     operator = ">"
+    modifier = ""
+
     # Offset is in the future
     if offset == "future":
         offset = "0d"
