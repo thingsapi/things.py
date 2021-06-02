@@ -100,6 +100,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `deadline == None` (default), then include all tasks.
 
     deadline_suppressed : bool or None, optional
+        Return overdue tasks that have been moved from Today to Inbox, Anytime, or Someday.
         - `deadline_suppressed == True`, only include tasks with an overdue deadline
           that have been moved from the today view (Inbox, Anytime, Someday).
         - `deadline_suppressed == False`, only include tasks with an overdue deadline
