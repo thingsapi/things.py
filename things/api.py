@@ -511,7 +511,6 @@ def today(**kwargs):
     unconfirmed_overdue_tasks = tasks(
         start_date=False,
         deadline="past",
-        start="Anytime",
         deadline_suppressed=False,
         **kwargs,
     )
