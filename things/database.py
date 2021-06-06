@@ -714,7 +714,7 @@ def make_date_range_filter(date_column, offset) -> str:
         modifier = f"-{number} years"
 
     column_datetime = f"datetime({date_column}, 'unixepoch')"
-    offset_datetime = f"datetime('now', '{modifier}')"
+    offset_datetime = f"datetime('now', '{modifier}')"  # type: ignore
 
     return f"AND {column_datetime} > {offset_datetime}"
 
