@@ -154,10 +154,6 @@
 
 <span class="n">ENVIRONMENT_VARIABLE_WITH_FILEPATH</span> <span class="o">=</span> <span class="s2">&quot;THINGSDB&quot;</span>
 
-<span class="c1"># Start/deadline date validation</span>
-
-<span class="n">DATES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
 <span class="c1"># Translate app language to database language</span>
 
 <span class="n">START_TO_FILTER</span> <span class="o">=</span> <span class="p">{</span>
@@ -175,6 +171,10 @@
 <span class="n">TRASHED_TO_FILTER</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;trashed = 1&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;trashed = 0&quot;</span><span class="p">}</span>
 
 <span class="n">TYPE_TO_FILTER</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;to-do&quot;</span><span class="p">:</span> <span class="s2">&quot;type = 0&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="s2">&quot;type = 1&quot;</span><span class="p">,</span> <span class="s2">&quot;heading&quot;</span><span class="p">:</span> <span class="s2">&quot;type = 2&quot;</span><span class="p">}</span>
+
+<span class="c1"># Dates</span>
+
+<span class="n">DATES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Indices</span>
 
@@ -380,7 +380,7 @@
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_range_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
         <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
@@ -732,7 +732,8 @@
 
 
 <span class="k">def</span> <span class="nf">make_filter</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
 
 <span class="sd">    Special handling if `value` is `bool` or `None`.</span>
 
@@ -758,23 +759,65 @@
     <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a SQL filter to limit the date (range) of the SQL query.</span>
+<span class="sd">    Return a SQL filter for date columns.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    date_column : str</span>
 <span class="sd">        Name of the column that has date information on a task.</span>
 
-<span class="sd">    offset : str, bool or None</span>
-<span class="sd">        A string comprised either of an integer and a single character that can</span>
-<span class="sd">        be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return all tasks</span>
-<span class="sd">        for the past X days, weeks, or years; or the string &quot;future&quot; or &quot;past&quot;</span>
-<span class="sd">        that detemines that a specific date is in the future or in the past</span>
-<span class="sd">        (e.g. &quot;yellow&quot; tasks).</span>
-<span class="sd">        Or a boolean value indicating that a start date is</span>
-<span class="sd">        set or not (see `make_filter`)</span>
+<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, or None</span>
+<span class="sd">        `True` or `False` indicates whether a date is set or not.</span>
+<span class="sd">        `&#39;future&#39;` or `&#39;past&#39;` indicates a date in the future or past.</span>
+<span class="sd">        `None` indicates any value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query. If `value == None`, then</span>
+<span class="sd">        return the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, True)</span>
+<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, False)</span>
+<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
+<span class="sd">    &quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;) </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> datetime(&#39;now&#39;)&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a SQL filter to limit a date to last X days, weeks, or years.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date_column : str</span>
+<span class="sd">        Name of the column that has date information on a task.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised either of an integer and a single character</span>
+<span class="sd">        that can be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return</span>
+<span class="sd">        all tasks for the past X days, weeks, or years.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -784,41 +827,14 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, &#39;3d&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; make_date_range_filter(&#39;created&#39;, &#39;3d&#39;)</span>
 <span class="sd">    &quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
+<span class="sd">    &gt;&gt;&gt; make_date_range_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Offset not specified</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="c1"># Offset is bool</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-
-    <span class="c1"># Offset needs to be processed</span>
-    <span class="k">return</span> <span class="n">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a SQL filter to limit the date range of the SQL query.</span>
-
-<span class="sd">    See `make_date_filter` for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span>
-    <span class="n">modifier</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="c1"># Offset is in the future</span>
-    <span class="k">if</span> <span class="n">offset</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span><span class="p">:</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;0d&quot;</span>
-    <span class="c1"># Offset is in the past</span>
-    <span class="k">elif</span> <span class="n">offset</span> <span class="o">==</span> <span class="s2">&quot;past&quot;</span><span class="p">:</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;0d&quot;</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&lt;=&quot;</span>
 
     <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
     <span class="n">number</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -831,9 +847,9 @@
         <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
 
     <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
-    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>  <span class="c1"># type: ignore</span>
+    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">make_truthy_filter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1095,7 +1111,7 @@
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_range_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
         <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
@@ -1484,7 +1500,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_date_range_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_search_filter</span><span class="p">(</span><span class="n">search_query</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            &quot;&quot;&quot;</span>
         <span class="n">order_predicate</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;TASK.&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
@@ -2117,7 +2133,8 @@ we are going with the easiest solution for now.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_filter</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return SQL filter &#39;AND {column} = &quot;{value}&quot;&#39;.</span>
 
 <span class="sd">    Special handling if `value` is `bool` or `None`.</span>
 
@@ -2175,86 +2192,91 @@ we are going with the easiest solution for now.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">make_date_filter</span><span class="signature">(date_column: str, offset) -&gt; str</span>:
+            <span class="name">make_date_filter</span><span class="signature">(date_column: str, value) -&gt; str</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a SQL filter to limit the date (range) of the SQL query.</span>
+<span class="sd">    Return a SQL filter for date columns.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    date_column : str</span>
 <span class="sd">        Name of the column that has date information on a task.</span>
 
-<span class="sd">    offset : str, bool or None</span>
-<span class="sd">        A string comprised either of an integer and a single character that can</span>
-<span class="sd">        be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return all tasks</span>
-<span class="sd">        for the past X days, weeks, or years; or the string &quot;future&quot; or &quot;past&quot;</span>
-<span class="sd">        that detemines that a specific date is in the future or in the past</span>
-<span class="sd">        (e.g. &quot;yellow&quot; tasks).</span>
-<span class="sd">        Or a boolean value indicating that a start date is</span>
-<span class="sd">        set or not (see `make_filter`)</span>
+<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, or None</span>
+<span class="sd">        `True` or `False` indicates whether a date is set or not.</span>
+<span class="sd">        `&#39;future&#39;` or `&#39;past&#39;` indicates a date in the future or past.</span>
+<span class="sd">        `None` indicates any value.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        A date filter for the SQL query. If `offset == None`, then</span>
+<span class="sd">        A date filter for the SQL query. If `value == None`, then</span>
 <span class="sd">        return the empty string.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, &#39;3d&#39;)</span>
-<span class="sd">    &quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, True)</span>
+<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, False)</span>
+<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
+<span class="sd">    &quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Offset not specified</span>
-    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="c1"># Offset is bool</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="c1"># Offset needs to be processed</span>
-    <span class="k">return</span> <span class="n">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+    <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
+    <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;) </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> datetime(&#39;now&#39;)&quot;</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Return a SQL filter to limit the date (range) of the SQL query.</p>
+            <div class="docstring"><p>Return a SQL filter for date columns.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>date_column</strong> (str):
 Name of the column that has date information on a task.</li>
-<li><strong>offset</strong> (str, bool or None):
-A string comprised either of an integer and a single character that can
-be 'd', 'w', or 'y' that determines whether to return all tasks
-for the past X days, weeks, or years; or the string "future" or "past"
-that detemines that a specific date is in the future or in the past
-(e.g. "yellow" tasks).
-Or a boolean value indicating that a start date is
-set or not (see <code><a href="#make_filter">make_filter</a></code>)</li>
+<li><strong>value</strong> (bool, 'future', 'past', or None):
+<code>True</code> or <code>False</code> indicates whether a date is set or not.
+<code>'future'</code> or <code>'past'</code> indicates a date in the future or past.
+<code>None</code> indicates any value.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>str</strong>: A date filter for the SQL query. If <code>offset == None</code>, then
+<li><strong>str</strong>: A date filter for the SQL query. If <code>value == None</code>, then
 return the empty string.</li>
 </ul>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39;AND start_date IS NOT NULL&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="go">&#39;AND start_date IS NULL&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
+<span class="go">&quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2269,27 +2291,41 @@ return the empty string.</li>
 
         
             <span class="def">def</span>
-            <span class="name">make_date_range_filter</span><span class="signature">(date_column: str, offset: str) -&gt; str</span>:
+            <span class="name">make_date_range_filter</span><span class="signature">(date_column, offset) -&gt; str</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a SQL filter to limit the date range of the SQL query.</span>
+<span class="sd">    Return a SQL filter to limit a date to last X days, weeks, or years.</span>
 
-<span class="sd">    See `make_date_filter` for details.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date_column : str</span>
+<span class="sd">        Name of the column that has date information on a task.</span>
+
+<span class="sd">    offset : str or None</span>
+<span class="sd">        A string comprised either of an integer and a single character</span>
+<span class="sd">        that can be &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; that determines whether to return</span>
+<span class="sd">        all tasks for the past X days, weeks, or years.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A date filter for the SQL query. If `offset == None`, then</span>
+<span class="sd">        return the empty string.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; make_date_range_filter(&#39;created&#39;, &#39;3d&#39;)</span>
+<span class="sd">    &quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; make_date_range_filter(&#39;created&#39;, None)</span>
+<span class="sd">    &#39;&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span>
-    <span class="n">modifier</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="c1"># Offset is in the future</span>
-    <span class="k">if</span> <span class="n">offset</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span><span class="p">:</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;0d&quot;</span>
-    <span class="c1"># Offset is in the past</span>
-    <span class="k">elif</span> <span class="n">offset</span> <span class="o">==</span> <span class="s2">&quot;past&quot;</span><span class="p">:</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;0d&quot;</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&lt;=&quot;</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="n">validate_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
     <span class="n">number</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">offset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -2302,16 +2338,42 @@ return the empty string.</li>
         <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
 
     <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
-    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>  <span class="c1"># type: ignore</span>
+    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;localtime&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Return a SQL filter to limit the date range of the SQL query.</p>
+            <div class="docstring"><p>Return a SQL filter to limit a date to last X days, weeks, or years.</p>
 
-<p>See <code><a href="#make_date_filter">make_date_filter</a></code> for details.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>date_column</strong> (str):
+Name of the column that has date information on a task.</li>
+<li><strong>offset</strong> (str or None):
+A string comprised either of an integer and a single character
+that can be 'd', 'w', or 'y' that determines whether to return
+all tasks for the past X days, weeks, or years.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>str</strong>: A date filter for the SQL query. If <code>offset == None</code>, then
+return the empty string.</li>
+</ul>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_range_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="go">&quot;AND datetime(created, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_range_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;&#39;</span>
+</code></pre></div>
 </div>
 
 
