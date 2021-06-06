@@ -9,7 +9,6 @@ data structures. Whenever that happens, we define the new term here.
 
 import os
 from shlex import quote
-import sys
 from typing import Dict, List, Union
 
 from things.database import Database
@@ -86,15 +85,26 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `tag == True`, only include tasks _with_ tags.
         - `tag == None` (default), then include all tasks.
 
-    start_date : bool or None, optional
+    start_date : bool, str or None, optional
         - `start_date == False`, only include tasks _without_ a start date.
         - `start_date == True`, only include tasks _with_ a start date.
+        - `start_date == 'future'`, only include tasks with a future start date.
+        - `start_date == 'past'`, only include tasks with a past start date.
         - `start_date == None` (default), then include all tasks.
 
-    deadline : bool or None, optional
+    deadline : bool, str or None, optional
         - `deadline == False`, only include tasks _without_ a deadline.
         - `deadline == True`, only include tasks _with_ a deadline.
+        - `deadline == 'future'`, only include tasks with a deadline in the future.
+        - `deadline == 'past'`, only include tasks with a deadline in the past.
         - `deadline == None` (default), then include all tasks.
+
+    deadline_suppressed : bool or None, optional
+        Handle overdue tasks that have been moved from Today to Inbox, Anytime, or Someday.
+        - `deadline_suppressed == True`, only include tasks with an overdue deadline
+          that have been moved from the today view (Inbox, Anytime, Someday).
+        - `deadline_suppressed == False`, skip tasks with an overdue deadline
+          that have been moved from the today view to another view (Inbox, Anytime, Someday).
 
     trashed : bool or None, optional, default False
         - `trashed == False` (default), only include non-trashed tasks.
@@ -476,29 +486,44 @@ def today(**kwargs):
     """
     Read Today's tasks into dicts.
 
-    Note: This might not produce desired results if the Things app hasn't
-    been opened yet today and the yellow "OK" button clicked for new tasks.
-    In general, you can assume that whatever state the Things app was in
-    when you last opened it, that's the state reflected here by the API.
+    Note: This method is a bit tricky.
+    The Things database reflects the status of the Things app when it was last opened.
+    When you open the Things app, new to-dos might have appeared in the Today view.
+    Those to-dos are indicated by a yellow dot in the app.
+    We try to predict what those new to-dos would be and return them as well.
+    Some cases, however, are not yet covered. This includes repeating to-dos.
 
     See `things.api.tasks` for details on the optional parameters.
     """
-    database = pop_database(kwargs)
-    if not database.was_modified_today():  # pragma: no cover
-        print(
-            "[NOTE] The results reflect the state of the Things app "
-            "when it was last run. If the results seem out of date, "
-            "then run the Things app and click the yellow 'OK' button "
-            "to update Today's to-dos and projects.",
-            file=sys.stderr,
-        )
-    return tasks(
+    regular_today_tasks = tasks(
         start_date=True,
         start="Anytime",
         index="todayIndex",
-        database=database,
         **kwargs,
     )
+
+    unconfirmed_scheduled_tasks = tasks(
+        start_date="past",
+        start="Someday",
+        index="todayIndex",
+        **kwargs,
+    )
+
+    unconfirmed_overdue_tasks = tasks(
+        start_date=False,
+        deadline="past",
+        deadline_suppressed=False,
+        **kwargs,
+    )
+
+    result = [
+        *regular_today_tasks,
+        *unconfirmed_scheduled_tasks,
+        *unconfirmed_overdue_tasks,
+    ]
+    result.sort(key=lambda task: (task["today_index"], task["start_date"]))
+
+    return result
 
 
 def upcoming(**kwargs):
@@ -510,7 +535,7 @@ def upcoming(**kwargs):
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date=True, start="Someday", **kwargs)
+    return tasks(start_date="future", start="Someday", **kwargs)
 
 
 def anytime(**kwargs):
