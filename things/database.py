@@ -21,10 +21,6 @@ DEFAULT_FILEPATH = os.path.expanduser(
 
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
-# Start/deadline date validation
-
-DATES = ("future", "past", True, False)
-
 # Translate app language to database language
 
 START_TO_FILTER = {
@@ -42,6 +38,10 @@ STATUS_TO_FILTER = {
 TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
 TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
+
+# Dates
+
+DATES = ("future", "past", True, False)
 
 # Indices
 
@@ -247,7 +247,7 @@ class Database:
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
-            {make_date_filter(f"TASK.{DATE_CREATED}", last)}
+            {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
             """
         order_predicate = f'TASK."{index}"'
@@ -599,7 +599,8 @@ def list_factory(_cursor, row):
 
 
 def make_filter(column, value):
-    """Return SQL filter 'AND {column} = "{value}"'.
+    """
+    Return SQL filter 'AND {column} = "{value}"'.
 
     Special handling if `value` is `bool` or `None`.
 
@@ -625,23 +626,65 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(date_column: str, offset) -> str:
+def make_date_filter(date_column: str, value) -> str:
     """
-    Return a SQL filter to limit the date (range) of the SQL query.
+    Return a SQL filter for date columns.
 
     Parameters
     ----------
     date_column : str
         Name of the column that has date information on a task.
 
-    offset : str, bool or None
-        A string comprised either of an integer and a single character that can
+    value : bool, 'future', 'past', or None
+        `True` or `False` indicates whether a date is set or not.
+        `'future'` or `'past'` indicates a date in the future or past.
+        `None` indicates any value.
+
+    Returns
+    -------
+    str
+        A date filter for the SQL query. If `value == None`, then
+        return the empty string.
+
+    Examples
+    --------
+    >>> make_date_filter('start_date', True)
+    'AND start_date IS NOT NULL'
+
+    >>> make_date_filter('start_date', False)
+    'AND start_date IS NULL'
+
+    >>> make_date_filter('start_date', 'future')
+    "AND datetime(start_date, 'unixepoch') > datetime('now')"
+
+    >>> make_date_filter('created', None)
+    ''
+
+    """
+    if value is None:
+        return ""
+
+    if isinstance(value, bool):
+        return make_filter(date_column, value)
+
+    validate("value", value, ["future", "past"])
+    operator = ">" if value == "future" else "<="
+    return f"AND datetime({date_column}, 'unixepoch') {operator} datetime('now')"
+
+
+def make_date_range_filter(date_column, offset) -> str:
+    """
+    Return a SQL filter to limit a date to last X days, weeks, or years.
+
+    Parameters
+    ----------
+    date_column : str
+        Name of the column that has date information on a task.
+
+    offset : str or None
+        A string comprised of an integer and a single character that can
         be 'd', 'w', or 'y' that determines whether to return all tasks
-        for the past X days, weeks, or years; or the string "future" or "past"
-        that detemines that a specific date is in the future or in the past
-        (e.g. "yellow" tasks).
-        Or a boolean value indicating that a start date is
-        set or not (see `make_filter`)
+        for the past X days, weeks, or years.
 
     Returns
     -------
@@ -651,41 +694,14 @@ def make_date_filter(date_column: str, offset) -> str:
 
     Examples
     --------
-    >>> make_date_filter('created', '3d')
-    "AND datetime(created, 'unixepoch', 'localtime') > datetime('now', '-3 days')"
+    >>> make_date_range_filter('created', '3d')
+    "AND datetime(created, 'unixepoch') > datetime('now', '-3 days')"
 
-    >>> make_date_filter('created', None)
+    >>> make_date_range_filter('created', None)
     ''
-
     """
-    # Offset not specified
     if offset is None:
         return ""
-
-    # Offset is bool
-    if isinstance(offset, bool):
-        return make_filter(date_column, offset)
-
-    # Offset needs to be processed
-    return make_date_range_filter(date_column, offset)
-
-
-def make_date_range_filter(date_column: str, offset: str) -> str:
-    """
-    Return a SQL filter to limit the date range of the SQL query.
-
-    See `make_date_filter` for details.
-    """
-    operator = ">"
-    modifier = ""
-
-    # Offset is in the future
-    if offset == "future":
-        offset = "0d"
-    # Offset is in the past
-    elif offset == "past":
-        offset = "0d"
-        operator = "<="
 
     validate_offset("offset", offset)
     number, suffix = int(offset[:-1]), offset[-1]
@@ -697,10 +713,10 @@ def make_date_range_filter(date_column: str, offset: str) -> str:
     elif suffix == "y":
         modifier = f"-{number} years"
 
-    column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
-    offset_datetime = f"datetime('now', 'localtime', '{modifier}')"  # type: ignore
+    column_datetime = f"datetime({date_column}, 'unixepoch')"
+    offset_datetime = f"datetime('now', '{modifier}')"
 
-    return f"AND {column_datetime} {operator} {offset_datetime}"
+    return f"AND {column_datetime} > {offset_datetime}"
 
 
 def make_truthy_filter(column: str, value) -> str:

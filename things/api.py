@@ -39,7 +39,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         Include items contained within a task. These might include
         checklist items, headings, and to-dos.
 
-    type : {'to-do', 'heading', 'project', None}, optional
+    type : {'to-do', 'heading', 'project', None}, optional
         Only return a specific type of task:
         - `'to-do'`:    may have a checklist; may be in an area and have tags.
         - `'project'`:  may have to-dos and headings; may be in an area and
@@ -57,7 +57,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         Only include tasks matching that start value. If the argument is
         `None` (default), then include tasks with any start value.
 
-    area : str or bool or None, optional
+    area : str or bool or None, optional
         Any valid uuid of an area. Only include tasks matching that area.
         Special cases:
         - `area == False`, only include tasks _without_ an area.
@@ -87,24 +87,31 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
 
     start_date : bool, str or None, optional
         - `start_date == False`, only include tasks _without_ a start date.
-        - `start_date == True`, only include tasks _with_ a start date.
+        - `start_date == True`, only include tasks with a start date.
         - `start_date == 'future'`, only include tasks with a future start date.
         - `start_date == 'past'`, only include tasks with a past start date.
+          Note: this includes today's date.
         - `start_date == None` (default), then include all tasks.
 
     deadline : bool, str or None, optional
         - `deadline == False`, only include tasks _without_ a deadline.
         - `deadline == True`, only include tasks _with_ a deadline.
-        - `deadline == 'future'`, only include tasks with a deadline in the future.
-        - `deadline == 'past'`, only include tasks with a deadline in the past.
+        - `deadline == 'future'`, only include tasks with a future deadline.
+        - `deadline == 'past'`, only include tasks with a past deadline.
+          Note: this includes today's date.
         - `deadline == None` (default), then include all tasks.
 
     deadline_suppressed : bool or None, optional
-        Handle overdue tasks that have been moved from Today to Inbox, Anytime, or Someday.
-        - `deadline_suppressed == True`, only include tasks with an overdue deadline
-          that have been moved from the today view (Inbox, Anytime, Someday).
-        - `deadline_suppressed == False`, skip tasks with an overdue deadline
-          that have been moved from the today view to another view (Inbox, Anytime, Someday).
+        "deadline suppressed" is a technical term used in the database.
+        When tasks have an overdue deadline they show up in Today.
+        Some of us "suppress" some tasks, that is, move them out of
+        Today and into Inbox, Anytime, or Someday. For those moved tasks
+        the deadline is said to be suppressed.
+        - `deadline_suppressed == True`, only include tasks with deadlines
+          and whose deadlines have been suppressed.
+        - `deadline_suppressed == False`, include any task _except_ those
+          with suppressed deadlines.
+        - `deadline_suppressed == None` (default), include any task.
 
     trashed : bool or None, optional, default False
         - `trashed == False` (default), only include non-trashed tasks.
@@ -486,12 +493,12 @@ def today(**kwargs):
     """
     Read Today's tasks into dicts.
 
-    Note: This method is a bit tricky.
-    The Things database reflects the status of the Things app when it was last opened.
-    When you open the Things app, new to-dos might have appeared in the Today view.
-    Those to-dos are indicated by a yellow dot in the app.
-    We try to predict what those new to-dos would be and return them as well.
-    Some cases, however, are not yet covered. This includes repeating to-dos.
+    Note: The Things database reflects the state of the Things app when
+    it was last opened. For the Today tasks that means the database
+    might not be up to date anymore if you didn't open the app recently.
+    To get around this limitation, we here make a prediction of what
+    tasks would show up in Today if you were to open the app right now.
+    This prediction does not include repeating tasks at this time.
 
     See `things.api.tasks` for details on the optional parameters.
     """
@@ -501,6 +508,8 @@ def today(**kwargs):
         index="todayIndex",
         **kwargs,
     )
+
+    # Predictions of new to-dos indicated by a yellow dot in the app.
 
     unconfirmed_scheduled_tasks = tasks(
         start_date="past",
