@@ -1,6 +1,6 @@
 # Things Python API
 
-A simple Python 3 library to read your [Things app](https://culturedcode.com/things) data. You can test the API [via our CLI](https://github.com/thingsapi/things-cli).
+_things.py_ is a simple Python 3 library to read data from your [Things app](https://culturedcode.com/things).
 
 [![Build Status](https://github.com/thingsapi/things.py/workflows/Build-Test/badge.svg)](https://github.com/thingsapi/things.py/actions)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/thingsapi/things.py)](https://scrutinizer-ci.com/g/thingsapi/things.py/?branch=master)
@@ -18,6 +18,7 @@ A simple Python 3 library to read your [Things app](https://culturedcode.com/thi
 - [Documentation](#documentation)
 - [Background](#background)
 - [Things URLs](#things-urls)
+- [Used By](#used-by)
 
 ## Install
 
@@ -100,9 +101,13 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 ## Background
 
-The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL Joins and transformations to aid understanding of the data.
+The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data.
 
-Here's the terminology used involving the database:
+If any aspect of the API seems overly complex or doesn't meet your needs, please don't hesitate to add a new issue [here](https://github.com/thingsapi/things.py/issues).
+
+### Terminology
+
+Here's the technical terminology used involving the database:
 
 - area
 - tag
@@ -116,7 +121,6 @@ Here's the terminology used involving the database:
   - start: `"Inbox"`, `"Anytime"`, or `"Someday"`
 - checklist item (contained within a to-do)
 
-
 ## Documentation
 
 The full documentation can be found here: https://thingsapi.github.io/things.py/things/api.html
@@ -124,3 +128,11 @@ The full documentation can be found here: https://thingsapi.github.io/things.py/
 ## Things URLs
 
 You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Read more [here](https://culturedcode.com/things/blog/2018/02/hey-things/).
+
+## Used By
+
+The following open-source projects make use of this library:
+
+- [KanbanView](https://github.com/AlexanderWillner/KanbanView)
+- [Things CLI](https://github.com/thingsapi/things-cli)
+- [ThingsStats](https://github.com/lmgibson/ThingsStats)
