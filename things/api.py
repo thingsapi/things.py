@@ -498,7 +498,7 @@ def today(**kwargs):
     might not be up to date anymore if you didn't open the app recently.
     To get around this limitation, we here make a prediction of what
     to-dos would show up in Today if you were to open the app right now.
-    This prediction does currently not include repeating tasks.
+    This prediction does currently not include repeating to-dos.
 
     See `things.api.tasks` for details on the optional parameters.
     """
