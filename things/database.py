@@ -682,9 +682,9 @@ def make_date_range_filter(date_column, offset) -> str:
         Name of the column that has date information on a task.
 
     offset : str or None
-        A string comprised either of an integer and a single character
-        that can be 'd', 'w', or 'y' that determines whether to return
-        all tasks for the past X days, weeks, or years.
+        A string comprised of an integer and a single character that can
+        be 'd', 'w', or 'y' that determines whether to return all tasks
+        for the past X days, weeks, or years.
 
     Returns
     -------
@@ -695,7 +695,7 @@ def make_date_range_filter(date_column, offset) -> str:
     Examples
     --------
     >>> make_date_range_filter('created', '3d')
-    "AND datetime(created, 'unixepoch', 'localtime') > datetime('now', '-3 days')"
+    "AND datetime(created, 'unixepoch') > datetime('now', '-3 days')"
 
     >>> make_date_range_filter('created', None)
     ''
@@ -713,8 +713,8 @@ def make_date_range_filter(date_column, offset) -> str:
     elif suffix == "y":
         modifier = f"-{number} years"
 
-    column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
-    offset_datetime = f"datetime('now', 'localtime', '{modifier}')"
+    column_datetime = f"datetime({date_column}, 'unixepoch')"
+    offset_datetime = f"datetime('now', '{modifier}')"
 
     return f"AND {column_datetime} > {offset_datetime}"
 

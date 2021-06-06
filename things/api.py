@@ -494,11 +494,11 @@ def today(**kwargs):
     Read Today's tasks into dicts.
 
     Note: The Things database reflects the state of the Things app when
-    it was last opened. For the Today to-dos that means the database
+    it was last opened. For the Today tasks that means the database
     might not be up to date anymore if you didn't open the app recently.
     To get around this limitation, we here make a prediction of what
-    to-dos would show up in Today if you were to open the app right now.
-    This prediction does currently not include repeating to-dos.
+    tasks would show up in Today if you were to open the app right now.
+    This prediction does not include repeating to-dos at this time.
 
     See `things.api.tasks` for details on the optional parameters.
     """
