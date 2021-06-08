@@ -6,6 +6,7 @@ import contextlib
 import io
 import os
 import unittest
+import unittest.mock
 
 import things
 
@@ -298,6 +299,11 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
             database.debug = True
             database.get_tags()
         self.assertTrue("/* Filepath" in output.getvalue())
+
+    @unittest.mock.patch("os.system")
+    def test_api_show(self, os_system):  # pylint: disable=R0201
+        things.show("invalid_uuid")
+        os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
 
 
 if __name__ == "__main__":

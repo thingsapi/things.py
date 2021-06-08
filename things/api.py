@@ -702,8 +702,8 @@ def show(uuid):  # noqa
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])
     """
-    uri = link(uuid)  # pragma: no cover
-    os.system(f"open {quote(uri)}")  # pragma: no cover
+    uri = link(uuid)
+    os.system(f"open {quote(uri)}")
 
 
 # Helper functions
