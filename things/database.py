@@ -669,7 +669,7 @@ def make_date_filter(date_column: str, value) -> str:
 
     validate("value", value, ["future", "past"])
     operator = ">" if value == "future" else "<="
-    return f"AND datetime({date_column}, 'unixepoch') {operator} datetime('now')"
+    return f"AND date({date_column}, 'unixepoch', 'localtime') {operator} date('now', 'localtime')"
 
 
 def make_date_range_filter(date_column, offset) -> str:
