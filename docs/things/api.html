@@ -628,6 +628,9 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 <span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">database</span>
+
     <span class="n">regular_today_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Anytime&quot;</span><span class="p">,</span>
@@ -1783,6 +1786,9 @@ heading, or area is matched.</p>
 
 <span class="sd">    See `things.api.tasks` for details on the optional parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">database</span>
+
     <span class="n">regular_today_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span>
         <span class="n">start_date</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">start</span><span class="o">=</span><span class="s2">&quot;Anytime&quot;</span><span class="p">,</span>
