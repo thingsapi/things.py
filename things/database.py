@@ -325,7 +325,7 @@ class Database:
                     WHEN CHECKLIST_ITEM.{IS_CANCELED} THEN 'canceled'
                     WHEN CHECKLIST_ITEM.{IS_COMPLETED} THEN 'completed'
                 END AS status,
-                date(CHECKLIST_ITEM.stopDate, "unixepoch") AS stop_date,
+                date(CHECKLIST_ITEM.stopDate, "unixepoch", "localtime") AS stop_date,
                 'checklist-item' as type,
                 CHECKLIST_ITEM.uuid,
                 datetime(
@@ -519,9 +519,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 CASE
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
-                date(TASK.startDate, "unixepoch") AS start_date,
-                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
-                date(TASK.stopDate, "unixepoch") AS "stop_date",
+                date(TASK.startDate, "unixepoch", "localtime") AS start_date,
+                date(TASK.{DATE_DEADLINE}, "unixepoch", "localtime") AS deadline,
+                date(TASK.stopDate, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
                 TASK.'index',
@@ -667,9 +667,13 @@ def make_date_filter(date_column: str, value) -> str:
     if isinstance(value, bool):
         return make_filter(date_column, value)
 
+    # compare `date_column` to now.
     validate("value", value, ["future", "past"])
+    date = f"date({date_column}, 'unixepoch', 'localtime')"
     operator = ">" if value == "future" else "<="
-    return f"AND date({date_column}, 'unixepoch', 'localtime') {operator} date('now', 'localtime')"
+    now = "date('now', 'localtime')"
+
+    return f"AND {date} {operator} {now}"
 
 
 def make_date_range_filter(date_column, offset) -> str:
