@@ -655,7 +655,7 @@ def make_date_filter(date_column: str, value) -> str:
     'AND start_date IS NULL'
 
     >>> make_date_filter('start_date', 'future')
-    "AND datetime(start_date, 'unixepoch') > datetime('now')"
+    "AND date(start_date, 'unixepoch', 'localtime') > date('now', 'localtime')"
 
     >>> make_date_filter('created', None)
     ''
@@ -754,12 +754,8 @@ def make_search_filter(query: str) -> str:
 
     Example:
     --------
-    >>> make_search_filter('dinner')
-    'AND (
-        TASK.title LIKE "%dinner%"
-        OR TASK.notes LIKE "%dinner%"
-        OR AREA.title LIKE "%dinner%"
-    )'
+    >>> make_search_filter('dinner') #doctest: +REPORT_NDIFF
+    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR AREA.title LIKE '%dinner%')"
     """
     if not query:
         return ""

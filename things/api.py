@@ -610,12 +610,12 @@ def completed(**kwargs):
 
     Examples
     --------
-    >>> things.completed(count_only=True)
-    14
-    >>> things.completed(type='project', count_only=True)
-    4
+    >>> import things; things.completed(count_only=True)
+    10
+    >>> import things; things.completed(type='project', count_only=True)
+    0
     >>> things.completed(type='to-do', last='1w')
-    ...
+    []
     """
     return tasks(status="completed", **kwargs)
 

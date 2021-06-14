@@ -36,6 +36,10 @@ test: ## Test the code
 	@coverage report
 	@coverage html
 
+testdoc: ## Test the code within the documentation
+	@type pytest >/dev/null 2>&1 || (echo "Run '$(PIP) install pytest' first." >&2 ; exit 1)
+	THINGSDB=tests/main.sqlite pytest --doctest-modules
+
 .PHONY: doc
 doc: install ## Document the code
 	@#$(PYDOC) $(SRC_CORE).api
