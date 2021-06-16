@@ -302,15 +302,15 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks()</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.tasks(&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;:...</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(&#39;DfYoiXcNLQssk9DkSoJV3Y&#39;)</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;DfYoiXcNLQssk9DkSoJV3Y&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;: ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(area=&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;, include_items=True)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
 <span class="sd">    10</span>
-<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39; count_only=True)</span>
-<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39;, count_only=True)</span>
+<span class="sd">    0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -408,13 +408,13 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.areas()</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;Y3JC4XeyGWxzDocQL4aobo&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 3&#39;}, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.areas(tag=&#39;Home&#39;)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.areas(uuid=&#39;Gw9QefIdgR6nPEoY5hBNSh&#39;)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.areas(include_items=True, status=&#39;completed&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; things.areas(uuid=&#39;DciSFacytdrNG1nRaMJPgY&#39;)</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
+<span class="sd">    &gt;&gt;&gt; things.areas(include_items=True, tag=&#39;Errand&#39;)</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -478,13 +478,13 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.tags()</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(&#39;Home&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;CK9dARrf2ezbFvrVUUxkHE&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Home&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(include_items=True)</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(task=&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -540,21 +540,13 @@ data structures. Whenever that happens, we define the new term here.</p>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; things.search(&#39;book&#39;)</span>
-<span class="sd">    [{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
+<span class="sd">    &gt;&gt;&gt; things.search(&#39;Today%yellow&#39;)</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;,</span>
 <span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="sd">      ...},</span>
-<span class="sd">      {&#39;uuid&#39;: &#39;KVHAxIIJ52a0h1RCbmg5D6&#39;,</span>
-<span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book flights&#39;,</span>
-<span class="sd">      ...}]</span>
-
-<span class="sd">    &gt;&gt;&gt; things.search(&#39;book%room&#39;)</span>
-<span class="sd">    [{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
-<span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="sd">      ...}]</span>
+<span class="sd">      &#39;title&#39;: &#39;Upcoming To-Do in Today (yellow)&#39;,</span>
+<span class="sd">      &#39;status&#39;: &#39;incomplete&#39;,</span>
+<span class="sd">      &#39;notes&#39;: &#39;&#39;,</span>
+<span class="sd">      ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">search_query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -740,11 +732,11 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
-<span class="sd">    14</span>
+<span class="sd">    10</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
-<span class="sd">    4</span>
+<span class="sd">    0</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -781,18 +773,19 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;3d&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;1w&#39;, status=&#39;completed&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;1y&#39;, tag=&#39;Important&#39;, status=&#39;completed&#39;, count_only=True)</span>
-<span class="sd">    8</span>
+<span class="sd">    0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
 
@@ -829,7 +822,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; tag = things.tags(&#39;Home&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; things.show(tag[&#39;uuid&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; things.show(tag[&#39;uuid&#39;])  # doctest: +SKIP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">uri</span> <span class="o">=</span> <span class="n">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open </span><span class="si">{</span><span class="n">quote</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1019,15 +1012,15 @@ data structures. Whenever that happens, we define the new term here.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks()</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.tasks(&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;:...</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(&#39;DfYoiXcNLQssk9DkSoJV3Y&#39;)</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;DfYoiXcNLQssk9DkSoJV3Y&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;: ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(area=&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;, include_items=True)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
 <span class="sd">    10</span>
-<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39; count_only=True)</span>
-<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39;, count_only=True)</span>
+<span class="sd">    0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1239,15 +1232,15 @@ Any valid database object previously instantiated.</li>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">()</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="s1">&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;:...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="s1">&#39;DfYoiXcNLQssk9DkSoJV3Y&#39;</span><span class="p">)</span>
+<span class="go">{&#39;uuid&#39;: &#39;DfYoiXcNLQssk9DkSoJV3Y&#39;, &#39;type&#39;: &#39;to-do&#39;, &#39;title&#39;: ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">area</span><span class="o">=</span><span class="s1">&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;</span><span class="p">,</span> <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">10</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">0</span>
 </code></pre></div>
 </div>
 
@@ -1305,13 +1298,13 @@ Any valid database object previously instantiated.</li>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.areas()</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;Y3JC4XeyGWxzDocQL4aobo&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 3&#39;}, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.areas(tag=&#39;Home&#39;)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.areas(uuid=&#39;Gw9QefIdgR6nPEoY5hBNSh&#39;)</span>
-<span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; things.areas(include_items=True, status=&#39;completed&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; things.areas(uuid=&#39;DciSFacytdrNG1nRaMJPgY&#39;)</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
+<span class="sd">    &gt;&gt;&gt; things.areas(include_items=True, tag=&#39;Errand&#39;)</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get_areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1373,13 +1366,13 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">()</span>
-<span class="gp">...</span>
+<span class="go">[{&#39;uuid&#39;: &#39;Y3JC4XeyGWxzDocQL4aobo&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 3&#39;}, ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="s1">&#39;Home&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="s1">&#39;Gw9QefIdgR6nPEoY5hBNSh&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">(</span><span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="s1">&#39;DciSFacytdrNG1nRaMJPgY&#39;</span><span class="p">)</span>
+<span class="go">{&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">areas</span><span class="p">(</span><span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;Errand&#39;</span><span class="p">)</span>
+<span class="go">[{&#39;uuid&#39;: &#39;DciSFacytdrNG1nRaMJPgY&#39;, &#39;type&#39;: &#39;area&#39;, &#39;title&#39;: &#39;Area 1&#39;, ...</span>
 </code></pre></div>
 </div>
 
@@ -1437,13 +1430,13 @@ Any valid <code><a href="database.html#Database">things.database.Database</a></c
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.tags()</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(&#39;Home&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    {&#39;uuid&#39;: &#39;CK9dARrf2ezbFvrVUUxkHE&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Home&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(include_items=True)</span>
-<span class="sd">    ...</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="sd">    &gt;&gt;&gt; things.tags(task=&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database</span> <span class="o">=</span> <span class="n">pop_database</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get_tags</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1499,13 +1492,13 @@ Any valid database object previously instantiated.</li>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tags</span><span class="p">()</span>
-<span class="gp">...</span>
+<span class="go">[{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tags</span><span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">{&#39;uuid&#39;: &#39;CK9dARrf2ezbFvrVUUxkHE&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Home&#39;, ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tags</span><span class="p">(</span><span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[{&#39;uuid&#39;: &#39;H96sVJwE7VJveAnv7itmux&#39;, &#39;type&#39;: &#39;tag&#39;, &#39;title&#39;: &#39;Errand&#39;, ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tags</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;2Ukg8I2nLukhyEM7wYiBeb&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
 </code></pre></div>
 </div>
 
@@ -1586,21 +1579,13 @@ A valid to-do uuid.</li>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; things.search(&#39;book&#39;)</span>
-<span class="sd">    [{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
+<span class="sd">    &gt;&gt;&gt; things.search(&#39;Today%yellow&#39;)</span>
+<span class="sd">    [{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;,</span>
 <span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="sd">      ...},</span>
-<span class="sd">      {&#39;uuid&#39;: &#39;KVHAxIIJ52a0h1RCbmg5D6&#39;,</span>
-<span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book flights&#39;,</span>
-<span class="sd">      ...}]</span>
-
-<span class="sd">    &gt;&gt;&gt; things.search(&#39;book%room&#39;)</span>
-<span class="sd">    [{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
-<span class="sd">      &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="sd">      &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="sd">      ...}]</span>
+<span class="sd">      &#39;title&#39;: &#39;Upcoming To-Do in Today (yellow)&#39;,</span>
+<span class="sd">      &#39;status&#39;: &#39;incomplete&#39;,</span>
+<span class="sd">      &#39;notes&#39;: &#39;&#39;,</span>
+<span class="sd">      ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">search_query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -1616,22 +1601,13 @@ heading, or area is matched.</p>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;book&#39;</span><span class="p">)</span>
-<span class="go">[{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;Today%yellow&#39;</span><span class="p">)</span>
+<span class="go">[{&#39;uuid&#39;: &#39;6Hf2qWBjWhq7B1xszwdo34&#39;,</span>
 <span class="go">  &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="go">  &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="go">  ...},</span>
-<span class="go">  {&#39;uuid&#39;: &#39;KVHAxIIJ52a0h1RCbmg5D6&#39;,</span>
-<span class="go">  &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="go">  &#39;title&#39;: &#39;Book flights&#39;,</span>
-<span class="go">  ...}]</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;book</span><span class="si">%r</span><span class="s1">oom&#39;</span><span class="p">)</span>
-<span class="go">[{&#39;uuid&#39;: &#39;YrOmUnEXASmpq8ch6RsyPt&#39;,</span>
-<span class="go">  &#39;type&#39;: &#39;to-do&#39;,</span>
-<span class="go">  &#39;title&#39;: &#39;Book a hotel room&#39;,</span>
-<span class="go">  ...}]</span>
+<span class="go">  &#39;title&#39;: &#39;Upcoming To-Do in Today (yellow)&#39;,</span>
+<span class="go">  &#39;status&#39;: &#39;incomplete&#39;,</span>
+<span class="go">  &#39;notes&#39;: &#39;&#39;,</span>
+<span class="go">  ...</span>
 </code></pre></div>
 </div>
 
@@ -2038,11 +2014,11 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
-<span class="sd">    14</span>
+<span class="sd">    10</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
-<span class="sd">    4</span>
+<span class="sd">    0</span>
 <span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
@@ -2056,11 +2032,11 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">14</span>
+<span class="go">10</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">4</span>
+<span class="go">0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;to-do&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
 </code></pre></div>
 </div>
 
@@ -2127,18 +2103,19 @@ See the <code><a href="#deadline">things.api.deadline</a></code> function instea
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;3d&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;1w&#39;, status=&#39;completed&#39;)</span>
-<span class="sd">    ...</span>
+<span class="sd">    []</span>
 <span class="sd">    &gt;&gt;&gt; things.last(&#39;1y&#39;, tag=&#39;Important&#39;, status=&#39;completed&#39;, count_only=True)</span>
-<span class="sd">    8</span>
+<span class="sd">    0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid offset type: </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
 </pre></div>
@@ -2167,11 +2144,11 @@ For details, see the <code><a href="#last">last</a></code> parameter of <code><a
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;1w&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
+<span class="go">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">last</span><span class="p">(</span><span class="s1">&#39;1y&#39;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;Important&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">8</span>
+<span class="go">0</span>
 </code></pre></div>
 </div>
 
@@ -2254,7 +2231,7 @@ using the Things URL Scheme. For details, see
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; tag = things.tags(&#39;Home&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; things.show(tag[&#39;uuid&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; things.show(tag[&#39;uuid&#39;])  # doctest: +SKIP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">uri</span> <span class="o">=</span> <span class="n">link</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open </span><span class="si">{</span><span class="n">quote</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2274,7 +2251,7 @@ A valid uuid of any Things object.</li>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">tag</span> <span class="o">=</span> <span class="n">things</span><span class="o">.</span><span class="n">tags</span><span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">])</span>  <span class="c1"># doctest: +SKIP</span>
 </code></pre></div>
 </div>
 

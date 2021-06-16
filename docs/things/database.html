@@ -788,7 +788,7 @@
 <span class="sd">    &#39;AND start_date IS NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
-<span class="sd">    &quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
+<span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -891,12 +891,8 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;)</span>
-<span class="sd">    &#39;AND (</span>
-<span class="sd">        TASK.title LIKE &quot;%dinner%&quot;</span>
-<span class="sd">        OR TASK.notes LIKE &quot;%dinner%&quot;</span>
-<span class="sd">        OR AREA.title LIKE &quot;%dinner%&quot;</span>
-<span class="sd">    )&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;) #doctest: +REPORT_NDIFF</span>
+<span class="sd">    &quot;AND (TASK.title LIKE &#39;%dinner%&#39; OR TASK.notes LIKE &#39;%dinner%&#39; OR AREA.title LIKE &#39;%dinner%&#39;)&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
@@ -928,16 +924,19 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; validate(</span>
-<span class="sd">        parameter=&#39;status&#39;,</span>
-<span class="sd">        argument=&#39;completed&#39;,</span>
-<span class="sd">        valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="sd">    )</span>
+<span class="sd">    ...     parameter=&#39;status&#39;,</span>
+<span class="sd">    ...     argument=&#39;completed&#39;,</span>
+<span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    ...</span>
 
 <span class="sd">    &gt;&gt;&gt; validate(</span>
-<span class="sd">        parameter=&#39;status&#39;,</span>
-<span class="sd">        argument=&#39;XYZXZY&#39;,</span>
-<span class="sd">        valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="sd">    )</span>
+<span class="sd">    ...     parameter=&#39;status&#39;,</span>
+<span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
+<span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ...</span>
 <span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
 <span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -959,8 +958,10 @@
 <span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
 
 <span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
-<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    Traceback (most recent call last):</span>
 <span class="sd">    ...</span>
+<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
@@ -2230,7 +2231,7 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    &#39;AND start_date IS NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
-<span class="sd">    &quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
+<span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -2284,7 +2285,7 @@ return the empty string.</li>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND datetime(start_date, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;)&quot;</span>
+<span class="go">&quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2467,12 +2468,8 @@ to how Python defines it natively.</p>
 
 <span class="sd">    Example:</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;)</span>
-<span class="sd">    &#39;AND (</span>
-<span class="sd">        TASK.title LIKE &quot;%dinner%&quot;</span>
-<span class="sd">        OR TASK.notes LIKE &quot;%dinner%&quot;</span>
-<span class="sd">        OR AREA.title LIKE &quot;%dinner%&quot;</span>
-<span class="sd">    )&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_search_filter(&#39;dinner&#39;) #doctest: +REPORT_NDIFF</span>
+<span class="sd">    &quot;AND (TASK.title LIKE &#39;%dinner%&#39; OR TASK.notes LIKE &#39;%dinner%&#39; OR AREA.title LIKE &#39;%dinner%&#39;)&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
@@ -2493,12 +2490,8 @@ to how Python defines it natively.</p>
 
 <h2 id="example">Example:</h2>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_search_filter</span><span class="p">(</span><span class="s1">&#39;dinner&#39;</span><span class="p">)</span>
-<span class="go">&#39;AND (</span>
-<span class="go">    TASK.title LIKE &quot;%dinner%&quot;</span>
-<span class="go">    OR TASK.notes LIKE &quot;%dinner%&quot;</span>
-<span class="go">    OR AREA.title LIKE &quot;%dinner%&quot;</span>
-<span class="go">)&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_search_filter</span><span class="p">(</span><span class="s1">&#39;dinner&#39;</span><span class="p">)</span> <span class="c1">#doctest: +REPORT_NDIFF</span>
+<span class="go">&quot;AND (TASK.title LIKE &#39;%dinner%&#39; OR TASK.notes LIKE &#39;%dinner%&#39; OR AREA.title LIKE &#39;%dinner%&#39;)&quot;</span>
 </code></pre></div>
 </div>
 
@@ -2548,16 +2541,19 @@ to how Python defines it natively.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; validate(</span>
-<span class="sd">        parameter=&#39;status&#39;,</span>
-<span class="sd">        argument=&#39;completed&#39;,</span>
-<span class="sd">        valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="sd">    )</span>
+<span class="sd">    ...     parameter=&#39;status&#39;,</span>
+<span class="sd">    ...     argument=&#39;completed&#39;,</span>
+<span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    ...</span>
 
 <span class="sd">    &gt;&gt;&gt; validate(</span>
-<span class="sd">        parameter=&#39;status&#39;,</span>
-<span class="sd">        argument=&#39;XYZXZY&#39;,</span>
-<span class="sd">        valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="sd">    )</span>
+<span class="sd">    ...     parameter=&#39;status&#39;,</span>
+<span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
+<span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ...</span>
 <span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
 <span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2577,18 +2573,21 @@ to how Python defines it natively.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">validate</span><span class="p">(</span>
-<span class="go">    parameter=&#39;status&#39;,</span>
-<span class="go">    argument=&#39;completed&#39;,</span>
-<span class="go">    valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="go">)</span>
+<span class="gp">... </span>    <span class="n">parameter</span><span class="o">=</span><span class="s1">&#39;status&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">argument</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">valid_arguments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;incomplete&#39;</span><span class="p">,</span> <span class="s1">&#39;completed&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">...</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">validate</span><span class="p">(</span>
-<span class="go">    parameter=&#39;status&#39;,</span>
-<span class="go">    argument=&#39;XYZXZY&#39;,</span>
-<span class="go">    valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-<span class="go">)</span>
-<span class="go">ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
+<span class="gp">... </span>    <span class="n">parameter</span><span class="o">=</span><span class="s1">&#39;status&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">argument</span><span class="o">=</span><span class="s1">&#39;XYZXZY&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">valid_arguments</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;incomplete&#39;</span><span class="p">,</span> <span class="s1">&#39;completed&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">Unrecognized status type: &#39;XYZXZY&#39;</span>
 <span class="go">Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
 </code></pre></div>
 </div>
@@ -2616,8 +2615,10 @@ to how Python defines it natively.</p>
 <span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
 
 <span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
-<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    Traceback (most recent call last):</span>
 <span class="sd">    ...</span>
+<span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+<span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
@@ -2650,8 +2651,10 @@ to how Python defines it natively.</p>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s1">&#39;XYZ&#39;</span><span class="p">)</span>
-<span class="go">ValueError: Invalid last argument: &#39;XYZ&#39;</span>
-<span class="gp">...</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">Invalid last argument: &#39;XYZ&#39;</span>
+<span class="go">Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
 </code></pre></div>
 </div>
 
