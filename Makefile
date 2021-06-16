@@ -36,6 +36,10 @@ test: ## Test the code
 	@coverage report
 	@coverage html
 
+testdoc: ## Test the code within the documentation
+	@type pytest >/dev/null 2>&1 || (echo "Run '$(PIP) install pytest' first." >&2 ; exit 1)
+	THINGSDB=tests/main.sqlite pytest --doctest-modules
+
 .PHONY: doc
 doc: install ## Document the code
 	@#$(PYDOC) $(SRC_CORE).api
@@ -89,7 +93,7 @@ code-lint: code-style ## Lint the code
 	@echo MyPy...
 	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
-	@if type vulture >/dev/null 2>&1 ; then vulture *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
+	@if type vulture >/dev/null 2>&1 ; then vulture *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py --exclude conftest.py; \
 	 else echo "SKIPPED. Run '$(PIP) install vulture' first." >&2 ; fi
 
 lint: code-style code-lint  ## Lint everything
