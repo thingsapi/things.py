@@ -458,7 +458,7 @@
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_CANCELED</span><span class="si">}</span><span class="s2"> THEN &#39;canceled&#39;</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_COMPLETED</span><span class="si">}</span><span class="s2"> THEN &#39;completed&#39;</span>
 <span class="s2">                END AS status,</span>
-<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;) AS stop_date,</span>
+<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS stop_date,</span>
 <span class="s2">                &#39;checklist-item&#39; as type,</span>
 <span class="s2">                CHECKLIST_ITEM.uuid,</span>
 <span class="s2">                datetime(</span>
@@ -652,9 +652,9 @@
 <span class="s2">                CASE</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1</span>
 <span class="s2">                END AS checklist,</span>
-<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;) AS start_date,</span>
-<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
-<span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;) AS &quot;stop_date&quot;,</span>
+<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS start_date,</span>
+<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS deadline,</span>
+<span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_MODIFIED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
 <span class="s2">                TASK.&#39;index&#39;,</span>
@@ -800,9 +800,13 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
+    <span class="c1"># compare `date_column` to now.</span>
     <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;) </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1189,7 +1193,7 @@
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_CANCELED</span><span class="si">}</span><span class="s2"> THEN &#39;canceled&#39;</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_COMPLETED</span><span class="si">}</span><span class="s2"> THEN &#39;completed&#39;</span>
 <span class="s2">                END AS status,</span>
-<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;) AS stop_date,</span>
+<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS stop_date,</span>
 <span class="s2">                &#39;checklist-item&#39; as type,</span>
 <span class="s2">                CHECKLIST_ITEM.uuid,</span>
 <span class="s2">                datetime(</span>
@@ -1632,7 +1636,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_CANCELED</span><span class="si">}</span><span class="s2"> THEN &#39;canceled&#39;</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.</span><span class="si">{</span><span class="n">IS_COMPLETED</span><span class="si">}</span><span class="s2"> THEN &#39;completed&#39;</span>
 <span class="s2">                END AS status,</span>
-<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;) AS stop_date,</span>
+<span class="s2">                date(CHECKLIST_ITEM.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS stop_date,</span>
 <span class="s2">                &#39;checklist-item&#39; as type,</span>
 <span class="s2">                CHECKLIST_ITEM.uuid,</span>
 <span class="s2">                datetime(</span>
@@ -1965,9 +1969,9 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">                CASE</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1</span>
 <span class="s2">                END AS checklist,</span>
-<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;) AS start_date,</span>
-<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
-<span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;) AS &quot;stop_date&quot;,</span>
+<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS start_date,</span>
+<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS deadline,</span>
+<span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_MODIFIED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
 <span class="s2">                TASK.&#39;index&#39;,</span>
@@ -2238,9 +2242,13 @@ we are going with the easiest solution for now.</p></li>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
+    <span class="c1"># compare `date_column` to now.</span>
     <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
     <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;) </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 
         </details>
