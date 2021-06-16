@@ -791,16 +791,19 @@ def validate(parameter, argument, valid_arguments):
     Examples
     --------
     >>> validate(
-        parameter='status',
-        argument='completed',
-        valid_arguments=['incomplete', 'completed']
-    )
+    ...     parameter='status',
+    ...     argument='completed',
+    ...     valid_arguments=['incomplete', 'completed']
+    ... )
+    ...
 
     >>> validate(
-        parameter='status',
-        argument='XYZXZY',
-        valid_arguments=['incomplete', 'completed']
-    )
+    ...     parameter='status',
+    ...     argument='XYZXZY',
+    ...     valid_arguments=['incomplete', 'completed']
+    ... )
+    Traceback (most recent call last):
+    ...
     ValueError: Unrecognized status type: 'XYZXZY'
     Valid status types are ['incomplete', 'completed']
     """
@@ -822,8 +825,10 @@ def validate_offset(parameter, argument):
     >>> validate_offset(parameter='last', argument='3d')
 
     >>> validate_offset(parameter='last', argument='XYZ')
-    ValueError: Invalid last argument: 'XYZ'
+    Traceback (most recent call last):
     ...
+    ValueError: Invalid last argument: 'XYZ'
+    Please specify a string of the format 'X[d/w/y]' where X is ...
     """
     if argument is None:
         return

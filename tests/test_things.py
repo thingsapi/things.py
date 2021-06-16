@@ -267,6 +267,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 10)
 
+        count = things.last("1y", tag="Important", status="completed", count_only=True)
+        self.assertEqual(count, 0)
+
         # get task by uuid
         count = things.tasks(uuid="5pUx6PESj3ctFYbgth1PXY", count_only=True)
         self.assertEqual(count, 1)

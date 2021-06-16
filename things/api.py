@@ -176,15 +176,15 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     Examples
     --------
     >>> things.tasks()
-    ...
-    >>> things.tasks('2Ukg8I2nLukhyEM7wYiBeb')
-    ...
+    [{'uuid': '6Hf2qWBjWhq7B1xszwdo34', 'type': 'to-do', 'title':...
+    >>> things.tasks('DfYoiXcNLQssk9DkSoJV3Y')
+    {'uuid': 'DfYoiXcNLQssk9DkSoJV3Y', 'type': 'to-do', 'title': ...
     >>> things.tasks(area='hIo1FJlAYGKt1Yj38vzKc3', include_items=True)
-    ...
+    []
     >>> things.tasks(status='completed', count_only=True)
     10
-    >>> things.tasks(status='completed', last='1w' count_only=True)
-    2
+    >>> things.tasks(status='completed', last='1w', count_only=True)
+    0
 
     """
     database = pop_database(kwargs)
@@ -282,13 +282,13 @@ def areas(uuid=None, include_items=False, **kwargs):
     Examples
     --------
     >>> things.areas()
-    ...
+    [{'uuid': 'Y3JC4XeyGWxzDocQL4aobo', 'type': 'area', 'title': 'Area 3'}, ...
     >>> things.areas(tag='Home')
-    ...
-    >>> things.areas(uuid='Gw9QefIdgR6nPEoY5hBNSh')
-    ...
-    >>> things.areas(include_items=True, status='completed')
-    ...
+    []
+    >>> things.areas(uuid='DciSFacytdrNG1nRaMJPgY')
+    {'uuid': 'DciSFacytdrNG1nRaMJPgY', 'type': 'area', 'title': 'Area 1', ...
+    >>> things.areas(include_items=True, tag='Errand')
+    [{'uuid': 'DciSFacytdrNG1nRaMJPgY', 'type': 'area', 'title': 'Area 1', ...
     """
     database = pop_database(kwargs)
     result = database.get_areas(uuid=uuid, **kwargs)
@@ -352,13 +352,13 @@ def tags(title=None, include_items=False, **kwargs):
     Examples
     --------
     >>> things.tags()
-    ...
+    [{'uuid': 'H96sVJwE7VJveAnv7itmux', 'type': 'tag', 'title': 'Errand', ...
     >>> things.tags('Home')
-    ...
+    {'uuid': 'CK9dARrf2ezbFvrVUUxkHE', 'type': 'tag', 'title': 'Home', ...
     >>> things.tags(include_items=True)
-    ...
+    [{'uuid': 'H96sVJwE7VJveAnv7itmux', 'type': 'tag', 'title': 'Errand', ...
     >>> things.tags(task='2Ukg8I2nLukhyEM7wYiBeb')
-    ...
+    []
     """
     database = pop_database(kwargs)
     result = database.get_tags(title=title, **kwargs)
@@ -414,21 +414,13 @@ def search(query: str, **kwargs) -> List[Dict]:
 
     Examples
     --------
-    >>> things.search('book')
-    [{'uuid': 'YrOmUnEXASmpq8ch6RsyPt',
+    >>> things.search('Today%yellow')
+    [{'uuid': '6Hf2qWBjWhq7B1xszwdo34',
       'type': 'to-do',
-      'title': 'Book a hotel room',
-      ...},
-      {'uuid': 'KVHAxIIJ52a0h1RCbmg5D6',
-      'type': 'to-do',
-      'title': 'Book flights',
-      ...}]
-
-    >>> things.search('book%room')
-    [{'uuid': 'YrOmUnEXASmpq8ch6RsyPt',
-      'type': 'to-do',
-      'title': 'Book a hotel room',
-      ...}]
+      'title': 'Upcoming To-Do in Today (yellow)',
+      'status': 'incomplete',
+      'notes': '',
+      ...
     """
     return tasks(search_query=query, **kwargs)
 
@@ -613,9 +605,9 @@ def completed(**kwargs):
 
     Examples
     --------
-    >>> import things; things.completed(count_only=True)
+    >>> things.completed(count_only=True)
     10
-    >>> import things; things.completed(type='project', count_only=True)
+    >>> things.completed(type='project', count_only=True)
     0
     >>> things.completed(type='to-do', last='1w')
     []
@@ -655,18 +647,19 @@ def last(offset, **kwargs):
     Examples
     --------
     >>> things.last('3d')
-    ...
+    []
     >>> things.last('1w', status='completed')
-    ...
+    []
     >>> things.last('1y', tag='Important', status='completed', count_only=True)
-    8
+    0
 
     """
     if offset is None:
         raise ValueError(f"Invalid offset type: {offset!r}")
 
     result = tasks(last=offset, **kwargs)
-    result.sort(key=lambda task: task["created"], reverse=True)
+    if result:
+        result.sort(key=lambda task: task["created"], reverse=True)
 
     return result
 
@@ -703,7 +696,7 @@ def show(uuid):  # noqa
     Examples
     --------
     >>> tag = things.tags('Home')
-    >>> things.show(tag['uuid'])
+    >>> things.show(tag['uuid'])  # doctest: +SKIP
     """
     uri = link(uuid)
     os.system(f"open {quote(uri)}")
