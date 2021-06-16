@@ -502,6 +502,9 @@ def today(**kwargs):
 
     See `things.api.tasks` for details on the optional parameters.
     """
+    database = pop_database(kwargs)
+    kwargs["database"] = database
+
     regular_today_tasks = tasks(
         start_date=True,
         start="Anytime",
