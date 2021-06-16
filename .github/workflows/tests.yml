@@ -24,8 +24,8 @@ jobs:
           make deps-install
       - name: Run tests
         run: |
-          pip install coverage
-          make test
+          pip install coverage pytest
+          make test testdoc
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
         with:
