@@ -45,7 +45,7 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Natural Language :: English",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app"],
