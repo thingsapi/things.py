@@ -5,6 +5,7 @@ import plistlib
 import re
 import sqlite3
 from textwrap import dedent
+from datetime import datetime
 
 
 # --------------------------------------------------
@@ -83,6 +84,7 @@ DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
+DATE_STOP = "stopDate"
 
 # --------------------------------------------------
 # Various filters
@@ -161,7 +163,7 @@ class Database:
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
         try:
-            with open(self.filepath) as file:
+            with open(self.filepath, encoding="utf-8") as file:
                 if "Your database file has been moved there" in file.readline():
                     self.filepath = DEFAULT_FILEPATH
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
@@ -181,6 +183,7 @@ class Database:
         heading=None,
         tag=None,
         start_date=None,
+        stop_date=None,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
@@ -246,6 +249,7 @@ class Database:
             {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
+            {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -635,9 +639,10 @@ def make_date_filter(date_column: str, value) -> str:
     date_column : str
         Name of the column that has date information on a task.
 
-    value : bool, 'future', 'past', or None
+    value : bool, 'future', 'past', ISO 8601 date or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
+        `ISO 8601` date is a string in the format `YYYY-MM-DD`.
         `None` indicates any value.
 
     Returns
@@ -657,6 +662,9 @@ def make_date_filter(date_column: str, value) -> str:
     >>> make_date_filter('start_date', 'future')
     "AND date(start_date, 'unixepoch', 'localtime') > date('now', 'localtime')"
 
+    >>> make_date_filter('stop_date', '2021-03-28')
+    "AND date(stop_date, 'unixepoch', 'localtime') >= date('2021-03-28', 'localtime')"
+
     >>> make_date_filter('created', None)
     ''
 
@@ -668,10 +676,14 @@ def make_date_filter(date_column: str, value) -> str:
         return make_filter(date_column, value)
 
     # compare `date_column` to now.
-    validate("value", value, ["future", "past"])
+    try:
+        now = f"date('{datetime.fromisoformat(value)}', 'localtime')"
+        operator = ">="
+    except ValueError:
+        validate("value", value, ["future", "past"])
+        operator = ">" if value == "future" else "<="
+        now = "date('now', 'localtime')"
     date = f"date({date_column}, 'unixepoch', 'localtime')"
-    operator = ">" if value == "future" else "<="
-    now = "date('now', 'localtime')"
 
     return f"AND {date} {operator} {now}"
 

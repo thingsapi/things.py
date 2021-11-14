@@ -25,7 +25,7 @@ OPTIONS = {
     "argv_emulation": False,
 }
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESRIPTION = fh.read()
 
 setup(
