@@ -797,7 +797,7 @@
 <span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stop_date&#39;, &#39;2021-03-28&#39;)</span>
-<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -2253,7 +2253,7 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stop_date&#39;, &#39;2021-03-28&#39;)</span>
-<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -2316,7 +2316,7 @@ return the empty string.</li>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;stop_date&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-28&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="go">&quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
