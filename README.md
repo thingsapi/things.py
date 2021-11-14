@@ -102,13 +102,13 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 ## Background
 
-The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data.
+The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data. Note that you can print the SQL used by adding the parameter `print_sql=True` to most API calls.
 
 If any aspect of the API seems overly complex or doesn't meet your needs, please don't hesitate to add a new issue [here](https://github.com/thingsapi/things.py/issues).
 
 ### Terminology
 
-Here's the technical terminology used involving the database:
+Here are the core technical terms used involving the database:
 
 - area
 - tag
@@ -117,9 +117,9 @@ Here's the technical terminology used involving the database:
     - `'to-do'`: can have checklists;
     - `'project'`: can have to-dos and headings;
     - `'heading'`:  part of a project; groups to-dos.
-  - status:  `"incomplete"`,  `"canceled"`, or `"completed"`
+  - status:  `'incomplete'`,  `'canceled'`, or `'completed'`
   - trashed: `True` or `False`
-  - start: `"Inbox"`, `"Anytime"`, or `"Someday"`
+  - start: `'Inbox'`, `'Anytime'`, or `'Someday'`
 - checklist item (contained within a to-do)
 
 ## Documentation
