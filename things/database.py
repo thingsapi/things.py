@@ -663,7 +663,7 @@ def make_date_filter(date_column: str, value) -> str:
     "AND date(start_date, 'unixepoch', 'localtime') > date('now', 'localtime')"
 
     >>> make_date_filter('stop_date', '2021-03-28')
-    "AND date(stop_date, 'unixepoch', 'localtime') >= date('2021-03-28', 'localtime')"
+    "AND date(stop_date, 'unixepoch', 'localtime') >= date('2021-03-28 00:00:00', 'localtime')"
 
     >>> make_date_filter('created', None)
     ''
