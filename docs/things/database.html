@@ -785,10 +785,10 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, True)</span>
-<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+<span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, False)</span>
-<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+<span class="sd">    &#39;AND startDate IS NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, &#39;future&#39;)</span>
 <span class="sd">    &quot;AND date(startDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
@@ -2235,10 +2235,10 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, True)</span>
-<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+<span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, False)</span>
-<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+<span class="sd">    &#39;AND startDate IS NULL&#39;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, &#39;future&#39;)</span>
 <span class="sd">    &quot;AND date(startDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
@@ -2292,11 +2292,11 @@ return the empty string.</li>
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">&#39;AND start_date IS NOT NULL&#39;</span>
+<span class="go">&#39;AND startDate IS NOT NULL&#39;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<span class="go">&#39;AND start_date IS NULL&#39;</span>
+<span class="go">&#39;AND startDate IS NULL&#39;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
