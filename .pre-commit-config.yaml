@@ -24,7 +24,7 @@ repos:
     hooks:
     - id: unittest
       name: unittest
-      entry: make test
+      entry: make test doctest
       language: python
       'types': [python]
       pass_filenames: false

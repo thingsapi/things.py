@@ -25,7 +25,7 @@ OPTIONS = {
     "argv_emulation": False,
 }
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESRIPTION = fh.read()
 
 setup(
@@ -45,7 +45,7 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Natural Language :: English",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app"],

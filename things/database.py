@@ -5,6 +5,7 @@ import plistlib
 import re
 import sqlite3
 from textwrap import dedent
+import datetime
 
 
 # --------------------------------------------------
@@ -83,6 +84,7 @@ DATE_CREATED = "creationDate"
 DATE_DEADLINE = "dueDate"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
+DATE_STOP = "stopDate"
 
 # --------------------------------------------------
 # Various filters
@@ -161,7 +163,7 @@ class Database:
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
         try:
-            with open(self.filepath) as file:
+            with open(self.filepath, encoding="utf-8") as file:
                 if "Your database file has been moved there" in file.readline():
                     self.filepath = DEFAULT_FILEPATH
         except (UnicodeDecodeError, FileNotFoundError, PermissionError):
@@ -181,6 +183,7 @@ class Database:
         heading=None,
         tag=None,
         start_date=None,
+        stop_date=None,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
@@ -246,6 +249,7 @@ class Database:
             {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
+            {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -637,9 +641,10 @@ def make_date_filter(date_column: str, value) -> str:
     date_column : str
         Name of the column that has date information on a task.
 
-    value : bool, 'future', 'past', or None
+    value : bool, 'future', 'past', ISO 8601 date str, or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
+        ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
 
     Returns
@@ -659,6 +664,9 @@ def make_date_filter(date_column: str, value) -> str:
     >>> make_date_filter('startDate', 'future')
     "AND date(startDate, 'unixepoch') > date('now', 'localtime')"
 
+    >>> make_date_filter('stopDate', '2021-03-28')
+    "AND date(stopDate, 'unixepoch') >= date('2021-03-28')"
+
     >>> make_date_filter('created', None)
     ''
 
@@ -669,18 +677,25 @@ def make_date_filter(date_column: str, value) -> str:
     if isinstance(value, bool):
         return make_filter(date_column, value)
 
-    # compare `date_column` to now.
-    validate("value", value, ["future", "past"])
+    try:
+        # Check for ISO 8601 date str
+        datetime.date.fromisoformat(value)
+        threshold = f"date('{value}')"
+        comparator = '>='
+    except ValueError:
+        # "future" or "past"
+        validate("value", value, ["future", "past"])
+        threshold = "date('now', 'localtime')"
+        comparator = ">" if value == "future" else "<="
+
     # Note: not using "localtime" modifier on `date()` since Things.app
     # seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.
     # Morever, note that `stopDate` -- contrary to its name -- seems to
     # be stored as the full UTC datetime of when the task was "stopped".
     # See also: https://github.com/thingsapi/things.py/issues/93
     date = f"date({date_column}, 'unixepoch')"
-    operator = ">" if value == "future" else "<="
-    now = "date('now', 'localtime')"
 
-    return f"AND {date} {operator} {now}"
+    return f"AND {date} {comparator} {threshold}"
 
 
 def make_date_range_filter(date_column, offset) -> str:

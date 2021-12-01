@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=missing-function-docstring, unspecified-encoding
+disable=missing-function-docstring
