@@ -139,7 +139,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
 
 
 <span class="c1"># --------------------------------------------------</span>
@@ -610,6 +610,8 @@
     <span class="n">where_predicate</span> <span class="o">=</span> <span class="n">where_predicate</span> <span class="ow">or</span> <span class="s2">&quot;TRUE&quot;</span>
     <span class="n">order_predicate</span> <span class="o">=</span> <span class="n">order_predicate</span> <span class="ow">or</span> <span class="s1">&#39;TASK.&quot;index&quot;&#39;</span>
 
+    <span class="c1"># Note: see remark at `make_date_filter()` as for why the first</span>
+    <span class="c1"># two `date()` statements have no &quot;localtime&quot; modifier.</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT DISTINCT</span>
 <span class="s2">                TASK.uuid,</span>
@@ -657,8 +659,8 @@
 <span class="s2">                CASE</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1</span>
 <span class="s2">                END AS checklist,</span>
-<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS start_date,</span>
-<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS deadline,</span>
+<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;) AS start_date,</span>
+<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
 <span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_MODIFIED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
@@ -773,10 +775,10 @@
 <span class="sd">    date_column : str</span>
 <span class="sd">        Name of the column that has date information on a task.</span>
 
-<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, ISO 8601 date or None</span>
+<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, ISO 8601 date str, or None</span>
 <span class="sd">        `True` or `False` indicates whether a date is set or not.</span>
 <span class="sd">        `&#39;future&#39;` or `&#39;past&#39;` indicates a date in the future or past.</span>
-<span class="sd">        `ISO 8601` date is a string in the format `YYYY-MM-DD`.</span>
+<span class="sd">        ISO 8601 date str is in the format &quot;YYYY-MM-DD&quot;.</span>
 <span class="sd">        `None` indicates any value.</span>
 
 <span class="sd">    Returns</span>
@@ -787,17 +789,17 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, True)</span>
-<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, True)</span>
+<span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, False)</span>
-<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, False)</span>
+<span class="sd">    &#39;AND startDate IS NULL&#39;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
-<span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, &#39;future&#39;)</span>
+<span class="sd">    &quot;AND date(startDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stop_date&#39;, &#39;2021-03-28&#39;)</span>
-<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stopDate&#39;, &#39;2021-03-28&#39;)</span>
+<span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;) &gt;= date(&#39;2021-03-28&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -809,17 +811,25 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="c1"># compare `date_column` to now.</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(&#39;</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;, &#39;localtime&#39;)&quot;</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;=&quot;</span>
+        <span class="c1"># Check for ISO 8601 date str</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(&#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+        <span class="n">comparator</span> <span class="o">=</span> <span class="s1">&#39;&gt;=&#39;</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="c1"># &quot;future&quot; or &quot;past&quot;</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
-    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+        <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># Note: not using &quot;localtime&quot; modifier on `date()` since Things.app</span>
+    <span class="c1"># seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.</span>
+    <span class="c1"># Morever, note that `stopDate` -- contrary to its name -- seems to</span>
+    <span class="c1"># be stored as the full UTC datetime of when the task was &quot;stopped&quot;.</span>
+    <span class="c1"># See also: https://github.com/thingsapi/things.py/issues/93</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">comparator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">make_date_range_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1941,6 +1951,8 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
     <span class="n">where_predicate</span> <span class="o">=</span> <span class="n">where_predicate</span> <span class="ow">or</span> <span class="s2">&quot;TRUE&quot;</span>
     <span class="n">order_predicate</span> <span class="o">=</span> <span class="n">order_predicate</span> <span class="ow">or</span> <span class="s1">&#39;TASK.&quot;index&quot;&#39;</span>
 
+    <span class="c1"># Note: see remark at `make_date_filter()` as for why the first</span>
+    <span class="c1"># two `date()` statements have no &quot;localtime&quot; modifier.</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT DISTINCT</span>
 <span class="s2">                TASK.uuid,</span>
@@ -1988,8 +2000,8 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">                CASE</span>
 <span class="s2">                    WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1</span>
 <span class="s2">                END AS checklist,</span>
-<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS start_date,</span>
-<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS deadline,</span>
+<span class="s2">                date(TASK.startDate, &quot;unixepoch&quot;) AS start_date,</span>
+<span class="s2">                date(TASK.</span><span class="si">{</span><span class="n">DATE_DEADLINE</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;) AS deadline,</span>
 <span class="s2">                date(TASK.stopDate, &quot;unixepoch&quot;, &quot;localtime&quot;) AS &quot;stop_date&quot;,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_CREATED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS created,</span>
 <span class="s2">                datetime(TASK.</span><span class="si">{</span><span class="n">DATE_MODIFIED</span><span class="si">}</span><span class="s2">, &quot;unixepoch&quot;, &quot;localtime&quot;) AS modified,</span>
@@ -2229,10 +2241,10 @@ we are going with the easiest solution for now.</p></li>
 <span class="sd">    date_column : str</span>
 <span class="sd">        Name of the column that has date information on a task.</span>
 
-<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, ISO 8601 date or None</span>
+<span class="sd">    value : bool, &#39;future&#39;, &#39;past&#39;, ISO 8601 date str, or None</span>
 <span class="sd">        `True` or `False` indicates whether a date is set or not.</span>
 <span class="sd">        `&#39;future&#39;` or `&#39;past&#39;` indicates a date in the future or past.</span>
-<span class="sd">        `ISO 8601` date is a string in the format `YYYY-MM-DD`.</span>
+<span class="sd">        ISO 8601 date str is in the format &quot;YYYY-MM-DD&quot;.</span>
 <span class="sd">        `None` indicates any value.</span>
 
 <span class="sd">    Returns</span>
@@ -2243,17 +2255,17 @@ we are going with the easiest solution for now.</p></li>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, True)</span>
-<span class="sd">    &#39;AND start_date IS NOT NULL&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, True)</span>
+<span class="sd">    &#39;AND startDate IS NOT NULL&#39;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, False)</span>
-<span class="sd">    &#39;AND start_date IS NULL&#39;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, False)</span>
+<span class="sd">    &#39;AND startDate IS NULL&#39;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;start_date&#39;, &#39;future&#39;)</span>
-<span class="sd">    &quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;startDate&#39;, &#39;future&#39;)</span>
+<span class="sd">    &quot;AND date(startDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 
-<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stop_date&#39;, &#39;2021-03-28&#39;)</span>
-<span class="sd">    &quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;stopDate&#39;, &#39;2021-03-28&#39;)</span>
+<span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;) &gt;= date(&#39;2021-03-28&#39;)&quot;</span>
 
 <span class="sd">    &gt;&gt;&gt; make_date_filter(&#39;created&#39;, None)</span>
 <span class="sd">    &#39;&#39;</span>
@@ -2265,17 +2277,25 @@ we are going with the easiest solution for now.</p></li>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">make_filter</span><span class="p">(</span><span class="n">date_column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="c1"># compare `date_column` to now.</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(&#39;</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;, &#39;localtime&#39;)&quot;</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;=&quot;</span>
+        <span class="c1"># Check for ISO 8601 date str</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(&#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+        <span class="n">comparator</span> <span class="o">=</span> <span class="s1">&#39;&gt;=&#39;</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="c1"># &quot;future&quot; or &quot;past&quot;</span>
         <span class="n">validate</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;future&quot;</span><span class="p">,</span> <span class="s2">&quot;past&quot;</span><span class="p">])</span>
-        <span class="n">operator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
-    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+        <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># Note: not using &quot;localtime&quot; modifier on `date()` since Things.app</span>
+    <span class="c1"># seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.</span>
+    <span class="c1"># Morever, note that `stopDate` -- contrary to its name -- seems to</span>
+    <span class="c1"># be stored as the full UTC datetime of when the task was &quot;stopped&quot;.</span>
+    <span class="c1"># See also: https://github.com/thingsapi/things.py/issues/93</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">comparator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 
         </details>
@@ -2287,10 +2307,10 @@ we are going with the easiest solution for now.</p></li>
 <ul>
 <li><strong>date_column</strong> (str):
 Name of the column that has date information on a task.</li>
-<li><strong>value</strong> (bool, 'future', 'past', ISO 8601 date or None):
+<li><strong>value</strong> (bool, 'future', 'past', ISO 8601 date str, or None):
 <code>True</code> or <code>False</code> indicates whether a date is set or not.
 <code>'future'</code> or <code>'past'</code> indicates a date in the future or past.
-<code>ISO 8601</code> date is a string in the format <code>YYYY-MM-DD</code>.
+ISO 8601 date str is in the format "YYYY-MM-DD".
 <code>None</code> indicates any value.</li>
 </ul>
 
@@ -2303,20 +2323,20 @@ return the empty string.</li>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">&#39;AND start_date IS NOT NULL&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39;AND startDate IS NOT NULL&#39;</span>
 </code></pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<span class="go">&#39;AND start_date IS NULL&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="go">&#39;AND startDate IS NULL&#39;</span>
 </code></pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(start_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
+<span class="go">&quot;AND date(startDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </code></pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;stop_date&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-28&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(stop_date, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt;= date(&#39;2021-03-28 00:00:00&#39;, &#39;localtime&#39;)&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;stopDate&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-28&#39;</span><span class="p">)</span>
+<span class="go">&quot;AND date(stopDate, &#39;unixepoch&#39;) &gt;= date(&#39;2021-03-28&#39;)&quot;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_date_filter</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
