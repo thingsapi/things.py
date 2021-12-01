@@ -472,6 +472,8 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     where_predicate = where_predicate or "TRUE"
     order_predicate = order_predicate or 'TASK."index"'
 
+    # Note: see remark at `make_date_filter()` as for why the first
+    # two `date()` statements have no "localtime" modifier.
     return f"""
             SELECT DISTINCT
                 TASK.uuid,
@@ -519,8 +521,8 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 CASE
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
-                date(TASK.startDate, "unixepoch", "localtime") AS start_date,
-                date(TASK.{DATE_DEADLINE}, "unixepoch", "localtime") AS deadline,
+                date(TASK.startDate, "unixepoch") AS start_date,
+                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
                 date(TASK.stopDate, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -648,14 +650,14 @@ def make_date_filter(date_column: str, value) -> str:
 
     Examples
     --------
-    >>> make_date_filter('start_date', True)
+    >>> make_date_filter('startDate', True)
     'AND start_date IS NOT NULL'
 
-    >>> make_date_filter('start_date', False)
+    >>> make_date_filter('startDate', False)
     'AND start_date IS NULL'
 
-    >>> make_date_filter('start_date', 'future')
-    "AND date(start_date, 'unixepoch', 'localtime') > date('now', 'localtime')"
+    >>> make_date_filter('startDate', 'future')
+    "AND date(startDate, 'unixepoch') > date('now', 'localtime')"
 
     >>> make_date_filter('created', None)
     ''
@@ -669,7 +671,12 @@ def make_date_filter(date_column: str, value) -> str:
 
     # compare `date_column` to now.
     validate("value", value, ["future", "past"])
-    date = f"date({date_column}, 'unixepoch', 'localtime')"
+    # Note: not using "localtime" modifier on `date()` since Things.app
+    # seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.
+    # Morever, note that `stopDate` -- contrary to its name -- seems to
+    # be stored as the full UTC datetime of when the task was "stopped".
+    # See also: https://github.com/thingsapi/things.py/issues/93
+    date = f"date({date_column}, 'unixepoch')"
     operator = ">" if value == "future" else "<="
     now = "date('now', 'localtime')"
 
