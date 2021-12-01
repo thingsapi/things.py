@@ -651,10 +651,10 @@ def make_date_filter(date_column: str, value) -> str:
     Examples
     --------
     >>> make_date_filter('startDate', True)
-    'AND start_date IS NOT NULL'
+    'AND startDate IS NOT NULL'
 
     >>> make_date_filter('startDate', False)
-    'AND start_date IS NULL'
+    'AND startDate IS NULL'
 
     >>> make_date_filter('startDate', 'future')
     "AND date(startDate, 'unixepoch') > date('now', 'localtime')"
