@@ -240,7 +240,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_database_version(self):
         version = things.Database().get_version()
-        self.assertEqual(18, version)
+        self.assertEqual(21, version)
 
     def test_last(self):
         last_tasks = things.last("0d")
