@@ -234,6 +234,12 @@ class Database:
             "PROJECT_OF_HEADING.trashed", context_trashed
         )
 
+        # As a task assigned to a heading is not directly assigned to a project anymore,
+        # we need to check if the heading is assigned to a project.
+        # See, e.g. https://github.com/thingsapi/things.py/issues/94
+        project_filter = make_or_filter(make_filter("TASK.project", project),
+                                        make_filter("PROJECT_OF_HEADING.uuid", project))
+
         where_predicate = f"""
             TASK.{IS_NOT_RECURRING}
             {trashed_filter and f"AND TASK.{trashed_filter}"}
@@ -244,7 +250,7 @@ class Database:
             {status_filter and f"AND TASK.{status_filter}"}
             {make_filter('TASK.uuid', uuid)}
             {make_filter("TASK.area", area)}
-            {make_filter("TASK.project", project, "PROJECT_OF_HEADING.uuid")}
+            {project_filter}
             {make_filter("TASK.actionGroup", heading)}
             {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
@@ -602,7 +608,20 @@ def list_factory(_cursor, row):
     return row[0]
 
 
-def make_filter(column, value, column2 = None):
+def remove_prefix(text, prefix):
+    """Remove prefix from text (as removeprefix() is 3.9+ only)."""
+    return text[text.startswith(prefix) and len(prefix):]
+
+
+def make_or_filter(*filters):
+    """Join filters with OR."""
+    filters = [filter for filter in filters if filter != ""]
+    filters = [remove_prefix(filter, 'AND ') for filter in filters]
+    filters = " OR ".join(filters)
+    return f"AND ({filters})" if filters else ""
+
+
+def make_filter(column, value):
     """
     Return SQL filter 'AND {column} = "{value}"'.
 
@@ -622,10 +641,7 @@ def make_filter(column, value, column2 = None):
     >>> make_filter('title', None)
     ''
     """
-    if column2:
-        default = f"AND ( {column} = '{escape_string(str(value))}' OR {column2} = '{escape_string(str(value))}')"
-    else:
-        default = f"AND {column} = '{escape_string(str(value))}'"
+    default = f"AND {column} = '{escape_string(str(value))}'"
     return {
         None: "",
         False: f"AND {column} IS NULL",
