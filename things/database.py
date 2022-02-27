@@ -244,7 +244,7 @@ class Database:
             {status_filter and f"AND TASK.{status_filter}"}
             {make_filter('TASK.uuid', uuid)}
             {make_filter("TASK.area", area)}
-            {make_filter("TASK.project", project)}
+            {make_filter("TASK.project", project, "PROJECT_OF_HEADING.uuid")}
             {make_filter("TASK.actionGroup", heading)}
             {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
@@ -602,7 +602,7 @@ def list_factory(_cursor, row):
     return row[0]
 
 
-def make_filter(column, value):
+def make_filter(column, value, column2 = None):
     """
     Return SQL filter 'AND {column} = "{value}"'.
 
@@ -622,7 +622,10 @@ def make_filter(column, value):
     >>> make_filter('title', None)
     ''
     """
-    default = f"AND {column} = '{escape_string(str(value))}'"
+    if column2:
+        default = f"AND ( {column} = '{escape_string(str(value))}' OR {column2} = '{escape_string(str(value))}')"
+    else:
+        default = f"AND {column} = '{escape_string(str(value))}'"
     return {
         None: "",
         False: f"AND {column} IS NULL",
