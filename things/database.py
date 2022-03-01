@@ -5,7 +5,7 @@ import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-from datetime import datetime
+import datetime
 
 
 # --------------------------------------------------
@@ -482,6 +482,8 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     where_predicate = where_predicate or "TRUE"
     order_predicate = order_predicate or 'TASK."index"'
 
+    # Note: see remark at `make_date_filter()` as for why the first
+    # two `date()` statements have no "localtime" modifier.
     return f"""
             SELECT DISTINCT
                 TASK.uuid,
@@ -529,8 +531,8 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 CASE
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
-                date(TASK.startDate, "unixepoch", "localtime") AS start_date,
-                date(TASK.{DATE_DEADLINE}, "unixepoch", "localtime") AS deadline,
+                date(TASK.startDate, "unixepoch") AS start_date,
+                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
                 date(TASK.stopDate, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -658,10 +660,10 @@ def make_date_filter(date_column: str, value) -> str:
     date_column : str
         Name of the column that has date information on a task.
 
-    value : bool, 'future', 'past', ISO 8601 date or None
+    value : bool, 'future', 'past', ISO 8601 date str, or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
-        `ISO 8601` date is a string in the format `YYYY-MM-DD`.
+        ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
 
     Returns
@@ -672,17 +674,17 @@ def make_date_filter(date_column: str, value) -> str:
 
     Examples
     --------
-    >>> make_date_filter('start_date', True)
-    'AND start_date IS NOT NULL'
+    >>> make_date_filter('startDate', True)
+    'AND startDate IS NOT NULL'
 
-    >>> make_date_filter('start_date', False)
-    'AND start_date IS NULL'
+    >>> make_date_filter('startDate', False)
+    'AND startDate IS NULL'
 
-    >>> make_date_filter('start_date', 'future')
-    "AND date(start_date, 'unixepoch', 'localtime') > date('now', 'localtime')"
+    >>> make_date_filter('startDate', 'future')
+    "AND date(startDate, 'unixepoch') > date('now', 'localtime')"
 
-    >>> make_date_filter('stop_date', '2021-03-28')
-    "AND date(stop_date, 'unixepoch', 'localtime') >= date('2021-03-28 00:00:00', 'localtime')"
+    >>> make_date_filter('stopDate', '2021-03-28')
+    "AND date(stopDate, 'unixepoch') >= date('2021-03-28')"
 
     >>> make_date_filter('created', None)
     ''
@@ -694,17 +696,25 @@ def make_date_filter(date_column: str, value) -> str:
     if isinstance(value, bool):
         return make_filter(date_column, value)
 
-    # compare `date_column` to now.
     try:
-        now = f"date('{datetime.fromisoformat(value)}', 'localtime')"
-        operator = ">="
+        # Check for ISO 8601 date str
+        datetime.date.fromisoformat(value)
+        threshold = f"date('{value}')"
+        comparator = '>='
     except ValueError:
+        # "future" or "past"
         validate("value", value, ["future", "past"])
-        operator = ">" if value == "future" else "<="
-        now = "date('now', 'localtime')"
-    date = f"date({date_column}, 'unixepoch', 'localtime')"
+        threshold = "date('now', 'localtime')"
+        comparator = ">" if value == "future" else "<="
 
-    return f"AND {date} {operator} {now}"
+    # Note: not using "localtime" modifier on `date()` since Things.app
+    # seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.
+    # Morever, note that `stopDate` -- contrary to its name -- seems to
+    # be stored as the full UTC datetime of when the task was "stopped".
+    # See also: https://github.com/thingsapi/things.py/issues/93
+    date = f"date({date_column}, 'unixepoch')"
+
+    return f"AND {date} {comparator} {threshold}"
 
 
 def make_date_range_filter(date_column, offset) -> str:
