@@ -1,11 +1,12 @@
 """Read from the Things SQLite database using SQL queries."""
 
+import datetime
 import os
 import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-import datetime
+from typing import Optional
 
 
 # --------------------------------------------------
@@ -220,10 +221,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "")
-        status_filter = STATUS_TO_FILTER.get(status, "")
-        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter = TYPE_TO_FILTER.get(type, "")
+        start_filter = START_TO_FILTER.get(start, "")  # type: ignore
+        status_filter = STATUS_TO_FILTER.get(status, "")  # type: ignore
+        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
+        type_filter = TYPE_TO_FILTER.get(type, "")  # type: ignore
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -795,7 +796,7 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_search_filter(query: str) -> str:
+def make_search_filter(query: Optional[str]) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 
