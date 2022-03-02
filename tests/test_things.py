@@ -221,7 +221,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(1, len(tags))
         tasks = things.tasks(project="3x1QqJqfvZyhtw8NSdnZqG")
         self.assertEqual(5, len(tasks))
-        tasks = things.tasks(tag='Home', project="3x1QqJqfvZyhtw8NSdnZqG")
+        tasks = things.tasks(tag="Home", project="3x1QqJqfvZyhtw8NSdnZqG")
         self.assertEqual(1, len(tasks))
 
     def test_get_link(self):

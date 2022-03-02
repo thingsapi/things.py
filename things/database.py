@@ -237,8 +237,10 @@ class Database:
         # As a task assigned to a heading is not directly assigned to a project anymore,
         # we need to check if the heading is assigned to a project.
         # See, e.g. https://github.com/thingsapi/things.py/issues/94
-        project_filter = make_or_filter(make_filter("TASK.project", project),
-                                        make_filter("PROJECT_OF_HEADING.uuid", project))
+        project_filter = make_or_filter(
+            make_filter("TASK.project", project),
+            make_filter("PROJECT_OF_HEADING.uuid", project),
+        )
 
         where_predicate = f"""
             TASK.{IS_NOT_RECURRING}
@@ -612,13 +614,13 @@ def list_factory(_cursor, row):
 
 def remove_prefix(text, prefix):
     """Remove prefix from text (as removeprefix() is 3.9+ only)."""
-    return text[text.startswith(prefix) and len(prefix):]
+    return text[text.startswith(prefix) and len(prefix) :]
 
 
 def make_or_filter(*filters):
     """Join filters with OR."""
     filters = [filter for filter in filters if filter != ""]
-    filters = [remove_prefix(filter, 'AND ') for filter in filters]
+    filters = [remove_prefix(filter, "AND ") for filter in filters]
     filters = " OR ".join(filters)
     return f"AND ({filters})" if filters else ""
 
@@ -700,7 +702,7 @@ def make_date_filter(date_column: str, value) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '>='
+        comparator = ">="
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
