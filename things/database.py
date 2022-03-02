@@ -619,7 +619,7 @@ def remove_prefix(text, prefix):
 
 def make_or_filter(*filters):
     """Join filters with OR."""
-    filters = [filter for filter in filters if filter != ""]
+    filters = filter(None, filters)
     filters = [remove_prefix(filter, "AND ") for filter in filters]
     filters = " OR ".join(filters)
     return f"AND ({filters})" if filters else ""
