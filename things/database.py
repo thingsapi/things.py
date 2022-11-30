@@ -184,6 +184,7 @@ class Database:
         tag=None,
         start_date=None,
         stop_date=None,
+        exact=False,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
@@ -194,6 +195,7 @@ class Database:
         count_only=False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
+
         if uuid:
             return self.get_task_by_uuid(uuid, count_only=count_only)
 
@@ -249,7 +251,7 @@ class Database:
             {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
-            {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
+            {make_date_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -632,7 +634,7 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(date_column: str, value) -> str:
+def make_date_filter(date_column: str, value, exact=False) -> str:
     """
     Return a SQL filter for date columns.
 
@@ -681,7 +683,7 @@ def make_date_filter(date_column: str, value) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '>='
+        comparator = '==' if exact else'>='
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])

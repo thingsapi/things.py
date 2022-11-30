@@ -93,6 +93,12 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
           Note: this includes today's date.
         - `start_date == None` (default), then include all tasks.
 
+    stop_date : as start_date, signifies the date of completion
+
+    exact : bool, optional
+        - `exact == False` (default) compare date provided with >=
+        - `exact == True`, compare date with ==
+
     deadline : bool, str or None, optional
         - `deadline == False`, only include tasks _without_ a deadline.
         - `deadline == True`, only include tasks _with_ a deadline.
