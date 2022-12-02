@@ -101,7 +101,8 @@ lint: code-style code-lint  ## Lint everything
 
 deps-install: ## Install the dependencies
 	@type $(PIPENV) >/dev/null 2>&1 || (echo "Run e.g. 'brew install pipenv' first." >&2 ; exit 1)
-	@$(PIPENV) install
+	@$(PIPENV) install --dev
+	npm install pyright
 
 feedback: ## Give feedback
 	@open https://github.com/thingsapi/things.py/issues
