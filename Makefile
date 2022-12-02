@@ -42,6 +42,7 @@ testdoc: ## Test the code within the documentation
 
 .PHONY: doc
 doc: install ## Document the code
+	@type pytest >/dev/null 2>&1 || (echo "Run '$(PIP) install pytest' first." >&2 ; exit 1)
 	@#$(PYDOC) $(SRC_CORE).api
 	@$(PDOC) -o $(DST_DOCS) -d numpy -n $(SRC_CORE)
 	@echo "Now open $(DST_DOCS)"
