@@ -27,7 +27,7 @@ jobs:
           pip install coverage pytest
           make test testdoc
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
       - name: Run lint
