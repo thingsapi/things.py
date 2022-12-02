@@ -195,7 +195,6 @@ class Database:
         count_only=False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
-
         if uuid:
             return self.get_task_by_uuid(uuid, count_only=count_only)
 
@@ -222,10 +221,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "")
-        status_filter = STATUS_TO_FILTER.get(status, "")
-        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter = TYPE_TO_FILTER.get(type, "")
+        start_filter = START_TO_FILTER.get(start, "") if start else ""
+        status_filter = STATUS_TO_FILTER.get(status, "") if status else ""
+        trashed_filter = get_allow_none(TRASHED_TO_FILTER, trashed, "")
+        type_filter = TYPE_TO_FILTER.get(type, "") if type else ""
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -472,6 +471,12 @@ class Database:
 
 # Helper functions
 
+def get_allow_none(dictionary, key, default):
+    """Get key with default from dict, allows none to be passed as key."""
+    if key is None:
+        return default
+    return dictionary.get(key, default)
+
 
 def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     """Make SQL query for Task table."""
@@ -649,6 +654,9 @@ def make_date_filter(date_column: str, value, exact=False) -> str:
         ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
 
+    exact : bool
+        matches for exact date of date_column
+
     Returns
     -------
     str
@@ -776,7 +784,7 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_search_filter(query: str) -> str:
+def make_search_filter(query) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 
