@@ -7,9 +7,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+  #  strategy:
+  #    matrix:
+  #      python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v1
@@ -27,6 +27,7 @@ jobs:
           pip install coverage pytest
           make test testdoc
       - name: "Upload coverage to Codecov"
+        if: github.repository == 'thingsapi/things.py'
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
