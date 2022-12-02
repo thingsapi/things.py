@@ -132,3 +132,6 @@ db-to-things:
 
 db-from-things:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
+
+info:
+	pipenv --venv

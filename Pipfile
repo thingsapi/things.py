@@ -6,6 +6,16 @@ name = "pypi"
 [packages]
 
 [dev-packages]
+pytest = "*"
+pycodestyle = "*"
+pylint = "*"
+flake8 = "*"
+pyright = "*"
+mypy = "*"
+vulture = "*"
+pydocstyle = "*"
+pylama = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.9"
