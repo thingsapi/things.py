@@ -169,7 +169,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(0, len(tasks))
         tasks = things.logbook(stop_date="2021-03-28")
         self.assertEqual(21, len(tasks))
-        tasks = things.logbook(stop_date="2021-03-27",exact=True)
+        tasks = things.logbook(stop_date="2021-03-27", exact=True)
         self.assertEqual(0, len(tasks))
 
     def test_canceled(self):

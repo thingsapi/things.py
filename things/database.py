@@ -683,7 +683,7 @@ def make_date_filter(date_column: str, value, exact=False) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '==' if exact else'>='
+        comparator = '==' if exact else '>='
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
