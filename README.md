@@ -102,7 +102,7 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 ## Background
 
-The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data. Note that you can print the SQL used by adding the parameter `print_sql=True` to most API calls.
+The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is to let you access all your Things data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data. Note that you can print the SQL used by adding the parameter `print_sql=True` to most API calls.
 
 If any aspect of the API seems overly complex or doesn't meet your needs, please don't hesitate to add a new issue [here](https://github.com/thingsapi/things.py/issues).
 
@@ -137,3 +137,4 @@ The following open-source projects make use of this library:
 - [KanbanView](https://github.com/AlexanderWillner/KanbanView)
 - [Things CLI](https://github.com/thingsapi/things-cli)
 - [ThingsStats](https://github.com/lmgibson/ThingsStats)
+- [Things3 to Notion](https://github.com/Avery2/things3notionscript)
