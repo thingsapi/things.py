@@ -1,11 +1,11 @@
 """Read from the Things SQLite database using SQL queries."""
 
+import datetime
 import os
 import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-import datetime
 
 
 # --------------------------------------------------
@@ -24,21 +24,25 @@ ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
 # Translate app language to database language
 
-START_TO_FILTER = {
+START_TO_FILTER: dict[str, str] = {
     "Inbox": "start = 0",
     "Anytime": "start = 1",
     "Someday": "start = 2",
 }
 
-STATUS_TO_FILTER = {
+STATUS_TO_FILTER: dict[str, str] = {
     "incomplete": "status = 0",
     "canceled": "status = 2",
     "completed": "status = 3",
 }
 
-TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
+TRASHED_TO_FILTER: dict[bool, str] = {True: "trashed = 1", False: "trashed = 0"}
 
-TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
+TYPE_TO_FILTER: dict[str, str] = {
+    "to-do": "type = 0",
+    "project": "type = 1",
+    "heading": "type = 2",
+}
 
 # Dates
 
@@ -189,7 +193,7 @@ class Database:
         trashed=False,
         context_trashed=False,
         last=None,
-        search_query=None,
+        search_query: str = "",
         index="index",
         count_only=False,
     ):
@@ -201,13 +205,13 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("deadline", deadline, [None] + list(DATES))  # type: ignore
-        validate("deadline_suppressed", deadline_suppressed, [None, True, False])  # type: ignore
-        validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
-        validate("start_date", start_date, [None] + list(DATES))  # type: ignore
-        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
-        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
-        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("deadline", deadline, [None] + list(DATES))
+        validate("deadline_suppressed", deadline_suppressed, [None, True, False])
+        validate("start", start, [None] + list(START_TO_FILTER))
+        validate("start_date", start_date, [None] + list(DATES))
+        validate("status", status, [None] + list(STATUS_TO_FILTER))
+        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))
         validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
@@ -220,10 +224,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "")
-        status_filter = STATUS_TO_FILTER.get(status, "")
-        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter = TYPE_TO_FILTER.get(type, "")
+        start_filter = START_TO_FILTER.get(start, "")  # type: ignore
+        status_filter = STATUS_TO_FILTER.get(status, "")  # type: ignore
+        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
+        type_filter = TYPE_TO_FILTER.get(type, "")  # type: ignore
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -681,7 +685,7 @@ def make_date_filter(date_column: str, value) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '>='
+        comparator = ">="
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
