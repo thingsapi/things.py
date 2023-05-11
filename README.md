@@ -18,7 +18,7 @@ _things.py_ is a simple Python 3 library to read data from your [Things app](htt
 - [Examples](#examples)
 - [Documentation](#documentation)
 - [Background](#background)
-- [Things URLs](#things-urls)
+- [Things URL Scheme](#things-url-scheme)
 - [Used By](#used-by)
 
 ## Install
@@ -124,11 +124,11 @@ Here are the core technical terms used involving the database:
 
 ## Documentation
 
-The full documentation can be found here: https://thingsapi.github.io/things.py/things/api.html
+The full documentation for this library can be found here: https://thingsapi.github.io/things.py/things/api.html
 
-## Things URLs
+## Things URL Scheme
 
-You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Read more [here](https://culturedcode.com/things/blog/2018/02/hey-things/).
+You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Also updates are possible. Read an introduction [here](https://culturedcode.com/things/blog/2018/02/hey-things/) and see the documentation [here](https://culturedcode.com/things/help/url-scheme/).
 
 ## Used By
 
