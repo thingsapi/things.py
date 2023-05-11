@@ -24,21 +24,21 @@ ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
 # Translate app language to database language
 
-START_TO_FILTER: dict[str, str] = {
+START_TO_FILTER = {
     "Inbox": "start = 0",
     "Anytime": "start = 1",
     "Someday": "start = 2",
 }
 
-STATUS_TO_FILTER: dict[str, str] = {
+STATUS_TO_FILTER = {
     "incomplete": "status = 0",
     "canceled": "status = 2",
     "completed": "status = 3",
 }
 
-TRASHED_TO_FILTER: dict[bool, str] = {True: "trashed = 1", False: "trashed = 0"}
+TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
-TYPE_TO_FILTER: dict[str, str] = {
+TYPE_TO_FILTER = {
     "to-do": "type = 0",
     "project": "type = 1",
     "heading": "type = 2",
