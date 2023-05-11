@@ -139,3 +139,4 @@ The following open-source projects make use of this library:
 - [ThingsStats](https://github.com/lmgibson/ThingsStats)
 - [Things3 to Notion](https://github.com/Avery2/things3notionscript)
 - [things-to-org](https://github.com/chrizel/things-to-org)
+- [Things to CSV](https://github.com/nathankoerschner/things_to_csv)
