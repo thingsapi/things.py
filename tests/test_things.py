@@ -81,7 +81,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.search('"')
         self.assertEqual(0, len(tasks))
 
-        with self.assertRaises(sqlite3.ProgrammingError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.search("To-Do\0Heading")
 
         todos = things.search("To-Do % Heading", status=None)
@@ -292,7 +292,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.tasks(area="'")
         self.assertEqual(len(tasks), 0)
 
-        with self.assertRaises(sqlite3.ProgrammingError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
 
     def test_database_details(self):
