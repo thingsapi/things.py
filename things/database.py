@@ -224,10 +224,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "")  # type: ignore
-        status_filter = STATUS_TO_FILTER.get(status, "")  # type: ignore
-        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
-        type_filter = TYPE_TO_FILTER.get(type, "")  # type: ignore
+        start_filter: str = START_TO_FILTER.get(str(start), "")
+        status_filter: str = STATUS_TO_FILTER.get(str(status), "")
+        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")
+        type_filter: str = TYPE_TO_FILTER.get(str(type), "")
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
