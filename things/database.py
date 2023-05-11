@@ -6,6 +6,7 @@ import re
 import sqlite3
 from textwrap import dedent
 import datetime
+import glob
 
 
 # --------------------------------------------------
@@ -14,11 +15,12 @@ import datetime
 
 
 # Database filepath
-
-DEFAULT_FILEPATH = os.path.expanduser(
-    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
-    "/Things Database.thingsdatabase/main.sqlite"
-)
+DEFAULT_FILEROOT = os.path.expanduser("~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac")
+# Migration for April 2023 update
+if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
+    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, 'ThingsData-*')):
+        DEFAULT_FILEROOT = filename
+DEFAULT_FILEPATH = f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase/main.sqlite"
 
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
