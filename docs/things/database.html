@@ -215,7 +215,7 @@
 <span class="c1"># --------------------------------------------------</span>
 
 <span class="n">DATE_CREATED</span> <span class="o">=</span> <span class="s2">&quot;creationDate&quot;</span>
-<span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;dueDate&quot;</span>
+<span class="n">DATE_DEADLINE</span> <span class="o">=</span> <span class="s2">&quot;deadline&quot;</span>
 <span class="n">DATE_MODIFIED</span> <span class="o">=</span> <span class="s2">&quot;userModificationDate&quot;</span>
 <span class="n">DATE_START</span> <span class="o">=</span> <span class="s2">&quot;startDate&quot;</span>
 <span class="n">DATE_STOP</span> <span class="o">=</span> <span class="s2">&quot;stopDate&quot;</span>
@@ -240,7 +240,7 @@
 <span class="n">IS_SOMEDAY</span> <span class="o">=</span> <span class="n">START_TO_FILTER</span><span class="p">[</span><span class="s2">&quot;Someday&quot;</span><span class="p">]</span>
 
 <span class="c1"># Repeats</span>
-<span class="n">IS_NOT_RECURRING</span> <span class="o">=</span> <span class="s2">&quot;recurrenceRule IS NULL&quot;</span>
+<span class="n">IS_NOT_RECURRING</span> <span class="o">=</span> <span class="s2">&quot;rt1_recurrenceRule IS NULL&quot;</span>
 
 <span class="c1"># Trash</span>
 <span class="n">IS_TRASHED</span> <span class="o">=</span> <span class="n">TRASHED_TO_FILTER</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
@@ -255,9 +255,9 @@
 <span class="c1"># IS_SCHEDULED = f&quot;{DATE_START} IS NOT NULL&quot;</span>
 <span class="c1"># IS_NOT_SCHEDULED = f&quot;{DATE_START} IS NULL&quot;</span>
 <span class="c1"># IS_DEADLINE = f&quot;{DATE_DEADLINE} IS NOT NULL&quot;</span>
-<span class="c1"># RECURRING_IS_NOT_PAUSED = &quot;instanceCreationPaused = 0&quot;</span>
-<span class="c1"># IS_RECURRING = &quot;recurrenceRule IS NOT NULL&quot;</span>
-<span class="c1"># RECURRING_HAS_NEXT_STARTDATE = (&quot;nextInstanceStartDate IS NOT NULL&quot;)</span>
+<span class="c1"># RECURRING_IS_NOT_PAUSED = &quot;rt1_instanceCreationPaused = 0&quot;</span>
+<span class="c1"># IS_RECURRING = &quot;rt1_recurrenceRule IS NOT NULL&quot;</span>
+<span class="c1"># RECURRING_HAS_NEXT_STARTDATE = (&quot;rt1_nextInstanceStartDate IS NOT NULL&quot;)</span>
 <span class="c1"># IS_NOT_TRASHED = TRASHED_TO_FILTER[False]</span>
 
 <span class="c1"># pylint: disable=R0904,R0902</span>
@@ -379,8 +379,8 @@
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.dueDateSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.heading&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.deadlineSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_STOP</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stop_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
@@ -673,7 +673,7 @@
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_AREA</span><span class="si">}</span><span class="s2"> AREA ON TASK.area = AREA.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.actionGroup = HEADING.uuid</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.heading = HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> PROJECT_OF_HEADING</span>
 <span class="s2">                ON HEADING.project = PROJECT_OF_HEADING.uuid</span>
@@ -823,7 +823,7 @@
         <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 
     <span class="c1"># Note: not using &quot;localtime&quot; modifier on `date()` since Things.app</span>
-    <span class="c1"># seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.</span>
+    <span class="c1"># seems to store `startDate` and `deadline` as a 00:00 UTC datetime.</span>
     <span class="c1"># Morever, note that `stopDate` -- contrary to its name -- seems to</span>
     <span class="c1"># be stored as the full UTC datetime of when the task was &quot;stopped&quot;.</span>
     <span class="c1"># See also: https://github.com/thingsapi/things.py/issues/93</span>
@@ -1135,8 +1135,8 @@
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.dueDateSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.heading&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.deadlineSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_STOP</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stop_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
@@ -1527,8 +1527,8 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s1">&#39;TASK.uuid&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.project&quot;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.actionGroup&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.dueDateSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.heading&quot;</span><span class="p">,</span> <span class="n">heading</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TASK.deadlineSuppressionDate&quot;</span><span class="p">,</span> <span class="n">deadline_suppressed</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_filter</span><span class="p">(</span><span class="s2">&quot;TAG.title&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_START</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">            </span><span class="si">{</span><span class="n">make_date_filter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK.</span><span class="si">{</span><span class="n">DATE_STOP</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stop_date</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
@@ -2014,7 +2014,7 @@ See https://www.sqlite.org/lang_expr.html#varparam</li>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_AREA</span><span class="si">}</span><span class="s2"> AREA ON TASK.area = AREA.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.actionGroup = HEADING.uuid</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> HEADING ON TASK.heading = HEADING.uuid</span>
 <span class="s2">            LEFT OUTER JOIN</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">TABLE_TASK</span><span class="si">}</span><span class="s2"> PROJECT_OF_HEADING</span>
 <span class="s2">                ON HEADING.project = PROJECT_OF_HEADING.uuid</span>
@@ -2289,7 +2289,7 @@ we are going with the easiest solution for now.</p></li>
         <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 
     <span class="c1"># Note: not using &quot;localtime&quot; modifier on `date()` since Things.app</span>
-    <span class="c1"># seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.</span>
+    <span class="c1"># seems to store `startDate` and `deadline` as a 00:00 UTC datetime.</span>
     <span class="c1"># Morever, note that `stopDate` -- contrary to its name -- seems to</span>
     <span class="c1"># be stored as the full UTC datetime of when the task was &quot;stopped&quot;.</span>
     <span class="c1"># See also: https://github.com/thingsapi/things.py/issues/93</span>

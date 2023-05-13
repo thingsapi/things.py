@@ -81,7 +81,7 @@ TABLE_SETTINGS = "TMSettings"
 # --------------------------------------------------
 
 DATE_CREATED = "creationDate"
-DATE_DEADLINE = "dueDate"
+DATE_DEADLINE = "deadline"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
 DATE_STOP = "stopDate"
@@ -106,7 +106,7 @@ IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
-IS_NOT_RECURRING = "recurrenceRule IS NULL"
+IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
 
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
@@ -121,9 +121,9 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
-# RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
-# IS_RECURRING = "recurrenceRule IS NOT NULL"
-# RECURRING_HAS_NEXT_STARTDATE = ("nextInstanceStartDate IS NOT NULL")
+# RECURRING_IS_NOT_PAUSED = "rt1_instanceCreationPaused = 0"
+# IS_RECURRING = "rt1_recurrenceRule IS NOT NULL"
+# RECURRING_HAS_NEXT_STARTDATE = ("rt1_nextInstanceStartDate IS NOT NULL")
 # IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
@@ -245,8 +245,8 @@ class Database:
             {make_filter('TASK.uuid', uuid)}
             {make_filter("TASK.area", area)}
             {make_filter("TASK.project", project)}
-            {make_filter("TASK.actionGroup", heading)}
-            {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
+            {make_filter("TASK.heading", heading)}
+            {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
             {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
@@ -539,7 +539,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
             LEFT OUTER JOIN
                 {TABLE_AREA} AREA ON TASK.area = AREA.uuid
             LEFT OUTER JOIN
-                {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
+                {TABLE_TASK} HEADING ON TASK.heading = HEADING.uuid
             LEFT OUTER JOIN
                 {TABLE_TASK} PROJECT_OF_HEADING
                 ON HEADING.project = PROJECT_OF_HEADING.uuid
@@ -689,7 +689,7 @@ def make_date_filter(date_column: str, value) -> str:
         comparator = ">" if value == "future" else "<="
 
     # Note: not using "localtime" modifier on `date()` since Things.app
-    # seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.
+    # seems to store `startDate` and `deadline` as a 00:00 UTC datetime.
     # Morever, note that `stopDate` -- contrary to its name -- seems to
     # be stored as the full UTC datetime of when the task was "stopped".
     # See also: https://github.com/thingsapi/things.py/issues/93
