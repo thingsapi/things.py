@@ -1,11 +1,11 @@
 """Read from the Things SQLite database using SQL queries."""
 
+import datetime
 import os
 import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-import datetime
 
 
 # --------------------------------------------------
@@ -38,7 +38,11 @@ STATUS_TO_FILTER = {
 
 TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
-TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
+TYPE_TO_FILTER = {
+    "to-do": "type = 0",
+    "project": "type = 1",
+    "heading": "type = 2",
+}
 
 # Dates
 
@@ -81,7 +85,7 @@ TABLE_SETTINGS = "TMSettings"
 # --------------------------------------------------
 
 DATE_CREATED = "creationDate"
-DATE_DEADLINE = "dueDate"
+DATE_DEADLINE = "deadline"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
 DATE_STOP = "stopDate"
@@ -106,7 +110,7 @@ IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
-IS_NOT_RECURRING = "recurrenceRule IS NULL"
+IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
 
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
@@ -121,9 +125,9 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
-# RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
-# IS_RECURRING = "recurrenceRule IS NOT NULL"
-# RECURRING_HAS_NEXT_STARTDATE = ("nextInstanceStartDate IS NOT NULL")
+# RECURRING_IS_NOT_PAUSED = "rt1_instanceCreationPaused = 0"
+# IS_RECURRING = "rt1_recurrenceRule IS NOT NULL"
+# RECURRING_HAS_NEXT_STARTDATE = ("rt1_nextInstanceStartDate IS NOT NULL")
 # IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
@@ -190,7 +194,7 @@ class Database:
         trashed=False,
         context_trashed=False,
         last=None,
-        search_query=None,
+        search_query: str = "",
         index="index",
         count_only=False,
     ):
@@ -202,13 +206,13 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("deadline", deadline, [None] + list(DATES))  # type: ignore
-        validate("deadline_suppressed", deadline_suppressed, [None, True, False])  # type: ignore
-        validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
-        validate("start_date", start_date, [None] + list(DATES))  # type: ignore
-        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
-        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
-        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("deadline", deadline, [None] + list(DATES))
+        validate("deadline_suppressed", deadline_suppressed, [None, True, False])
+        validate("start", start, [None] + list(START_TO_FILTER))
+        validate("start_date", start_date, [None] + list(DATES))
+        validate("status", status, [None] + list(STATUS_TO_FILTER))
+        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))
         validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
@@ -221,10 +225,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "") if start else ""
-        status_filter = STATUS_TO_FILTER.get(status, "") if status else ""
-        trashed_filter = get_allow_none(TRASHED_TO_FILTER, trashed, "")
-        type_filter = TYPE_TO_FILTER.get(type, "") if type else ""
+        start_filter: str = START_TO_FILTER.get(start, "") if start else ""
+        status_filter: str = STATUS_TO_FILTER.get(status, "") if status else ""
+        trashed_filter: str = get_allow_none(TRASHED_TO_FILTER, trashed, "")
+        type_filter: str = TYPE_TO_FILTER.get(type, "") if type else ""
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -246,8 +250,8 @@ class Database:
             {make_filter('TASK.uuid', uuid)}
             {make_filter("TASK.area", area)}
             {make_filter("TASK.project", project)}
-            {make_filter("TASK.actionGroup", heading)}
-            {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
+            {make_filter("TASK.heading", heading)}
+            {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
             {make_date_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
@@ -546,7 +550,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
             LEFT OUTER JOIN
                 {TABLE_AREA} AREA ON TASK.area = AREA.uuid
             LEFT OUTER JOIN
-                {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
+                {TABLE_TASK} HEADING ON TASK.heading = HEADING.uuid
             LEFT OUTER JOIN
                 {TABLE_TASK} PROJECT_OF_HEADING
                 ON HEADING.project = PROJECT_OF_HEADING.uuid
