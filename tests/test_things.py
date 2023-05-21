@@ -5,6 +5,7 @@
 import contextlib
 import io
 import os
+import sqlite3
 import unittest
 import unittest.mock
 
@@ -80,7 +81,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.search('"')
         self.assertEqual(0, len(tasks))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.search("To-Do\0Heading")
 
         todos = things.search("To-Do % Heading", status=None)
@@ -299,7 +300,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.tasks(area="'")
         self.assertEqual(len(tasks), 0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
 
     def test_database_details(self):
@@ -316,7 +317,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertTrue("/* Filepath" in output.getvalue())
 
     @unittest.mock.patch("os.system")
-    def test_api_show(self, os_system):  # pylint: disable=R0201
+    def test_api_show(self, os_system):
         things.show("invalid_uuid")
         os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
 
