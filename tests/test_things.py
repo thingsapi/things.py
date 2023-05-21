@@ -220,6 +220,14 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tag = things.tags(title="Errand")
         self.assertEqual("Errand", tag["title"])  # type: ignore
 
+        # test tagged items, in particular within headings
+        tags = things.tasks(tag="Home")
+        self.assertEqual(1, len(tags))
+        tasks = things.tasks(project="3x1QqJqfvZyhtw8NSdnZqG")
+        self.assertEqual(5, len(tasks))
+        tasks = things.tasks(tag="Home", project="3x1QqJqfvZyhtw8NSdnZqG")
+        self.assertEqual(1, len(tasks))
+
     def test_get_link(self):
         link = things.link("uuid")
         self.assertEqual("things:///show?id=uuid", link)
@@ -228,7 +236,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         projects = things.projects()
         self.assertEqual(3, len(projects))
         projects = things.projects(include_items=True)
-        self.assertEqual(4, len(projects[0]["items"]))
+        self.assertEqual(5, len(projects[0]["items"]))
 
     def test_areas(self):
         areas = things.areas()
