@@ -18,7 +18,7 @@ _things.py_ is a simple Python 3 library to read data from your [Things app](htt
 - [Examples](#examples)
 - [Documentation](#documentation)
 - [Background](#background)
-- [Things URLs](#things-urls)
+- [Things URL Scheme](#things-url-scheme)
 - [Used By](#used-by)
 
 ## Install
@@ -102,7 +102,7 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
 
 ## Background
 
-The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is let you access all your data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data. Note that you can print the SQL used by adding the parameter `print_sql=True` to most API calls.
+The task management app Things stores all your to-dos in a SQLite database file (details [here](https://culturedcode.com/things/support/articles/2982272/#get-the-things-3-database-file)). This format is intended to be machine-readable, not human-readable. The aim of this project is to let you access all your Things data in a human-readable way. We thereby stay as true to the database as possible while doing SQL joins and transformations to aid understanding of the data. Note that you can print the SQL used by adding the parameter `print_sql=True` to most API calls.
 
 If any aspect of the API seems overly complex or doesn't meet your needs, please don't hesitate to add a new issue [here](https://github.com/thingsapi/things.py/issues).
 
@@ -124,11 +124,11 @@ Here are the core technical terms used involving the database:
 
 ## Documentation
 
-The full documentation can be found here: https://thingsapi.github.io/things.py/things/api.html
+The full documentation for this library can be found here: https://thingsapi.github.io/things.py/things/api.html
 
-## Things URLs
+## Things URL Scheme
 
-You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Read more [here](https://culturedcode.com/things/blog/2018/02/hey-things/).
+You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Also updates are possible. Read an introduction [here](https://culturedcode.com/things/blog/2018/02/hey-things/) and see the documentation [here](https://culturedcode.com/things/help/url-scheme/).
 
 ## Used By
 
@@ -137,3 +137,6 @@ The following open-source projects make use of this library:
 - [KanbanView](https://github.com/AlexanderWillner/KanbanView)
 - [Things CLI](https://github.com/thingsapi/things-cli)
 - [ThingsStats](https://github.com/lmgibson/ThingsStats)
+- [Things3 to Notion](https://github.com/Avery2/things3notionscript)
+- [things-to-org](https://github.com/chrizel/things-to-org)
+- [Things to CSV](https://github.com/nathankoerschner/things_to_csv)

@@ -1,6 +1,7 @@
 """Helper module to test the Things API documentation."""
 
 import pytest
+
 import things
 
 

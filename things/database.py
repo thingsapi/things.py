@@ -1,5 +1,6 @@
 """Read from the Things SQLite database using SQL queries."""
 
+import datetime
 import os
 import plistlib
 import re
@@ -7,6 +8,7 @@ import sqlite3
 from textwrap import dedent
 import datetime
 import glob
+from typing import Optional
 
 
 # --------------------------------------------------
@@ -40,7 +42,11 @@ STATUS_TO_FILTER = {
 
 TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
-TYPE_TO_FILTER = {"to-do": "type = 0", "project": "type = 1", "heading": "type = 2"}
+TYPE_TO_FILTER = {
+    "to-do": "type = 0",
+    "project": "type = 1",
+    "heading": "type = 2",
+}
 
 # Dates
 
@@ -83,7 +89,7 @@ TABLE_SETTINGS = "TMSettings"
 # --------------------------------------------------
 
 DATE_CREATED = "creationDate"
-DATE_DEADLINE = "dueDate"
+DATE_DEADLINE = "deadline"
 DATE_MODIFIED = "userModificationDate"
 DATE_START = "startDate"
 DATE_STOP = "stopDate"
@@ -108,7 +114,7 @@ IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
-IS_NOT_RECURRING = "recurrenceRule IS NULL"
+IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
 
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
@@ -123,9 +129,9 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
-# RECURRING_IS_NOT_PAUSED = "instanceCreationPaused = 0"
-# IS_RECURRING = "recurrenceRule IS NOT NULL"
-# RECURRING_HAS_NEXT_STARTDATE = ("nextInstanceStartDate IS NOT NULL")
+# RECURRING_IS_NOT_PAUSED = "rt1_instanceCreationPaused = 0"
+# IS_RECURRING = "rt1_recurrenceRule IS NOT NULL"
+# RECURRING_HAS_NEXT_STARTDATE = ("rt1_nextInstanceStartDate IS NOT NULL")
 # IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
@@ -146,6 +152,8 @@ class Database:
         Print every SQL query performed. Some may contain '?' and ':'
         characters which correspond to SQLite parameter tokens.
         See https://www.sqlite.org/lang_expr.html#varparam
+
+    :raises AssertionError: If the database version is too old.
     """
 
     debug = False
@@ -161,6 +169,11 @@ class Database:
         self.print_sql = print_sql
         if self.print_sql:
             self.execute_query_count = 0
+
+        # Test for migrated database in Things 3.15.16+
+        # --------------------------------
+        assert self.get_version() > 21, "Database too new! "\
+            "Run 'pip install things.py==0.0.14' to downgrade.";
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -186,12 +199,13 @@ class Database:
         tag=None,
         start_date=None,
         stop_date=None,
+        exact=False,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
         context_trashed=False,
         last=None,
-        search_query=None,
+        search_query: str = "",
         index="index",
         count_only=False,
     ):
@@ -203,13 +217,13 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("deadline", deadline, [None] + list(DATES))  # type: ignore
-        validate("deadline_suppressed", deadline_suppressed, [None, True, False])  # type: ignore
-        validate("start", start, [None] + list(START_TO_FILTER))  # type: ignore
-        validate("start_date", start_date, [None] + list(DATES))  # type: ignore
-        validate("status", status, [None] + list(STATUS_TO_FILTER))  # type: ignore
-        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))  # type: ignore
-        validate("type", type, [None] + list(TYPE_TO_FILTER))  # type: ignore
+        validate("deadline", deadline, [None] + list(DATES))
+        validate("deadline_suppressed", deadline_suppressed, [None, True, False])
+        validate("start", start, [None] + list(START_TO_FILTER))
+        validate("start_date", start_date, [None] + list(DATES))
+        validate("status", status, [None] + list(STATUS_TO_FILTER))
+        validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
+        validate("type", type, [None] + list(TYPE_TO_FILTER))
         validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
@@ -222,10 +236,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter = START_TO_FILTER.get(start, "")
-        status_filter = STATUS_TO_FILTER.get(status, "")
-        trashed_filter = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter = TYPE_TO_FILTER.get(type, "")
+        start_filter: str = START_TO_FILTER.get(start, "") if start else ""
+        status_filter: str = STATUS_TO_FILTER.get(status, "") if status else ""
+        trashed_filter: str = get_allow_none(TRASHED_TO_FILTER, trashed, "")
+        type_filter: str = TYPE_TO_FILTER.get(type, "") if type else ""
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -234,6 +248,14 @@ class Database:
         project_trashed_filter = make_truthy_filter("PROJECT.trashed", context_trashed)
         project_of_heading_trashed_filter = make_truthy_filter(
             "PROJECT_OF_HEADING.trashed", context_trashed
+        )
+
+        # As a task assigned to a heading is not directly assigned to a project anymore,
+        # we need to check if the heading is assigned to a project.
+        # See, e.g. https://github.com/thingsapi/things.py/issues/94
+        project_filter = make_or_filter(
+            make_filter("TASK.project", project),
+            make_filter("PROJECT_OF_HEADING.uuid", project),
         )
 
         where_predicate = f"""
@@ -246,12 +268,12 @@ class Database:
             {status_filter and f"AND TASK.{status_filter}"}
             {make_filter('TASK.uuid', uuid)}
             {make_filter("TASK.area", area)}
-            {make_filter("TASK.project", project)}
-            {make_filter("TASK.actionGroup", heading)}
-            {make_filter("TASK.dueDateSuppressionDate", deadline_suppressed)}
+            {project_filter}
+            {make_filter("TASK.heading", heading)}
+            {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
-            {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
+            {make_date_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -472,6 +494,12 @@ class Database:
 
 # Helper functions
 
+def get_allow_none(dictionary, key, default):
+    """Get key with default from dict, allows none to be passed as key."""
+    if key is None:
+        return default
+    return dictionary.get(key, default)
+
 
 def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     """Make SQL query for Task table."""
@@ -541,7 +569,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
             LEFT OUTER JOIN
                 {TABLE_AREA} AREA ON TASK.area = AREA.uuid
             LEFT OUTER JOIN
-                {TABLE_TASK} HEADING ON TASK.actionGroup = HEADING.uuid
+                {TABLE_TASK} HEADING ON TASK.heading = HEADING.uuid
             LEFT OUTER JOIN
                 {TABLE_TASK} PROJECT_OF_HEADING
                 ON HEADING.project = PROJECT_OF_HEADING.uuid
@@ -606,6 +634,19 @@ def list_factory(_cursor, row):
     return row[0]
 
 
+def remove_prefix(text, prefix):
+    """Remove prefix from text (as removeprefix() is 3.9+ only)."""
+    return text[text.startswith(prefix) and len(prefix) :]
+
+
+def make_or_filter(*filters):
+    """Join filters with OR."""
+    filters = filter(None, filters)
+    filters = [remove_prefix(filter, "AND ") for filter in filters]
+    filters = " OR ".join(filters)
+    return f"AND ({filters})" if filters else ""
+
+
 def make_filter(column, value):
     """
     Return SQL filter 'AND {column} = "{value}"'.
@@ -634,7 +675,7 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(date_column: str, value) -> str:
+def make_date_filter(date_column: str, value, exact=False) -> str:
     """
     Return a SQL filter for date columns.
 
@@ -648,6 +689,9 @@ def make_date_filter(date_column: str, value) -> str:
         `'future'` or `'past'` indicates a date in the future or past.
         ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
+
+    exact : bool
+        matches for exact date of date_column
 
     Returns
     -------
@@ -683,7 +727,7 @@ def make_date_filter(date_column: str, value) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '>='
+        comparator = '==' if exact else '>='
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
@@ -776,7 +820,7 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_search_filter(query: str) -> str:
+def make_search_filter(query: Optional[str]) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 

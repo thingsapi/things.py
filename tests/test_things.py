@@ -5,6 +5,7 @@
 import contextlib
 import io
 import os
+import sqlite3
 import unittest
 import unittest.mock
 
@@ -12,6 +13,7 @@ import things
 
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
+TEST_DATABASE_FILEPATH_2022 = "tests/db2022/main.sqlite"
 
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
@@ -80,7 +82,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.search('"')
         self.assertEqual(0, len(tasks))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.search("To-Do\0Heading")
 
         todos = things.search("To-Do % Heading", status=None)
@@ -169,6 +171,8 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(0, len(tasks))
         tasks = things.logbook(stop_date="2021-03-28")
         self.assertEqual(21, len(tasks))
+        tasks = things.logbook(stop_date="2021-03-27", exact=True)
+        self.assertEqual(0, len(tasks))
 
     def test_canceled(self):
         tasks = things.canceled()
@@ -216,6 +220,14 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tag = things.tags(title="Errand")
         self.assertEqual("Errand", tag["title"])  # type: ignore
 
+        # test tagged items, in particular within headings
+        tags = things.tasks(tag="Home")
+        self.assertEqual(1, len(tags))
+        tasks = things.tasks(project="3x1QqJqfvZyhtw8NSdnZqG")
+        self.assertEqual(5, len(tasks))
+        tasks = things.tasks(tag="Home", project="3x1QqJqfvZyhtw8NSdnZqG")
+        self.assertEqual(1, len(tasks))
+
     def test_get_link(self):
         link = things.link("uuid")
         self.assertEqual("things:///show?id=uuid", link)
@@ -224,7 +236,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         projects = things.projects()
         self.assertEqual(3, len(projects))
         projects = things.projects(include_items=True)
-        self.assertEqual(4, len(projects[0]["items"]))
+        self.assertEqual(5, len(projects[0]["items"]))
 
     def test_areas(self):
         areas = things.areas()
@@ -240,7 +252,12 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_database_version(self):
         version = things.Database().get_version()
-        self.assertEqual(18, version)
+        self.assertEqual(24, version)
+
+    def test_database_version_mismatch(self):
+        os.environ[THINGSDB] = TEST_DATABASE_FILEPATH_2022
+        with self.assertRaises(AssertionError):
+            things.deadlines()
 
     def test_last(self):
         last_tasks = things.last("0d")
@@ -291,7 +308,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         tasks = things.tasks(area="'")
         self.assertEqual(len(tasks), 0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
 
     def test_database_details(self):
@@ -308,7 +325,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertTrue("/* Filepath" in output.getvalue())
 
     @unittest.mock.patch("os.system")
-    def test_api_show(self, os_system):  # pylint: disable=R0201
+    def test_api_show(self, os_system):
         things.show("invalid_uuid")
         os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
 

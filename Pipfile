@@ -7,5 +7,17 @@ name = "pypi"
 
 [dev-packages]
 
+black = "*"
+coverage = "*"
+flake8 = "*"
+mypy = "*"
+pycodestyle = "*"
+pydocstyle = "*"
+pylama = "*"
+pylint = "*"
+pyright = "*"
+pytest = "*"
+vulture = "*"
+
 [requires]
-python_version = "3.9"
+python_version = "3"
