@@ -195,6 +195,7 @@ class Database:
         tag=None,
         start_date=None,
         stop_date=None,
+        exact=False,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
@@ -231,10 +232,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter: str = START_TO_FILTER.get(str(start), "")
-        status_filter: str = STATUS_TO_FILTER.get(str(status), "")
-        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter: str = TYPE_TO_FILTER.get(str(type), "")
+        start_filter: str = START_TO_FILTER.get(start, "") if start else ""
+        status_filter: str = STATUS_TO_FILTER.get(status, "") if status else ""
+        trashed_filter: str = get_allow_none(TRASHED_TO_FILTER, trashed, "")
+        type_filter: str = TYPE_TO_FILTER.get(type, "") if type else ""
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -260,7 +261,7 @@ class Database:
             {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_date_filter(f"TASK.{DATE_START}", start_date)}
-            {make_date_filter(f"TASK.{DATE_STOP}", stop_date)}
+            {make_date_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
             {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -481,6 +482,12 @@ class Database:
 
 # Helper functions
 
+def get_allow_none(dictionary, key, default):
+    """Get key with default from dict, allows none to be passed as key."""
+    if key is None:
+        return default
+    return dictionary.get(key, default)
+
 
 def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     """Make SQL query for Task table."""
@@ -643,7 +650,7 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(date_column: str, value) -> str:
+def make_date_filter(date_column: str, value, exact=False) -> str:
     """
     Return a SQL filter for date columns.
 
@@ -657,6 +664,9 @@ def make_date_filter(date_column: str, value) -> str:
         `'future'` or `'past'` indicates a date in the future or past.
         ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
+
+    exact : bool
+        matches for exact date of date_column
 
     Returns
     -------
@@ -692,7 +702,7 @@ def make_date_filter(date_column: str, value) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = ">="
+        comparator = '==' if exact else '>='
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
@@ -785,7 +795,7 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_search_filter(query: str) -> str:
+def make_search_filter(query) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 
