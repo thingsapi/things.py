@@ -13,6 +13,7 @@ import things
 
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
+TEST_DATABASE_FILEPATH_2022 = "tests/db2022/main.sqlite"
 
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
@@ -251,7 +252,12 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_database_version(self):
         version = things.Database().get_version()
-        self.assertEqual(21, version)
+        self.assertEqual(24, version)
+
+    def test_database_version_mismatch(self):
+        os.environ[THINGSDB] = TEST_DATABASE_FILEPATH_2022
+        with self.assertRaises(AssertionError):
+            things.deadlines()
 
     def test_last(self):
         last_tasks = things.last("0d")
