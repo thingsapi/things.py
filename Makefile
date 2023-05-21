@@ -42,6 +42,7 @@ testdoc: ## Test the code within the documentation
 
 .PHONY: doc
 doc: install ## Document the code
+	@type pytest >/dev/null 2>&1 || (echo "Run '$(PIP) install pytest' first." >&2 ; exit 1)
 	@#$(PYDOC) $(SRC_CORE).api
 	@$(PDOC) -o $(DST_DOCS) -d numpy -n $(SRC_CORE)
 	@echo "Now open $(DST_DOCS)"
@@ -100,7 +101,8 @@ lint: code-style code-lint  ## Lint everything
 
 deps-install: ## Install the dependencies
 	@type $(PIPENV) >/dev/null 2>&1 || (echo "Run e.g. 'brew install pipenv' first." >&2 ; exit 1)
-	@$(PIPENV) install
+	@$(PIPENV) install --dev
+	npm install pyright
 
 feedback: ## Give feedback
 	@open https://github.com/thingsapi/things.py/issues
@@ -131,3 +133,6 @@ db-to-things:
 
 db-from-things:
 	@cp ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things\ Database.thingsdatabase/main.sqlite* tests/
+
+info:
+	pipenv --venv

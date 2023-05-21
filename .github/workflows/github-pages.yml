@@ -21,6 +21,7 @@ jobs:
         make deps-install
     - name: Run docs
       run: |
+        pip install pytest
         pip install pdoc
         make doc
     - name: Commit files
@@ -29,6 +30,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git commit -m "Updated docs" -a||true
     - name: Push changes
+      if: github.repository == 'thingsapi/things.py'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
