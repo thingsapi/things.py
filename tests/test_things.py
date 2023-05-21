@@ -13,6 +13,7 @@ import things
 
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
+TEST_DATABASE_FILEPATH_2022 = "tests/db2022/main.sqlite"
 
 THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
 
@@ -240,6 +241,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual("Area 3", area["title"])  # type: ignore
 
     def test_database_version(self):
+        version = things.Database().get_version()
+        self.assertEqual(24, version)
+        os.environ[THINGSDB] = TEST_DATABASE_FILEPATH_2022
         version = things.Database().get_version()
         self.assertEqual(18, version)
 
