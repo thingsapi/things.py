@@ -148,6 +148,8 @@ class Database:
         Print every SQL query performed. Some may contain '?' and ':'
         characters which correspond to SQLite parameter tokens.
         See https://www.sqlite.org/lang_expr.html#varparam
+
+    :raises AssertionError: If the database version is too old.
     """
 
     debug = False
@@ -163,6 +165,11 @@ class Database:
         self.print_sql = print_sql
         if self.print_sql:
             self.execute_query_count = 0
+
+        # Test for migrated database in Things 3.15.16+
+        # --------------------------------
+        assert self.get_version() > 21, "Database too new! "\
+            "Run 'pip install things.py==0.0.14' to downgrade.";
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
