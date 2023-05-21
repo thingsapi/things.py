@@ -243,9 +243,11 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_database_version(self):
         version = things.Database().get_version()
         self.assertEqual(24, version)
+
+    def test_database_version_mismatch(self):
         os.environ[THINGSDB] = TEST_DATABASE_FILEPATH_2022
-        version = things.Database().get_version()
-        self.assertEqual(18, version)
+        with self.assertRaises(AssertionError):
+            things.deadlines()
 
     def test_last(self):
         last_tasks = things.last("0d")
