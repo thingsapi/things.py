@@ -91,21 +91,13 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
         - `start_date == 'future'`, only include tasks with a future start date.
         - `start_date == 'past'`, only include tasks with a past start date.
           Note: this includes today's date.
+        - `start_date == '[operator]YYYY-MM-DD'`; match with optional operator,
+          for example: '2023-05-22', '<=2023-05-22', or '>2023-05-22'.
         - `start_date == None` (default), then include all tasks.
 
-    stop_date : as start_date, signifies the date of completion
+    stop_date : same options as start_date, signifies the date of completion
 
-    exact : bool, optional
-        - `exact == False` (default) compare date provided with >=
-        - `exact == True`, compare date with ==
-
-    deadline : bool, str or None, optional
-        - `deadline == False`, only include tasks _without_ a deadline.
-        - `deadline == True`, only include tasks _with_ a deadline.
-        - `deadline == 'future'`, only include tasks with a future deadline.
-        - `deadline == 'past'`, only include tasks with a past deadline.
-          Note: this includes today's date.
-        - `deadline == None` (default), then include all tasks.
+    deadline : same options as start_date, signifies the deadline
 
     deadline_suppressed : bool or None, optional
         "deadline suppressed" is a technical term used in the database.

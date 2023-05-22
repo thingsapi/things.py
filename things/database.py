@@ -206,7 +206,6 @@ class Database:
         tag=None,
         start_date=None,
         stop_date=None,
-        exact=False,
         deadline=None,
         deadline_suppressed=None,
         trashed=False,
@@ -224,10 +223,11 @@ class Database:
         start = start and start.title()
 
         # Validation
-        validate("deadline", deadline, [None] + list(DATES))
+        validate_date("deadline", deadline)
         validate("deadline_suppressed", deadline_suppressed, [None, True, False])
         validate("start", start, [None] + list(START_TO_FILTER))
-        validate("start_date", start_date, [None] + list(DATES))
+        validate_date("start_date", start_date)
+        validate_date("stop_date", start_date)
         validate("status", status, [None] + list(STATUS_TO_FILTER))
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
         validate("type", type, [None] + list(TYPE_TO_FILTER))
@@ -243,10 +243,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter: str = START_TO_FILTER.get(start, "") if start else ""
-        status_filter: str = STATUS_TO_FILTER.get(status, "") if status else ""
-        trashed_filter: str = get_allow_none(TRASHED_TO_FILTER, trashed, "")
-        type_filter: str = TYPE_TO_FILTER.get(type, "") if type else ""
+        start_filter: str = START_TO_FILTER.get(start, "")
+        status_filter: str = STATUS_TO_FILTER.get(status, "")
+        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")
+        type_filter: str = TYPE_TO_FILTER.get(type, "")
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -280,7 +280,7 @@ class Database:
             {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_thingsdate_filter(f"TASK.{DATE_START}", start_date)}
-            {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
+            {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
@@ -514,8 +514,6 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
         f"TASK.{DATE_DEADLINE}"
     )
 
-    # Note: see remark at `make_date_filter()` as for why the first
-    # two `date()` statements have no "localtime" modifier.
     return f"""
             SELECT DISTINCT
                 TASK.uuid,
@@ -641,7 +639,7 @@ def convert_isodate_sql_expression_to_thingsdate(sql_expression, null_possible=T
 
     if null_possible:
         # when isodate is NULL, return isodate as-is
-        return f"CASE WHEN {isodate} THEN {thingsdate} ELSE {isodate} END"
+        return f"(CASE WHEN {isodate} THEN {thingsdate} ELSE {isodate} END)"
     else:
         return thingsdate
 
@@ -718,13 +716,6 @@ def escape_string(string):
     See: https://www.sqlite.org/lang_expr.html#literal_values_constants_
     """
     return string.replace("'", "''")
-
-
-def get_allow_none(dictionary, key, default):
-    """Get key with default from dict, allows none to be passed as key."""
-    if key is None:
-        return default
-    return dictionary.get(key, default)
 
 
 def isodate_to_YYYYYYYYYYYMMMMDDDDD(value):
@@ -825,7 +816,9 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     value : bool, 'future', 'past', ISO 8601 date str, or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
-        ISO 8601 date str is in the format "YYYY-MM-DD".
+        ISO 8601 date str is in the format "YYYY-MM-DD", possibly
+        prefixed with an operator such as ">YYYY-MM-DD",
+        "=YYYY-MM-DD", "<=YYYY-MM-DD", etc.
         `None` indicates any value.
 
     Returns
@@ -848,6 +841,12 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     >>> make_thingsdate_filter('deadline', '2021-03-28')
     …
 
+    >>> make_thingsdate_filter('deadline', '=2021-03-28')
+    …
+
+    >>> make_thingsdate_filter('deadline', '<=2021-03-28')
+    …
+
     >>> make_thingsdate_filter('deadline', None)
     ''
 
@@ -858,13 +857,15 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     if isinstance(value, bool):
         return make_filter(date_column, value)
 
-    try:
-        # Check for ISO 8601 date str
-        datetime.date.fromisoformat(value)
-        converted_value = isodate_to_YYYYYYYYYYYMMMMDDDDD(value)
-        threshold = str(converted_value)
-        comparator = ">="
-    except ValueError:
+    # Check for ISO 8601 date str + optional operator
+    match = match_date(value)
+    if match:
+        comparator, isodate = match.groups()
+        if not comparator:
+            comparator = "=="
+        thingsdate = isodate_to_YYYYYYYYYYYMMMMDDDDD(isodate)
+        threshold = str(thingsdate)
+    else:
         # "future" or "past"
         validate("value", value, ["future", "past"])
         threshold = convert_isodate_sql_expression_to_thingsdate(
@@ -872,7 +873,7 @@ def make_thingsdate_filter(date_column: str, value) -> str:
         )
         comparator = ">" if value == "future" else "<="
 
-    return f"AND {date_column} {comparator} ({threshold})"
+    return f"AND {date_column} {comparator} {threshold}"
 
 
 def make_truthy_filter(column: str, value) -> str:
@@ -904,7 +905,7 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_unixtime_filter(date_column: str, value, exact=False) -> str:
+def make_unixtime_filter(date_column: str, value) -> str:
     """
     Return a SQL filter for UNIX time columns.
 
@@ -918,11 +919,10 @@ def make_unixtime_filter(date_column: str, value, exact=False) -> str:
     value : bool, 'future', 'past', ISO 8601 date str, or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
-        ISO 8601 date str is in the format "YYYY-MM-DD".
+        ISO 8601 date str is in the format "YYYY-MM-DD", possibly
+        prefixed with an operator such as ">YYYY-MM-DD",
+        "=YYYY-MM-DD", "<=YYYY-MM-DD", etc.
         `None` indicates any value.
-
-    exact : bool
-        matches for exact date of date_column
 
     Returns
     -------
@@ -944,6 +944,12 @@ def make_unixtime_filter(date_column: str, value, exact=False) -> str:
     >>> make_unixtime_filter('creationDate', '2021-03-28')
     "AND date(creationDate, 'unixepoch') >= date('2021-03-28')"
 
+    >>> make_unixtime_filter('creationDate', '=2021-03-28')
+    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
+
+    >>> make_unixtime_filter('creationDate', '<=2021-03-28')
+    "AND date(creationDate, 'unixepoch') <= date('2021-03-28')"
+
     >>> make_unixtime_filter('creationDate', None)
     ''
 
@@ -954,12 +960,14 @@ def make_unixtime_filter(date_column: str, value, exact=False) -> str:
     if isinstance(value, bool):
         return make_filter(date_column, value)
 
-    try:
-        # Check for ISO 8601 date str
-        datetime.date.fromisoformat(value)
-        threshold = f"date('{value}')"
-        comparator = "==" if exact else ">="
-    except ValueError:
+    # Check for ISO 8601 date str + optional operator
+    match = match_date(value)
+    if match:
+        comparator, isodate = match.groups()
+        if not comparator:
+            comparator = "=="
+        threshold = f"date('{isodate}')"
+    else:
         # "future" or "past"
         validate("value", value, ["future", "past"])
         threshold = "date('now', 'localtime')"
@@ -1019,6 +1027,10 @@ def make_unixtime_range_filter(date_column, offset) -> str:
     return f"AND {column_datetime} > {offset_datetime}"
 
 
+def match_date(value):
+    return re.fullmatch(r"(=|==|<|<=|>|>=)?(\d{4}-\d{2}-\d{2})", value)
+
+
 def prettify_sql(sql_query):
     """Make a SQL query easier to read for humans."""
     # remove indentation and leading and trailing whitespace
@@ -1062,6 +1074,53 @@ def validate(parameter, argument, valid_arguments):
     message = f"Unrecognized {parameter} type: {argument!r}"
     message += f"\nValid {parameter} types are {valid_arguments}"
     raise ValueError(message)
+
+
+def validate_date(parameter, argument):
+    """
+    For a given date parameter, check if its argument is valid.
+
+    If not, then raise `ValueError`.
+
+    Examples
+    --------
+    >>> validate_date(parameter='startDate', argument=None)
+    >>> validate_date(parameter='startDate', argument='future')
+    >>> validate_date(parameter='startDate', argument='2020-01-01')
+    >>> validate_date(parameter='startDate', argument='<=2020-01-01')
+
+    >>> validate_date(parameter='stopDate', argument='=2020-01-01')
+
+    >>> validate_date(parameter='deadline', argument='XYZ')
+    Traceback (most recent call last):
+    ...
+    ValueError: Invalid last argument: 'XYZ'
+    Please see the documentation of `things.tasks` for details.
+    """
+    if argument is None:
+        return
+
+    if argument in list(DATES):
+        return
+
+    if not isinstance(argument, str):
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n"
+            f"Please specify a string or None."
+        )
+
+    match = match_date(argument)
+    if not match:
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n"
+            f"Please see the documentation for `{parameter}` in `things.tasks`."
+        )
+
+    comparator, isodate = match.groups()
+    try:
+        datetime.date.fromisoformat(isodate)
+    except ValueError as error:
+        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}")
 
 
 def validate_offset(parameter, argument):
