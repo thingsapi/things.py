@@ -6,7 +6,6 @@ _things.py_ is a simple Python 3 library to read data from your [Things app](htt
 [![Build Status](https://github.com/thingsapi/things.py/workflows/Build-Test/badge.svg)](https://github.com/thingsapi/things.py/actions)
 [![Coverage Status](https://codecov.io/gh/thingsapi/things.py/branch/main/graph/badge.svg?token=DBWGKAEYAP)](https://codecov.io/gh/thingsapi/things.py)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=thingsapi_things.py&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=thingsapi_things.py)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/thingsapi/things.py/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/thingsapi/things.py/?branch=main)
 [![GitHub Issues](https://img.shields.io/github/issues/thingsapi/things.py)](https://github.com/thingsapi/things.py/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/things.py?label=pypi%20downloads)](https://pypi.org/project/things.py/)

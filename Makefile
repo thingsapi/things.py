@@ -37,8 +37,11 @@ test: ## Test the code
 	@coverage html
 
 testdoc: ## Test the code within the documentation
+	@coverage erase
 	@type pytest >/dev/null 2>&1 || (echo "Run '$(PIP) install pytest' first." >&2 ; exit 1)
-	THINGSDB=tests/main.sqlite pytest --doctest-modules
+	THINGSDB=tests/main.sqlite pytest --cov=things -W ignore::UserWarning --cov-report=xml --cov-context=test --doctest-modules
+	@coverage report
+	@coverage html
 
 .PHONY: doc
 doc: install ## Document the code
@@ -57,6 +60,7 @@ clean: ## Cleanup
 	@rm -rf .mypy_cache/ */.mypy_cache/
 	@rm -f .coverage
 	@rm -rf .tox
+	@rm -rf .ruff_cache
 
 auto-style: ## Style the code
 	@if type isort >/dev/null 2>&1 ; then isort . ; \
@@ -85,6 +89,9 @@ code-lint: code-style ## Lint the code
 	@echo Pylint...
 	@if type pylint >/dev/null 2>&1 ; then pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
+	@echo Ruff...
+	@if type ruff >/dev/null 2>&1 ; then ruff check . ; \
+	 else echo "SKIPPED. Run '$(PIP) install ruff' first." >&2 ; fi
 	@echo Flake...
 	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi

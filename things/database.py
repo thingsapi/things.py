@@ -8,7 +8,7 @@ import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-from typing import Optional
+from typing import Optional, Union
 
 
 # --------------------------------------------------
@@ -16,15 +16,20 @@ from typing import Optional
 # --------------------------------------------------
 
 
-# Database filepath
-DEFAULT_FILEROOT = os.path.expanduser(
+# Database filepath with glob pattern for version 3.15.16+
+DEFAULT_FILEPATH_31616502 = (
     "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
+    "/ThingsData-*/Things Database.thingsdatabase/main.sqlite"
 )
-# Migration for April 2023 update
-if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
-    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, "ThingsData-*")):
-        DEFAULT_FILEROOT = filename
-DEFAULT_FILEPATH = f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase/main.sqlite"
+DEFAULT_FILEPATH_31516502 = (
+    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
+    "/Things Database.thingsdatabase/main.sqlite"
+)
+
+try:
+    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH_31616502)))
+except StopIteration:
+    DEFAULT_FILEPATH = os.path.expanduser(DEFAULT_FILEPATH_31516502)
 
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
@@ -197,24 +202,24 @@ class Database:
 
     def get_tasks(  # pylint: disable=R0914
         self,
-        uuid=None,
-        type=None,  # pylint: disable=W0622
-        status=None,
-        start=None,
-        area=None,
-        project=None,
-        heading=None,
-        tag=None,
-        start_date=None,
-        stop_date=None,
-        deadline=None,
-        deadline_suppressed=None,
-        trashed=False,
-        context_trashed=False,
-        last=None,
-        search_query=None,
-        index="index",
-        count_only=False,
+        uuid: Optional[str] = None,
+        type: Optional[str] = None,  # pylint: disable=W0622
+        status: Optional[str] = None,
+        start: Optional[str] = None,
+        area: Optional[Union[str, bool]] = None,
+        project: Optional[Union[str, bool]] = None,
+        heading: Optional[str] = None,
+        tag: Optional[Union[str, bool]] = None,
+        start_date: Optional[Union[str, bool]] = None,
+        stop_date: Optional[Union[str, bool]] = None,
+        deadline: Optional[Union[str, bool]] = None,
+        deadline_suppressed: Optional[bool] = None,
+        trashed: Optional[bool] = False,
+        context_trashed: Optional[bool] = False,
+        last: Optional[str] = None,
+        search_query: Optional[str] = None,
+        index: str = "index",
+        count_only: bool = False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
         if uuid:
@@ -799,8 +804,9 @@ def make_search_filter(query: Optional[str]) -> str:
 
     Example:
     --------
-    >>> make_search_filter('dinner') #doctest: +REPORT_NDIFF
-    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR AREA.title LIKE '%dinner%')"
+    >>> make_search_filter('dinner')
+    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR \
+    AREA.title LIKE '%dinner%')"
     """
     if not query:
         return ""
