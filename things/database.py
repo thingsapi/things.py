@@ -212,7 +212,7 @@ class Database:
         trashed=False,
         context_trashed=False,
         last=None,
-        search_query: str = "",
+        search_query=None,
         index="index",
         count_only=False,
     ):
@@ -228,7 +228,7 @@ class Database:
         validate("deadline_suppressed", deadline_suppressed, [None, True, False])
         validate("start", start, [None] + list(START_TO_FILTER))
         validate_date("start_date", start_date)
-        validate_date("stop_date", start_date)
+        validate_date("stop_date", stop_date)
         validate("status", status, [None] + list(STATUS_TO_FILTER))
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
         validate("type", type, [None] + list(TYPE_TO_FILTER))
@@ -1133,11 +1133,13 @@ def validate_date(parameter, argument):
             f"Please see the documentation for `{parameter}` in `things.tasks`."
         )
 
-    _comparator, isodate = match.groups()
+    _, isodate = match.groups()
     try:
         datetime.date.fromisoformat(isodate)
     except ValueError as error:
-        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}") from error
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n{error}"
+        ) from error
 
 
 def validate_offset(parameter, argument):
