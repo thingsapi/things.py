@@ -8,7 +8,7 @@ import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-from typing import Optional
+from typing import Optional, Union
 
 
 # --------------------------------------------------
@@ -197,24 +197,24 @@ class Database:
 
     def get_tasks(  # pylint: disable=R0914
         self,
-        uuid=None,
-        type=None,  # pylint: disable=W0622
-        status=None,
-        start=None,
-        area=None,
-        project=None,
-        heading=None,
-        tag=None,
-        start_date=None,
-        stop_date=None,
-        deadline=None,
-        deadline_suppressed=None,
-        trashed=False,
-        context_trashed=False,
-        last=None,
-        search_query: str = "",
-        index="index",
-        count_only=False,
+        uuid: Optional[str] = None,
+        type: Optional[str] = None,  # pylint: disable=W0622
+        status: Optional[str] = None,
+        start: Optional[str] = None,
+        area: Optional[Union[str, bool]] = None,
+        project: Optional[Union[str, bool]] = None,
+        heading: Optional[str] = None,
+        tag: Optional[Union[str, bool]] = None,
+        start_date: Optional[Union[str, bool]] = None,
+        stop_date: Optional[Union[str, bool]] = None,
+        deadline: Optional[Union[str, bool]] = None,
+        deadline_suppressed: Optional[bool] = None,
+        trashed: Optional[bool] = False,
+        context_trashed: Optional[bool] = False,
+        last: Optional[str] = None,
+        search_query: Optional[str] = None,
+        index: str = "index",
+        count_only: bool = False,
     ):
         """Get tasks. See `things.api.tasks` for details on parameters."""
         if uuid:
