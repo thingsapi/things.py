@@ -17,6 +17,7 @@ pylama = "*"
 pylint = "*"
 pyright = "*"
 pytest = "*"
+ruff = "*"
 vulture = "*"
 
 [requires]

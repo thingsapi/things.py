@@ -804,8 +804,9 @@ def make_search_filter(query: Optional[str]) -> str:
 
     Example:
     --------
-    >>> make_search_filter('dinner') #doctest: +REPORT_NDIFF
-    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR AREA.title LIKE '%dinner%')"
+    >>> make_search_filter('dinner')
+    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR \
+    AREA.title LIKE '%dinner%')"
     """
     if not query:
         return ""
