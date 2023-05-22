@@ -17,14 +17,18 @@ from typing import Optional, Union
 
 
 # Database filepath
-DEFAULT_FILEROOT = os.path.expanduser(
+DEFAULT_FILEPATH = (
     "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
+    "/ThingsData-*/Things Database.thingsdatabase/main.sqlite"
 )
-# Migration for April 2023 update
-if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
-    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, "ThingsData-*")):
-        DEFAULT_FILEROOT = filename
-DEFAULT_FILEPATH = f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase/main.sqlite"
+try:
+    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH)))
+except StopIteration:
+    raise AssertionError(
+        "Your database is in an older format. "
+        "Run 'pip install things.py==0.0.14' to downgrade to an older "
+        "version of this library."
+    ) from None
 
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
@@ -1137,7 +1141,9 @@ def validate_date(parameter, argument):
     try:
         datetime.date.fromisoformat(isodate)
     except ValueError as error:
-        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}") from error
+        raise ValueError(
+            f"Invalid {parameter} argument: {argument!r}\n{error}"
+        ) from error
 
 
 def validate_offset(parameter, argument):
