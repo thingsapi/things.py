@@ -336,7 +336,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         sqlfilter: str = things.database.make_thingsdate_filter(
             "deadline", "2021-03-28"
         )
-        self.assertEqual("AND deadline >= (132464128)", sqlfilter)
+        self.assertEqual("AND deadline == 132464128", sqlfilter)
         sqlfilter = things.database.make_unixtime_filter("stopDate", "future")
         self.assertEqual(
             "AND date(stopDate, 'unixepoch') > date('now', 'localtime')", sqlfilter
