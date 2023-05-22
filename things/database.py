@@ -668,11 +668,11 @@ def convert_thingsdate_sql_expression_to_isodate(sql_expression):
     -------
     >>> convert_thingsdate_sql_expression_to_isodate('132464128')
     "CASE WHEN 132464128 THEN \
-    format('%d-%02d-%02d', (132464128 & 134152192) >> 16, \
+    printf('%d-%02d-%02d', (132464128 & 134152192) >> 16, \
     (132464128 & 61440) >> 12, (132464128 & 3968) >> 7) ELSE 132464128 END"
     >>> convert_thingsdate_sql_expression_to_isodate('startDate')
     "CASE WHEN startDate THEN \
-    format('%d-%02d-%02d', (startDate & 134152192) >> 16, \
+    printf('%d-%02d-%02d', (startDate & 134152192) >> 16, \
     (startDate & 61440) >> 12, (startDate & 3968) >> 7) ELSE startDate END"
     """
     y_mask = 0b111111111110000000000000000
@@ -684,7 +684,7 @@ def convert_thingsdate_sql_expression_to_isodate(sql_expression):
     month = f"({thingsdate} & {m_mask}) >> 12"
     day = f"({thingsdate} & {d_mask}) >> 7"
 
-    isodate = f"format('%d-%02d-%02d', {year}, {month}, {day})"
+    isodate = f"printf('%d-%02d-%02d', {year}, {month}, {day})"
     # when thingsdate is NULL, return thingsdate as-is
     return f"CASE WHEN {thingsdate} THEN {isodate} ELSE {thingsdate} END"
 
