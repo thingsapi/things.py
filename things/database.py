@@ -16,19 +16,20 @@ from typing import Optional, Union
 # --------------------------------------------------
 
 
-# Database filepath
-DEFAULT_FILEPATH = (
+# Database filepath with glob pattern for version 3.15.16+
+DEFAULT_FILEPATH_31616502 = (
     "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
     "/ThingsData-*/Things Database.thingsdatabase/main.sqlite"
 )
+DEFAULT_FILEPATH_31516502 = (
+    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
+    "/Things Database.thingsdatabase/main.sqlite"
+)
+
 try:
-    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH)))
+    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH_31616502)))
 except StopIteration:
-    raise AssertionError(
-        "Your database is in an older format. "
-        "Run 'pip install things.py==0.0.14' to downgrade to an older "
-        "version of this library."
-    ) from None
+    DEFAULT_FILEPATH = os.path.expanduser(DEFAULT_FILEPATH_31516502)
 
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
