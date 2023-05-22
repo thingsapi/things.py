@@ -148,18 +148,18 @@
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span> <span class="nn">re</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span> <span class="nn">sqlite3</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">import</span> <span class="nn">datetime</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">import</span> <span class="nn">glob</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">import</span> <span class="nn">glob</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="c1"># --------------------------------------------------</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="c1"># Core constants</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="c1"># --------------------------------------------------</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="c1"># --------------------------------------------------</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="c1"># Core constants</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="c1"># --------------------------------------------------</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="c1"># Database filepath</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="n">DEFAULT_FILEROOT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac&quot;</span><span class="p">)</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="c1"># Database filepath</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="n">DEFAULT_FILEROOT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Library/Group Containers/&quot;</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>                                      <span class="s2">&quot;JLMPQHK86H.com.culturedcode.ThingsMac&quot;</span><span class="p">)</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="c1"># Migration for April 2023 update</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DEFAULT_FILEROOT</span><span class="si">}</span><span class="s2">/Things Database.thingsdatabase&quot;</span><span class="p">):</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEFAULT_FILEROOT</span><span class="p">,</span> <span class="s1">&#39;ThingsData-*&#39;</span><span class="p">)):</span>
@@ -315,7 +315,7 @@
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="c1"># Test for migrated database in Things 3.15.16+</span>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="c1"># --------------------------------</span>
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="p">,</span> <span class="s2">&quot;Database too new! &quot;</span>\
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span><span class="p">;</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="c1"># --------------------------------</span>
@@ -1108,7 +1108,7 @@
 </span><span id="Database-174"><a href="#Database-174"><span class="linenos">174</span></a>        <span class="c1"># Test for migrated database in Things 3.15.16+</span>
 </span><span id="Database-175"><a href="#Database-175"><span class="linenos">175</span></a>        <span class="c1"># --------------------------------</span>
 </span><span id="Database-176"><a href="#Database-176"><span class="linenos">176</span></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="p">,</span> <span class="s2">&quot;Database too new! &quot;</span>\
-</span><span id="Database-177"><a href="#Database-177"><span class="linenos">177</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span><span class="p">;</span>
+</span><span id="Database-177"><a href="#Database-177"><span class="linenos">177</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span>
 </span><span id="Database-178"><a href="#Database-178"><span class="linenos">178</span></a>
 </span><span id="Database-179"><a href="#Database-179"><span class="linenos">179</span></a>        <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
 </span><span id="Database-180"><a href="#Database-180"><span class="linenos">180</span></a>        <span class="c1"># --------------------------------</span>
@@ -1470,7 +1470,7 @@ See <a href="https://www.sqlite.org/lang_expr.html#varparam">https://www.sqlite.
 </span><span id="Database.__init__-174"><a href="#Database.__init__-174"><span class="linenos">174</span></a>        <span class="c1"># Test for migrated database in Things 3.15.16+</span>
 </span><span id="Database.__init__-175"><a href="#Database.__init__-175"><span class="linenos">175</span></a>        <span class="c1"># --------------------------------</span>
 </span><span id="Database.__init__-176"><a href="#Database.__init__-176"><span class="linenos">176</span></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="p">,</span> <span class="s2">&quot;Database too new! &quot;</span>\
-</span><span id="Database.__init__-177"><a href="#Database.__init__-177"><span class="linenos">177</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span><span class="p">;</span>
+</span><span id="Database.__init__-177"><a href="#Database.__init__-177"><span class="linenos">177</span></a>            <span class="s2">&quot;Run &#39;pip install things.py==0.0.14&#39; to downgrade.&quot;</span>
 </span><span id="Database.__init__-178"><a href="#Database.__init__-178"><span class="linenos">178</span></a>
 </span><span id="Database.__init__-179"><a href="#Database.__init__-179"><span class="linenos">179</span></a>        <span class="c1"># Automated migration to new database location in Things 3.12.6/3.13.1</span>
 </span><span id="Database.__init__-180"><a href="#Database.__init__-180"><span class="linenos">180</span></a>        <span class="c1"># --------------------------------</span>
