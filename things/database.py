@@ -1,12 +1,12 @@
 """Read from the Things SQLite database using SQL queries."""
 
 import datetime
+import glob
 import os
 import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-import glob
 from typing import Optional
 
 
@@ -16,11 +16,12 @@ from typing import Optional
 
 
 # Database filepath
-DEFAULT_FILEROOT = os.path.expanduser("~/Library/Group Containers/"
-                                      "JLMPQHK86H.com.culturedcode.ThingsMac")
+DEFAULT_FILEROOT = os.path.expanduser(
+    "~/Library/Group Containers/" "JLMPQHK86H.com.culturedcode.ThingsMac"
+)
 # Migration for April 2023 update
 if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
-    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, 'ThingsData-*')):
+    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, "ThingsData-*")):
         DEFAULT_FILEROOT = filename
 DEFAULT_FILEPATH = f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase/main.sqlite"
 
@@ -88,11 +89,16 @@ TABLE_SETTINGS = "TMSettings"
 # Date Columns
 # --------------------------------------------------
 
-DATE_CREATED = "creationDate"
-DATE_DEADLINE = "deadline"
-DATE_MODIFIED = "userModificationDate"
-DATE_START = "startDate"
-DATE_STOP = "stopDate"
+# Note that the columns below -- contrary to their names -- seem to
+# store the full UTC datetime, not just the date.
+DATE_CREATED = "creationDate"  # REAL: Unix date & time, UTC
+DATE_MODIFIED = "userModificationDate"  # REAL: Unix date & time, UTC
+DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
+
+# These are stored in a Things date format.
+# See `convert_isodate_sql_expression_to_thingsdate` for details.
+DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
+DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 
 # --------------------------------------------------
 # Various filters
@@ -124,8 +130,6 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # This information might be of relevance in the future.
 # --------------------------------------------------
 #
-# DATE_START = "startDate"
-# DATE_STOP = "stopDate"
 # IS_SCHEDULED = f"{DATE_START} IS NOT NULL"
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
@@ -172,8 +176,11 @@ class Database:
 
         # Test for migrated database in Things 3.15.16+
         # --------------------------------
-        assert self.get_version() > 21, "Database too new! "\
-            "Run 'pip install things.py==0.0.14' to downgrade."
+        assert self.get_version() > 21, (
+            "Your database is in an older format. "
+            "Run 'pip install things.py==0.0.14' to downgrade to an older "
+            "version of this library."
+        )
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -272,10 +279,10 @@ class Database:
             {make_filter("TASK.heading", heading)}
             {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
-            {make_date_filter(f"TASK.{DATE_START}", start_date)}
-            {make_date_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
-            {make_date_filter(f"TASK.{DATE_DEADLINE}", deadline)}
-            {make_date_range_filter(f"TASK.{DATE_CREATED}", last)}
+            {make_thingsdate_filter(f"TASK.{DATE_START}", start_date)}
+            {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date, exact)}
+            {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
+            {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
             {make_search_filter(search_query)}
             """
         order_predicate = f'TASK."{index}"'
@@ -494,17 +501,18 @@ class Database:
 
 # Helper functions
 
-def get_allow_none(dictionary, key, default):
-    """Get key with default from dict, allows none to be passed as key."""
-    if key is None:
-        return default
-    return dictionary.get(key, default)
-
 
 def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     """Make SQL query for Task table."""
     where_predicate = where_predicate or "TRUE"
     order_predicate = order_predicate or 'TASK."index"'
+
+    start_date_expression = convert_thingsdate_sql_expression_to_isodate(
+        f"TASK.{DATE_START}"
+    )
+    deadline_expression = convert_thingsdate_sql_expression_to_isodate(
+        f"TASK.{DATE_DEADLINE}"
+    )
 
     # Note: see remark at `make_date_filter()` as for why the first
     # two `date()` statements have no "localtime" modifier.
@@ -555,9 +563,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 CASE
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
-                date(TASK.startDate, "unixepoch") AS start_date,
-                date(TASK.{DATE_DEADLINE}, "unixepoch") AS deadline,
-                date(TASK.stopDate, "unixepoch", "localtime") AS "stop_date",
+                date({start_date_expression}) AS start_date,
+                date({deadline_expression}) AS deadline,
+                datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
                 TASK.'index',
@@ -585,6 +593,89 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
             ORDER BY
                 {order_predicate}
             """
+
+
+#  In alphabetical order from here...
+
+
+def convert_isodate_sql_expression_to_thingsdate(sql_expression, null_possible=True):
+    """
+    Return a SQL expression of an isodate converted into a "Things date".
+
+    A _Things date_ is an integer where the binary digits are
+    YYYYYYYYYYYMMMMDDDDD0000000; Y is year, M is month, and D is day.
+
+    For example, the ISO 8601 date '2021-03-28' corresponds to the Things
+    date 132464128 as integer; in binary that is:
+        111111001010011111000000000
+        YYYYYYYYYYYMMMMDDDDD0000000
+               2021   3   28
+
+    Parameters
+    ----------
+    sql_expression : str
+        A sql expression evaluating to an ISO 8601 date str.
+
+    null_possible : bool
+        Can the input `sql_expression` evaluate to NULL?
+
+    Returns
+    -------
+    str
+        A sql expression representing a "Things date" as integer.
+
+    Example
+    -------
+    >>> convert_isodate_sql_expression_to_thingsdate("date('now', 'localtime')")
+    …
+    >>> convert_isodate_sql_expression_to_thingsdate("'2023-05-22'")
+    …
+    """
+    isodate = sql_expression
+
+    year = f"strftime('%Y', {isodate}) << 16"
+    month = f"strftime('%m', {isodate}) << 12"
+    day = f"strftime('%d', {isodate}) << 7"
+
+    thingsdate = f"(({year}) | ({month}) | ({day}))"
+
+    if null_possible:
+        # when isodate is NULL, return isodate as-is
+        return f"CASE WHEN {isodate} THEN {thingsdate} ELSE {isodate} END"
+    else:
+        return thingsdate
+
+
+def convert_thingsdate_sql_expression_to_isodate(sql_expression):
+    """
+    Return SQL expression as string.
+
+    Parameters
+    ----------
+    sql_expression : str
+        A sql expression pointing to a "Things date" integer in
+        format YYYYYYYYYYYMMMMDDDDD0000000, in binary.
+        See: `convert_isodate_sql_expression_to_thingsdate` for details.
+
+    Example
+    -------
+    >>> convert_thingsdate_to_isodate_sql_expression('132464128')
+    …
+    >>> convert_thingsdate_to_isodate_sql_expression('startDate')
+    …
+    """
+    Y_mask = 0b111111111110000000000000000
+    M_mask = 0b000000000001111000000000000
+    D_mask = 0b000000000000000111110000000
+
+    thingsdate = sql_expression
+    year = f"({thingsdate} & {Y_mask}) >> 16"
+    month = f"({thingsdate} & {M_mask}) >> 12"
+    day = f"({thingsdate} & {D_mask}) >> 7"
+
+    isodate = f"format('%d-%02d-%02d', {year}, {month}, {day})"
+    # when thingsdate is NULL, return thingsdate as-is
+    return f"CASE WHEN {thingsdate} THEN {isodate} ELSE {thingsdate} END"
 
 
 def dict_factory(cursor, row):
@@ -629,22 +720,36 @@ def escape_string(string):
     return string.replace("'", "''")
 
 
+def get_allow_none(dictionary, key, default):
+    """Get key with default from dict, allows none to be passed as key."""
+    if key is None:
+        return default
+    return dictionary.get(key, default)
+
+
+def isodate_to_YYYYYYYYYYYMMMMDDDDD(value):
+    """
+    Return integer, in binary YYYYYYYYYYYMMMMDDDDD0000000.
+
+    Y is year, M is month, D is day as binary.
+    See also `convert_isodate_sql_expression_to_thingsdate`.
+
+    Parameters
+    ----------
+    value : ISO 8601 date str
+
+    Example
+    -------
+    >>> isodate_to_YYYYYYYYYYYMMMMDDDDD('2021-03-28')
+    132464128
+    """
+    year, month, day = map(int, value.split("-"))
+    return year << 16 | month << 12 | day << 7
+
+
 def list_factory(_cursor, row):
     """Convert SQL selects of one column into a list."""
     return row[0]
-
-
-def remove_prefix(text, prefix):
-    """Remove prefix from text (as removeprefix() is 3.9+ only)."""
-    return text[text.startswith(prefix) and len(prefix) :]
-
-
-def make_or_filter(*filters):
-    """Join filters with OR."""
-    filters = filter(None, filters)
-    filters = [remove_prefix(filter, "AND ") for filter in filters]
-    filters = " OR ".join(filters)
-    return f"AND ({filters})" if filters else ""
 
 
 def make_filter(column, value):
@@ -675,23 +780,53 @@ def make_filter(column, value):
     }.get(value, default)
 
 
-def make_date_filter(date_column: str, value, exact=False) -> str:
+def make_or_filter(*filters):
+    """Join filters with OR."""
+    filters = filter(None, filters)
+    filters = [remove_prefix(filter, "AND ") for filter in filters]
+    filters = " OR ".join(filters)
+    return f"AND ({filters})" if filters else ""
+
+
+def make_search_filter(query: Optional[str]) -> str:
     """
-    Return a SQL filter for date columns.
+    Return a SQL filter to search tasks by a string query.
+
+    Example:
+    --------
+    >>> make_search_filter('dinner') #doctest: +REPORT_NDIFF
+    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR AREA.title LIKE '%dinner%')"
+    """
+    if not query:
+        return ""
+
+    query = escape_string(query)
+
+    # noqa todo 'TMChecklistItem.title'
+    columns = ["TASK.title", "TASK.notes", "AREA.title"]
+
+    sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)
+
+    return f"AND ({' OR '.join(sub_searches)})"
+
+
+def make_thingsdate_filter(date_column: str, value) -> str:
+    """
+    Return a SQL filter for "Things date" columns.
 
     Parameters
     ----------
     date_column : str
-        Name of the column that has date information on a task.
+        Name of the column that has date information on a task
+        stored as an INTEGER in "Things date" format.
+        See `convert_isodate_sql_expression_to_thingsdate` for details
+        on Things dates.
 
     value : bool, 'future', 'past', ISO 8601 date str, or None
         `True` or `False` indicates whether a date is set or not.
         `'future'` or `'past'` indicates a date in the future or past.
         ISO 8601 date str is in the format "YYYY-MM-DD".
         `None` indicates any value.
-
-    exact : bool
-        matches for exact date of date_column
 
     Returns
     -------
@@ -701,19 +836,19 @@ def make_date_filter(date_column: str, value, exact=False) -> str:
 
     Examples
     --------
-    >>> make_date_filter('startDate', True)
+    >>> make_thingsdate_filter('startDate', True)
     'AND startDate IS NOT NULL'
 
-    >>> make_date_filter('startDate', False)
+    >>> make_thingsdate_filter('startDate', False)
     'AND startDate IS NULL'
 
-    >>> make_date_filter('startDate', 'future')
-    "AND date(startDate, 'unixepoch') > date('now', 'localtime')"
+    >>> make_thingsdate_filter('startDate', 'future')
+    …
 
-    >>> make_date_filter('stopDate', '2021-03-28')
-    "AND date(stopDate, 'unixepoch') >= date('2021-03-28')"
+    >>> make_thingsdate_filter('deadline', '2021-03-28')
+    …
 
-    >>> make_date_filter('created', None)
+    >>> make_thingsdate_filter('deadline', None)
     ''
 
     """
@@ -726,69 +861,18 @@ def make_date_filter(date_column: str, value, exact=False) -> str:
     try:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
-        threshold = f"date('{value}')"
-        comparator = '==' if exact else '>='
+        converted_value = isodate_to_YYYYYYYYYYYMMMMDDDDD(value)
+        threshold = str(converted_value)
+        comparator = ">="
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
-        threshold = "date('now', 'localtime')"
+        threshold = convert_isodate_sql_expression_to_thingsdate(
+            "date('now', 'localtime')", null_possible=False
+        )
         comparator = ">" if value == "future" else "<="
 
-    # Note: not using "localtime" modifier on `date()` since Things.app
-    # seems to store `startDate` and `dueDate` as a 00:00 UTC datetime.
-    # Morever, note that `stopDate` -- contrary to its name -- seems to
-    # be stored as the full UTC datetime of when the task was "stopped".
-    # See also: https://github.com/thingsapi/things.py/issues/93
-    date = f"date({date_column}, 'unixepoch')"
-
-    return f"AND {date} {comparator} {threshold}"
-
-
-def make_date_range_filter(date_column, offset) -> str:
-    """
-    Return a SQL filter to limit a date to last X days, weeks, or years.
-
-    Parameters
-    ----------
-    date_column : str
-        Name of the column that has date information on a task.
-
-    offset : str or None
-        A string comprised of an integer and a single character that can
-        be 'd', 'w', or 'y' that determines whether to return all tasks
-        for the past X days, weeks, or years.
-
-    Returns
-    -------
-    str
-        A date filter for the SQL query. If `offset == None`, then
-        return the empty string.
-
-    Examples
-    --------
-    >>> make_date_range_filter('created', '3d')
-    "AND datetime(created, 'unixepoch') > datetime('now', '-3 days')"
-
-    >>> make_date_range_filter('created', None)
-    ''
-    """
-    if offset is None:
-        return ""
-
-    validate_offset("offset", offset)
-    number, suffix = int(offset[:-1]), offset[-1]
-
-    if suffix == "d":
-        modifier = f"-{number} days"
-    elif suffix == "w":
-        modifier = f"-{number * 7} days"
-    elif suffix == "y":
-        modifier = f"-{number} years"
-
-    column_datetime = f"datetime({date_column}, 'unixepoch')"
-    offset_datetime = f"datetime('now', '{modifier}')"  # type: ignore
-
-    return f"AND {column_datetime} > {offset_datetime}"
+    return f"AND {date_column} {comparator} ({threshold})"
 
 
 def make_truthy_filter(column: str, value) -> str:
@@ -820,26 +904,119 @@ def make_truthy_filter(column: str, value) -> str:
     return f"AND NOT IFNULL({column}, 0)"
 
 
-def make_search_filter(query: Optional[str]) -> str:
+def make_unixtime_filter(date_column: str, value, exact=False) -> str:
     """
-    Return a SQL filter to search tasks by a string query.
+    Return a SQL filter for UNIX time columns.
 
-    Example:
+    Parameters
+    ----------
+    date_column : str
+        Name of the column that has datetime information on a task
+        stored in UNIX time, that is, number of seconds since
+        1970-01-01 00:00 UTC.
+
+    value : bool, 'future', 'past', ISO 8601 date str, or None
+        `True` or `False` indicates whether a date is set or not.
+        `'future'` or `'past'` indicates a date in the future or past.
+        ISO 8601 date str is in the format "YYYY-MM-DD".
+        `None` indicates any value.
+
+    exact : bool
+        matches for exact date of date_column
+
+    Returns
+    -------
+    str
+        A date filter for the SQL query. If `value == None`, then
+        return the empty string.
+
+    Examples
     --------
-    >>> make_search_filter('dinner') #doctest: +REPORT_NDIFF
-    "AND (TASK.title LIKE '%dinner%' OR TASK.notes LIKE '%dinner%' OR AREA.title LIKE '%dinner%')"
+    >>> make_unixtime_filter('stopDate', True)
+    'AND stopDate IS NOT NULL'
+
+    >>> make_unixtime_filter('stopDate', False)
+    'AND stopDate IS NULL'
+
+    >>> make_unixtime_filter('stopDate', 'future')
+    "AND date(stopDate, 'unixepoch') > date('now', 'localtime')"
+
+    >>> make_unixtime_filter('creationDate', '2021-03-28')
+    "AND date(creationDate, 'unixepoch') >= date('2021-03-28')"
+
+    >>> make_unixtime_filter('creationDate', None)
+    ''
+
     """
-    if not query:
+    if value is None:
         return ""
 
-    query = escape_string(query)
+    if isinstance(value, bool):
+        return make_filter(date_column, value)
 
-    # noqa todo 'TMChecklistItem.title'
-    columns = ["TASK.title", "TASK.notes", "AREA.title"]
+    try:
+        # Check for ISO 8601 date str
+        datetime.date.fromisoformat(value)
+        threshold = f"date('{value}')"
+        comparator = "==" if exact else ">="
+    except ValueError:
+        # "future" or "past"
+        validate("value", value, ["future", "past"])
+        threshold = "date('now', 'localtime')"
+        comparator = ">" if value == "future" else "<="
 
-    sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)
+    date = f"date({date_column}, 'unixepoch')"
 
-    return f"AND ({' OR '.join(sub_searches)})"
+    return f"AND {date} {comparator} {threshold}"
+
+
+def make_unixtime_range_filter(date_column, offset) -> str:
+    """
+    Return a SQL filter to limit a Unix time to last X days, weeks, or years.
+
+    Parameters
+    ----------
+    date_column : str
+        Name of the column that has datetime information on a task
+        stored in UNIX time, that is, number of seconds since
+        1970-01-01 00:00 UTC.
+
+    offset : str or None
+        A string comprised of an integer and a single character that can
+        be 'd', 'w', or 'y' that determines whether to return all tasks
+        for the past X days, weeks, or years.
+
+    Returns
+    -------
+    str
+        A date filter for the SQL query. If `offset == None`, then
+        return the empty string.
+
+    Examples
+    --------
+    >>> make_unixtime_range_filter('creationDate', '3d')
+    "AND datetime(creationDate, 'unixepoch') > datetime('now', '-3 days')"
+
+    >>> make_unixtime_range_filter('creationDate', None)
+    ''
+    """
+    if offset is None:
+        return ""
+
+    validate_offset("offset", offset)
+    number, suffix = int(offset[:-1]), offset[-1]
+
+    if suffix == "d":
+        modifier = f"-{number} days"
+    elif suffix == "w":
+        modifier = f"-{number * 7} days"
+    elif suffix == "y":
+        modifier = f"-{number} years"
+
+    column_datetime = f"datetime({date_column}, 'unixepoch')"
+    offset_datetime = f"datetime('now', '{modifier}')"  # type: ignore
+
+    return f"AND {column_datetime} > {offset_datetime}"
 
 
 def prettify_sql(sql_query):
@@ -848,6 +1025,11 @@ def prettify_sql(sql_query):
     result = dedent(sql_query).strip()
     # remove empty lines
     return re.sub(r"^$\n", "", result, flags=re.MULTILINE)
+
+
+def remove_prefix(text, prefix):
+    """Remove prefix from text (as removeprefix() is 3.9+ only)."""
+    return text[text.startswith(prefix) and len(prefix) :]
 
 
 def validate(parameter, argument, valid_arguments):
