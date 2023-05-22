@@ -244,10 +244,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter: str = START_TO_FILTER.get(start, "")
-        status_filter: str = STATUS_TO_FILTER.get(status, "")
-        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter: str = TYPE_TO_FILTER.get(type, "")
+        start_filter: str = START_TO_FILTER.get(start, "")  # type: ignore
+        status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
+        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
+        type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -626,15 +626,17 @@ def convert_isodate_sql_expression_to_thingsdate(sql_expression, null_possible=T
     Example
     -------
     >>> convert_isodate_sql_expression_to_thingsdate("date('now', 'localtime')")
-    "CASE WHEN date('now', 'localtime') THEN\
-    ((strftime('%Y', date('now', 'localtime')) << 16) |\
-    (strftime('%m', date('now', 'localtime')) << 12) |\
-    (strftime('%d', date('now', 'localtime')) << 7))\
-    ELSE date('now', 'localtime') END"
+    "(CASE WHEN date('now', 'localtime') THEN \
+    ((strftime('%Y', date('now', 'localtime')) << 16) \
+    | (strftime('%m', date('now', 'localtime')) << 12) \
+    | (strftime('%d', date('now', 'localtime')) << 7)) \
+    ELSE date('now', 'localtime') END)"
     >>> convert_isodate_sql_expression_to_thingsdate("'2023-05-22'")
-    "CASE WHEN '2023-05-22' THEN ((strftime('%Y', '2023-05-22') << 16) |\
-    (strftime('%m', '2023-05-22') << 12) | (strftime('%d', '2023-05-22') << 7))\
-    ELSE '2023-05-22' END"
+    "(CASE WHEN '2023-05-22' THEN \
+    ((strftime('%Y', '2023-05-22') << 16) \
+    | (strftime('%m', '2023-05-22') << 12) \
+    | (strftime('%d', '2023-05-22') << 7)) \
+    ELSE '2023-05-22' END)"
     """
     isodate = sql_expression
 
@@ -848,18 +850,18 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     'AND startDate IS NULL'
 
     >>> make_thingsdate_filter('startDate', 'future')
-    "AND startDate > (((strftime('%Y', date('now', 'localtime')) << 16) \
+    "AND startDate > ((strftime('%Y', date('now', 'localtime')) << 16) \
     | (strftime('%m', date('now', 'localtime')) << 12) \
-    | (strftime('%d', date('now', 'localtime')) << 7)))"
+    | (strftime('%d', date('now', 'localtime')) << 7))"
 
     >>> make_thingsdate_filter('deadline', '2021-03-28')
-    'AND deadline >= (132464128)'
+    'AND deadline == 132464128'
 
     >>> make_thingsdate_filter('deadline', '=2021-03-28')
-    …
+    'AND deadline = 132464128'
 
     >>> make_thingsdate_filter('deadline', '<=2021-03-28')
-    …
+    'AND deadline <= 132464128'
 
     >>> make_thingsdate_filter('deadline', None)
     ''
@@ -956,10 +958,10 @@ def make_unixtime_filter(date_column: str, value) -> str:
     "AND date(stopDate, 'unixepoch') > date('now', 'localtime')"
 
     >>> make_unixtime_filter('creationDate', '2021-03-28')
-    "AND date(creationDate, 'unixepoch') >= date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '=2021-03-28')
-    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch') = date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '<=2021-03-28')
     "AND date(creationDate, 'unixepoch') <= date('2021-03-28')"
@@ -1042,6 +1044,7 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
 
 
 def match_date(value):
+    """Return a match object if value is an ISO 8601 date str."""
     return re.fullmatch(r"(=|==|<|<=|>|>=)?(\d{4}-\d{2}-\d{2})", value)
 
 
@@ -1108,8 +1111,8 @@ def validate_date(parameter, argument):
     >>> validate_date(parameter='deadline', argument='XYZ')
     Traceback (most recent call last):
     ...
-    ValueError: Invalid last argument: 'XYZ'
-    Please see the documentation of `things.tasks` for details.
+    ValueError: Invalid deadline argument: 'XYZ'
+    Please see the documentation for `deadline` in `things.tasks`.
     """
     if argument is None:
         return
@@ -1130,11 +1133,11 @@ def validate_date(parameter, argument):
             f"Please see the documentation for `{parameter}` in `things.tasks`."
         )
 
-    comparator, isodate = match.groups()
+    _comparator, isodate = match.groups()
     try:
         datetime.date.fromisoformat(isodate)
     except ValueError as error:
-        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}")
+        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}") from error
 
 
 def validate_offset(parameter, argument):
