@@ -24,7 +24,7 @@ jobs:
           make deps-install
       - name: Run tests
         run: |
-          pip install coverage pytest
+          pip install coverage pytest pytest-cov
           make test testdoc
       - name: "Upload coverage to Codecov"
         if: github.repository == 'thingsapi/things.py'
