@@ -10,12 +10,13 @@ import unittest
 import unittest.mock
 
 import things
+import things.database
 
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 TEST_DATABASE_FILEPATH_2022 = "tests/db2022/main.sqlite"
 
-THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH  # type: ignore
+THINGSDB = things.database.ENVIRONMENT_VARIABLE_WITH_FILEPATH
 
 # AW: to be continued, helps updating the test expectations when modifying the DB
 HEADINGS = 3
@@ -321,7 +322,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            database = things.database.Database()  # type: ignore
+            database = things.database.Database()
             database.debug = True
             database.get_tags()
         self.assertTrue("/* Filepath" in output.getvalue())
@@ -330,6 +331,18 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_api_show(self, os_system):
         things.show("invalid_uuid")
         os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
+
+    def test_thingsdate(self):
+        sqlfilter: str = things.database.make_thingsdate_filter(
+            "deadline", "2021-03-28"
+        )
+        self.assertEqual("AND deadline == 132464128", sqlfilter)
+        sqlfilter = things.database.make_unixtime_filter("stopDate", "future")
+        self.assertEqual(
+            "AND date(stopDate, 'unixepoch') > date('now', 'localtime')", sqlfilter
+        )
+        sqlfilter = things.database.make_unixtime_filter("stopDate", False)
+        self.assertEqual("AND stopDate IS NULL", sqlfilter)
 
 
 if __name__ == "__main__":

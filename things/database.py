@@ -1,4 +1,5 @@
 """Read from the Things SQLite database using SQL queries."""
+# pylint: disable=C0302
 
 import datetime
 import glob
@@ -17,7 +18,7 @@ from typing import Optional
 
 # Database filepath
 DEFAULT_FILEROOT = os.path.expanduser(
-    "~/Library/Group Containers/" "JLMPQHK86H.com.culturedcode.ThingsMac"
+    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
 )
 # Migration for April 2023 update
 if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
@@ -243,10 +244,10 @@ class Database:
         # TK: might consider executing SQL with parameters instead.
         # See: https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.execute
 
-        start_filter: str = START_TO_FILTER.get(start, "")
-        status_filter: str = STATUS_TO_FILTER.get(status, "")
-        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")
-        type_filter: str = TYPE_TO_FILTER.get(type, "")
+        start_filter: str = START_TO_FILTER.get(start, "")  # type: ignore
+        status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
+        trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
+        type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -625,9 +626,17 @@ def convert_isodate_sql_expression_to_thingsdate(sql_expression, null_possible=T
     Example
     -------
     >>> convert_isodate_sql_expression_to_thingsdate("date('now', 'localtime')")
-    …
+    "(CASE WHEN date('now', 'localtime') THEN \
+    ((strftime('%Y', date('now', 'localtime')) << 16) \
+    | (strftime('%m', date('now', 'localtime')) << 12) \
+    | (strftime('%d', date('now', 'localtime')) << 7)) \
+    ELSE date('now', 'localtime') END)"
     >>> convert_isodate_sql_expression_to_thingsdate("'2023-05-22'")
-    …
+    "(CASE WHEN '2023-05-22' THEN \
+    ((strftime('%Y', '2023-05-22') << 16) \
+    | (strftime('%m', '2023-05-22') << 12) \
+    | (strftime('%d', '2023-05-22') << 7)) \
+    ELSE '2023-05-22' END)"
     """
     isodate = sql_expression
 
@@ -640,8 +649,8 @@ def convert_isodate_sql_expression_to_thingsdate(sql_expression, null_possible=T
     if null_possible:
         # when isodate is NULL, return isodate as-is
         return f"(CASE WHEN {isodate} THEN {thingsdate} ELSE {isodate} END)"
-    else:
-        return thingsdate
+
+    return thingsdate
 
 
 def convert_thingsdate_sql_expression_to_isodate(sql_expression):
@@ -657,21 +666,25 @@ def convert_thingsdate_sql_expression_to_isodate(sql_expression):
 
     Example
     -------
-    >>> convert_thingsdate_to_isodate_sql_expression('132464128')
-    …
-    >>> convert_thingsdate_to_isodate_sql_expression('startDate')
-    …
+    >>> convert_thingsdate_sql_expression_to_isodate('132464128')
+    "CASE WHEN 132464128 THEN \
+    printf('%d-%02d-%02d', (132464128 & 134152192) >> 16, \
+    (132464128 & 61440) >> 12, (132464128 & 3968) >> 7) ELSE 132464128 END"
+    >>> convert_thingsdate_sql_expression_to_isodate('startDate')
+    "CASE WHEN startDate THEN \
+    printf('%d-%02d-%02d', (startDate & 134152192) >> 16, \
+    (startDate & 61440) >> 12, (startDate & 3968) >> 7) ELSE startDate END"
     """
-    Y_mask = 0b111111111110000000000000000
-    M_mask = 0b000000000001111000000000000
-    D_mask = 0b000000000000000111110000000
+    y_mask = 0b111111111110000000000000000
+    m_mask = 0b000000000001111000000000000
+    d_mask = 0b000000000000000111110000000
 
     thingsdate = sql_expression
-    year = f"({thingsdate} & {Y_mask}) >> 16"
-    month = f"({thingsdate} & {M_mask}) >> 12"
-    day = f"({thingsdate} & {D_mask}) >> 7"
+    year = f"({thingsdate} & {y_mask}) >> 16"
+    month = f"({thingsdate} & {m_mask}) >> 12"
+    day = f"({thingsdate} & {d_mask}) >> 7"
 
-    isodate = f"format('%d-%02d-%02d', {year}, {month}, {day})"
+    isodate = f"printf('%d-%02d-%02d', {year}, {month}, {day})"
     # when thingsdate is NULL, return thingsdate as-is
     return f"CASE WHEN {thingsdate} THEN {isodate} ELSE {thingsdate} END"
 
@@ -718,7 +731,7 @@ def escape_string(string):
     return string.replace("'", "''")
 
 
-def isodate_to_YYYYYYYYYYYMMMMDDDDD(value):
+def isodate_to_yyyyyyyyyyymmmmddddd(value: str):
     """
     Return integer, in binary YYYYYYYYYYYMMMMDDDDD0000000.
 
@@ -727,11 +740,12 @@ def isodate_to_YYYYYYYYYYYMMMMDDDDD(value):
 
     Parameters
     ----------
-    value : ISO 8601 date str
+    value : str
+        ISO 8601 date str
 
     Example
     -------
-    >>> isodate_to_YYYYYYYYYYYMMMMDDDDD('2021-03-28')
+    >>> isodate_to_yyyyyyyyyyymmmmddddd('2021-03-28')
     132464128
     """
     year, month, day = map(int, value.split("-"))
@@ -773,9 +787,9 @@ def make_filter(column, value):
 
 def make_or_filter(*filters):
     """Join filters with OR."""
-    filters = filter(None, filters)
-    filters = [remove_prefix(filter, "AND ") for filter in filters]
-    filters = " OR ".join(filters)
+    filters = filter(None, filters)  # type: ignore
+    filters = [remove_prefix(filter, "AND ") for filter in filters]  # type: ignore
+    filters = " OR ".join(filters)  # type: ignore
     return f"AND ({filters})" if filters else ""
 
 
@@ -836,16 +850,18 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     'AND startDate IS NULL'
 
     >>> make_thingsdate_filter('startDate', 'future')
-    …
+    "AND startDate > ((strftime('%Y', date('now', 'localtime')) << 16) \
+    | (strftime('%m', date('now', 'localtime')) << 12) \
+    | (strftime('%d', date('now', 'localtime')) << 7))"
 
     >>> make_thingsdate_filter('deadline', '2021-03-28')
-    …
+    'AND deadline == 132464128'
 
     >>> make_thingsdate_filter('deadline', '=2021-03-28')
-    …
+    'AND deadline = 132464128'
 
     >>> make_thingsdate_filter('deadline', '<=2021-03-28')
-    …
+    'AND deadline <= 132464128'
 
     >>> make_thingsdate_filter('deadline', None)
     ''
@@ -863,7 +879,7 @@ def make_thingsdate_filter(date_column: str, value) -> str:
         comparator, isodate = match.groups()
         if not comparator:
             comparator = "=="
-        thingsdate = isodate_to_YYYYYYYYYYYMMMMDDDDD(isodate)
+        thingsdate = isodate_to_yyyyyyyyyyymmmmddddd(isodate)
         threshold = str(thingsdate)
     else:
         # "future" or "past"
@@ -942,10 +958,10 @@ def make_unixtime_filter(date_column: str, value) -> str:
     "AND date(stopDate, 'unixepoch') > date('now', 'localtime')"
 
     >>> make_unixtime_filter('creationDate', '2021-03-28')
-    "AND date(creationDate, 'unixepoch') >= date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '=2021-03-28')
-    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch') = date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '<=2021-03-28')
     "AND date(creationDate, 'unixepoch') <= date('2021-03-28')"
@@ -978,7 +994,7 @@ def make_unixtime_filter(date_column: str, value) -> str:
     return f"AND {date} {comparator} {threshold}"
 
 
-def make_unixtime_range_filter(date_column, offset) -> str:
+def make_unixtime_range_filter(date_column: str, offset) -> str:
     """
     Return a SQL filter to limit a Unix time to last X days, weeks, or years.
 
@@ -1028,6 +1044,7 @@ def make_unixtime_range_filter(date_column, offset) -> str:
 
 
 def match_date(value):
+    """Return a match object if value is an ISO 8601 date str."""
     return re.fullmatch(r"(=|==|<|<=|>|>=)?(\d{4}-\d{2}-\d{2})", value)
 
 
@@ -1094,8 +1111,8 @@ def validate_date(parameter, argument):
     >>> validate_date(parameter='deadline', argument='XYZ')
     Traceback (most recent call last):
     ...
-    ValueError: Invalid last argument: 'XYZ'
-    Please see the documentation of `things.tasks` for details.
+    ValueError: Invalid deadline argument: 'XYZ'
+    Please see the documentation for `deadline` in `things.tasks`.
     """
     if argument is None:
         return
@@ -1116,11 +1133,11 @@ def validate_date(parameter, argument):
             f"Please see the documentation for `{parameter}` in `things.tasks`."
         )
 
-    comparator, isodate = match.groups()
+    _comparator, isodate = match.groups()
     try:
         datetime.date.fromisoformat(isodate)
     except ValueError as error:
-        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}")
+        raise ValueError(f"Invalid {parameter} argument: {argument!r}\n{error}") from error
 
 
 def validate_offset(parameter, argument):

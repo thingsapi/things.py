@@ -30,7 +30,8 @@ jobs:
         if: github.repository == 'thingsapi/things.py'
         uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run lint
         run: |
           pip install black pycodestyle pylama pylint flake8 mypy pydocstyle vulture pytest
