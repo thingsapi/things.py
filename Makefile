@@ -89,7 +89,7 @@ code-lint: code-style ## Lint the code
 	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
 	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 	@echo Pyright...
-	@if type pyright >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest pyright  *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type pyright >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
 	@if type mypy >/dev/null 2>&1 ; then mypy --no-error-summary --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
