@@ -501,6 +501,7 @@ class Database:
 
 # Helper functions
 
+
 def get_allow_none(dictionary, key, default):
     """Get key with default from dict, allows none to be passed as key."""
     if key is None:
