@@ -1,12 +1,12 @@
 """Read from the Things SQLite database using SQL queries."""
 
 import datetime
+import glob
 import os
 import plistlib
 import re
 import sqlite3
 from textwrap import dedent
-import glob
 from typing import Optional
 
 
@@ -16,11 +16,12 @@ from typing import Optional
 
 
 # Database filepath
-DEFAULT_FILEROOT = os.path.expanduser("~/Library/Group Containers/"
-                                      "JLMPQHK86H.com.culturedcode.ThingsMac")
+DEFAULT_FILEROOT = os.path.expanduser(
+    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
+)
 # Migration for April 2023 update
 if os.path.isfile(f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase"):
-    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, 'ThingsData-*')):
+    for filename in glob.glob(os.path.join(DEFAULT_FILEROOT, "ThingsData-*")):
         DEFAULT_FILEROOT = filename
 DEFAULT_FILEPATH = f"{DEFAULT_FILEROOT}/Things Database.thingsdatabase/main.sqlite"
 
@@ -172,8 +173,9 @@ class Database:
 
         # Test for migrated database in Things 3.15.16+
         # --------------------------------
-        assert self.get_version() > 21, "Database too new! "\
-            "Run 'pip install things.py==0.0.14' to downgrade."
+        assert self.get_version() > 21, (
+            "Database too new! " "Run 'pip install things.py==0.0.14' to downgrade."
+        )
 
         # Automated migration to new database location in Things 3.12.6/3.13.1
         # --------------------------------
@@ -494,6 +496,7 @@ class Database:
 
 # Helper functions
 
+
 def get_allow_none(dictionary, key, default):
     """Get key with default from dict, allows none to be passed as key."""
     if key is None:
@@ -727,7 +730,7 @@ def make_date_filter(date_column: str, value, exact=False) -> str:
         # Check for ISO 8601 date str
         datetime.date.fromisoformat(value)
         threshold = f"date('{value}')"
-        comparator = '==' if exact else '>='
+        comparator = "==" if exact else ">="
     except ValueError:
         # "future" or "past"
         validate("value", value, ["future", "past"])
