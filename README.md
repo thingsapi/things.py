@@ -140,3 +140,4 @@ The following open-source projects make use of this library:
 - [things-to-org](https://github.com/chrizel/things-to-org)
 - [Things3 to Notion](https://github.com/Avery2/things3notionscript)
 - [ThingsStats](https://github.com/lmgibson/ThingsStats)
+- [ThingsReview](https://github.com/minthemiddle/things-review-py)
