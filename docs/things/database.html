@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 13.1.1"/>
+    <meta name="generator" content="pdoc 14.0.0"/>
     <title>things.database API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -31,10 +31,124 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="variable" href="#DEFAULT_FILEPATH_31616502">DEFAULT_FILEPATH_31616502</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DEFAULT_FILEPATH_31516502">DEFAULT_FILEPATH_31516502</a>
+            </li>
+            <li>
+                    <a class="variable" href="#ENVIRONMENT_VARIABLE_WITH_FILEPATH">ENVIRONMENT_VARIABLE_WITH_FILEPATH</a>
+            </li>
+            <li>
+                    <a class="variable" href="#START_TO_FILTER">START_TO_FILTER</a>
+            </li>
+            <li>
+                    <a class="variable" href="#STATUS_TO_FILTER">STATUS_TO_FILTER</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TRASHED_TO_FILTER">TRASHED_TO_FILTER</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TYPE_TO_FILTER">TYPE_TO_FILTER</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATES">DATES</a>
+            </li>
+            <li>
+                    <a class="variable" href="#INDICES">INDICES</a>
+            </li>
+            <li>
+                    <a class="variable" href="#COLUMNS_TO_OMIT_IF_NONE">COLUMNS_TO_OMIT_IF_NONE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#COLUMNS_TO_TRANSFORM_TO_BOOL">COLUMNS_TO_TRANSFORM_TO_BOOL</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_AREA">TABLE_AREA</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_AREATAG">TABLE_AREATAG</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_CHECKLIST_ITEM">TABLE_CHECKLIST_ITEM</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_META">TABLE_META</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_TAG">TABLE_TAG</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_TASK">TABLE_TASK</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_TASKTAG">TABLE_TASKTAG</a>
+            </li>
+            <li>
+                    <a class="variable" href="#TABLE_SETTINGS">TABLE_SETTINGS</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATE_CREATED">DATE_CREATED</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATE_MODIFIED">DATE_MODIFIED</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATE_STOP">DATE_STOP</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATE_DEADLINE">DATE_DEADLINE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DATE_START">DATE_START</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_TODO">IS_TODO</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_PROJECT">IS_PROJECT</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_HEADING">IS_HEADING</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_INCOMPLETE">IS_INCOMPLETE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_CANCELED">IS_CANCELED</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_COMPLETED">IS_COMPLETED</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_INBOX">IS_INBOX</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_ANYTIME">IS_ANYTIME</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_SOMEDAY">IS_SOMEDAY</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_NOT_RECURRING">IS_NOT_RECURRING</a>
+            </li>
+            <li>
+                    <a class="variable" href="#IS_TRASHED">IS_TRASHED</a>
+            </li>
+            <li>
                     <a class="class" href="#Database">Database</a>
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#Database.__init__">Database</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Database.debug">debug</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Database.filepath">filepath</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Database.print_sql">print_sql</a>
                         </li>
                         <li>
                                 <a class="function" href="#Database.get_tasks">get_tasks</a>
@@ -1342,6 +1456,429 @@
 
 
             </section>
+                <section id="DEFAULT_FILEPATH_31616502">
+                    <div class="attr variable">
+            <span class="name">DEFAULT_FILEPATH_31616502</span>        =
+<input id="DEFAULT_FILEPATH_31616502-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="DEFAULT_FILEPATH_31616502-view-value"></label><span class="default_value">&#39;~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/ThingsData-*/Things Database.thingsdatabase/main.sqlite&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DEFAULT_FILEPATH_31616502"></a>
+    
+    
+
+                </section>
+                <section id="DEFAULT_FILEPATH_31516502">
+                    <div class="attr variable">
+            <span class="name">DEFAULT_FILEPATH_31516502</span>        =
+<input id="DEFAULT_FILEPATH_31516502-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="DEFAULT_FILEPATH_31516502-view-value"></label><span class="default_value">&#39;~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things Database.thingsdatabase/main.sqlite&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DEFAULT_FILEPATH_31516502"></a>
+    
+    
+
+                </section>
+                <section id="ENVIRONMENT_VARIABLE_WITH_FILEPATH">
+                    <div class="attr variable">
+            <span class="name">ENVIRONMENT_VARIABLE_WITH_FILEPATH</span>        =
+<span class="default_value">&#39;THINGSDB&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ENVIRONMENT_VARIABLE_WITH_FILEPATH"></a>
+    
+    
+
+                </section>
+                <section id="START_TO_FILTER">
+                    <div class="attr variable">
+            <span class="name">START_TO_FILTER</span>        =
+<span class="default_value">{&#39;Inbox&#39;: &#39;start = 0&#39;, &#39;Anytime&#39;: &#39;start = 1&#39;, &#39;Someday&#39;: &#39;start = 2&#39;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#START_TO_FILTER"></a>
+    
+    
+
+                </section>
+                <section id="STATUS_TO_FILTER">
+                    <div class="attr variable">
+            <span class="name">STATUS_TO_FILTER</span>        =
+<span class="default_value">{&#39;incomplete&#39;: &#39;status = 0&#39;, &#39;canceled&#39;: &#39;status = 2&#39;, &#39;completed&#39;: &#39;status = 3&#39;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#STATUS_TO_FILTER"></a>
+    
+    
+
+                </section>
+                <section id="TRASHED_TO_FILTER">
+                    <div class="attr variable">
+            <span class="name">TRASHED_TO_FILTER</span>        =
+<span class="default_value">{True: &#39;trashed = 1&#39;, False: &#39;trashed = 0&#39;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TRASHED_TO_FILTER"></a>
+    
+    
+
+                </section>
+                <section id="TYPE_TO_FILTER">
+                    <div class="attr variable">
+            <span class="name">TYPE_TO_FILTER</span>        =
+<span class="default_value">{&#39;to-do&#39;: &#39;type = 0&#39;, &#39;project&#39;: &#39;type = 1&#39;, &#39;heading&#39;: &#39;type = 2&#39;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TYPE_TO_FILTER"></a>
+    
+    
+
+                </section>
+                <section id="DATES">
+                    <div class="attr variable">
+            <span class="name">DATES</span>        =
+<span class="default_value">(&#39;future&#39;, &#39;past&#39;, True, False)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATES"></a>
+    
+    
+
+                </section>
+                <section id="INDICES">
+                    <div class="attr variable">
+            <span class="name">INDICES</span>        =
+<span class="default_value">(&#39;index&#39;, &#39;todayIndex&#39;)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#INDICES"></a>
+    
+    
+
+                </section>
+                <section id="COLUMNS_TO_OMIT_IF_NONE">
+                    <div class="attr variable">
+            <span class="name">COLUMNS_TO_OMIT_IF_NONE</span>        =
+<input id="COLUMNS_TO_OMIT_IF_NONE-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="COLUMNS_TO_OMIT_IF_NONE-view-value"></label><span class="default_value">(&#39;area&#39;, &#39;area_title&#39;, &#39;checklist&#39;, &#39;heading&#39;, &#39;heading_title&#39;, &#39;project&#39;, &#39;project_title&#39;, &#39;trashed&#39;, &#39;tags&#39;)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#COLUMNS_TO_OMIT_IF_NONE"></a>
+    
+    
+
+                </section>
+                <section id="COLUMNS_TO_TRANSFORM_TO_BOOL">
+                    <div class="attr variable">
+            <span class="name">COLUMNS_TO_TRANSFORM_TO_BOOL</span>        =
+<span class="default_value">(&#39;checklist&#39;, &#39;tags&#39;, &#39;trashed&#39;)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#COLUMNS_TO_TRANSFORM_TO_BOOL"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_AREA">
+                    <div class="attr variable">
+            <span class="name">TABLE_AREA</span>        =
+<span class="default_value">&#39;TMArea&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_AREA"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_AREATAG">
+                    <div class="attr variable">
+            <span class="name">TABLE_AREATAG</span>        =
+<span class="default_value">&#39;TMAreaTag&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_AREATAG"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_CHECKLIST_ITEM">
+                    <div class="attr variable">
+            <span class="name">TABLE_CHECKLIST_ITEM</span>        =
+<span class="default_value">&#39;TMChecklistItem&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_CHECKLIST_ITEM"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_META">
+                    <div class="attr variable">
+            <span class="name">TABLE_META</span>        =
+<span class="default_value">&#39;Meta&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_META"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_TAG">
+                    <div class="attr variable">
+            <span class="name">TABLE_TAG</span>        =
+<span class="default_value">&#39;TMTag&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_TAG"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_TASK">
+                    <div class="attr variable">
+            <span class="name">TABLE_TASK</span>        =
+<span class="default_value">&#39;TMTask&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_TASK"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_TASKTAG">
+                    <div class="attr variable">
+            <span class="name">TABLE_TASKTAG</span>        =
+<span class="default_value">&#39;TMTaskTag&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_TASKTAG"></a>
+    
+    
+
+                </section>
+                <section id="TABLE_SETTINGS">
+                    <div class="attr variable">
+            <span class="name">TABLE_SETTINGS</span>        =
+<span class="default_value">&#39;TMSettings&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TABLE_SETTINGS"></a>
+    
+    
+
+                </section>
+                <section id="DATE_CREATED">
+                    <div class="attr variable">
+            <span class="name">DATE_CREATED</span>        =
+<span class="default_value">&#39;creationDate&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATE_CREATED"></a>
+    
+    
+
+                </section>
+                <section id="DATE_MODIFIED">
+                    <div class="attr variable">
+            <span class="name">DATE_MODIFIED</span>        =
+<span class="default_value">&#39;userModificationDate&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATE_MODIFIED"></a>
+    
+    
+
+                </section>
+                <section id="DATE_STOP">
+                    <div class="attr variable">
+            <span class="name">DATE_STOP</span>        =
+<span class="default_value">&#39;stopDate&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATE_STOP"></a>
+    
+    
+
+                </section>
+                <section id="DATE_DEADLINE">
+                    <div class="attr variable">
+            <span class="name">DATE_DEADLINE</span>        =
+<span class="default_value">&#39;deadline&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATE_DEADLINE"></a>
+    
+    
+
+                </section>
+                <section id="DATE_START">
+                    <div class="attr variable">
+            <span class="name">DATE_START</span>        =
+<span class="default_value">&#39;startDate&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DATE_START"></a>
+    
+    
+
+                </section>
+                <section id="IS_TODO">
+                    <div class="attr variable">
+            <span class="name">IS_TODO</span>        =
+<span class="default_value">&#39;type = 0&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_TODO"></a>
+    
+    
+
+                </section>
+                <section id="IS_PROJECT">
+                    <div class="attr variable">
+            <span class="name">IS_PROJECT</span>        =
+<span class="default_value">&#39;type = 1&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_PROJECT"></a>
+    
+    
+
+                </section>
+                <section id="IS_HEADING">
+                    <div class="attr variable">
+            <span class="name">IS_HEADING</span>        =
+<span class="default_value">&#39;type = 2&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_HEADING"></a>
+    
+    
+
+                </section>
+                <section id="IS_INCOMPLETE">
+                    <div class="attr variable">
+            <span class="name">IS_INCOMPLETE</span>        =
+<span class="default_value">&#39;status = 0&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_INCOMPLETE"></a>
+    
+    
+
+                </section>
+                <section id="IS_CANCELED">
+                    <div class="attr variable">
+            <span class="name">IS_CANCELED</span>        =
+<span class="default_value">&#39;status = 2&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_CANCELED"></a>
+    
+    
+
+                </section>
+                <section id="IS_COMPLETED">
+                    <div class="attr variable">
+            <span class="name">IS_COMPLETED</span>        =
+<span class="default_value">&#39;status = 3&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_COMPLETED"></a>
+    
+    
+
+                </section>
+                <section id="IS_INBOX">
+                    <div class="attr variable">
+            <span class="name">IS_INBOX</span>        =
+<span class="default_value">&#39;start = 0&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_INBOX"></a>
+    
+    
+
+                </section>
+                <section id="IS_ANYTIME">
+                    <div class="attr variable">
+            <span class="name">IS_ANYTIME</span>        =
+<span class="default_value">&#39;start = 1&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_ANYTIME"></a>
+    
+    
+
+                </section>
+                <section id="IS_SOMEDAY">
+                    <div class="attr variable">
+            <span class="name">IS_SOMEDAY</span>        =
+<span class="default_value">&#39;start = 2&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_SOMEDAY"></a>
+    
+    
+
+                </section>
+                <section id="IS_NOT_RECURRING">
+                    <div class="attr variable">
+            <span class="name">IS_NOT_RECURRING</span>        =
+<span class="default_value">&#39;rt1_recurrenceRule IS NULL&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_NOT_RECURRING"></a>
+    
+    
+
+                </section>
+                <section id="IS_TRASHED">
+                    <div class="attr variable">
+            <span class="name">IS_TRASHED</span>        =
+<span class="default_value">&#39;trashed = 1&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#IS_TRASHED"></a>
+    
+    
+
+                </section>
                 <section id="Database">
                             <input id="Database-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -1774,6 +2311,40 @@ See <a href="https://www.sqlite.org/lang_expr.html#varparam">https://www.sqlite.
             <div class="docstring"><p>Set up the database.</p>
 </div>
 
+
+                            </div>
+                            <div id="Database.debug" class="classattr">
+                                <div class="attr variable">
+            <span class="name">debug</span>        =
+<span class="default_value">False</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Database.debug"></a>
+    
+    
+
+                            </div>
+                            <div id="Database.filepath" class="classattr">
+                                <div class="attr variable">
+            <span class="name">filepath</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Database.filepath"></a>
+    
+    
+
+                            </div>
+                            <div id="Database.print_sql" class="classattr">
+                                <div class="attr variable">
+            <span class="name">print_sql</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Database.print_sql"></a>
+    
+    
 
                             </div>
                             <div id="Database.get_tasks" class="classattr">
