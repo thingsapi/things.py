@@ -995,7 +995,7 @@ def make_unixtime_filter(date_column: str, value) -> str:
         threshold = "date('now', 'localtime')"
         comparator = ">" if value == "future" else "<="
 
-    date = f"date({date_column}, 'unixepoch')"
+    date = f"date({date_column}, 'unixepoch', 'localtime')"
 
     return f"AND {date} {comparator} {threshold}"
 
@@ -1043,7 +1043,7 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
     elif suffix == "y":
         modifier = f"-{number} years"
 
-    column_datetime = f"datetime({date_column}, 'unixepoch')"
+    column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
     offset_datetime = f"datetime('now', '{modifier}')"  # type: ignore
 
     return f"AND {column_datetime} > {offset_datetime}"
