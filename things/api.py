@@ -8,6 +8,7 @@ data structures. Whenever that happens, we define the new term here.
 """
 
 import os
+import datetime
 from shlex import quote
 from typing import Dict, List, Union
 
@@ -523,7 +524,7 @@ def today(**kwargs):
         *unconfirmed_scheduled_tasks,
         *unconfirmed_overdue_tasks,
     ]
-    result.sort(key=lambda task: (task["today_index"], task["start_date"]))
+    result.sort(key=lambda task: (task["today_index"], task["start_date"] or datetime.datetime.today().strftime("%Y-%m-%d")))
 
     return result
 
