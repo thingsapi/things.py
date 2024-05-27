@@ -677,9 +677,26 @@ def token(**kwargs) -> Union[str, None]:
     return database.get_url_scheme_auth_token()
 
 
-def link(uuid):
-    """Return a things:///show?id=uuid link."""
-    return f"things:///show?id={uuid}"
+def link(action, **kwargs) -> str:
+    """
+    Return a things:///<action>?auth-token=<token>(&<query_params>) link.
+
+    Additional query parameters can be provided in **kwargs
+
+    Detailed information about the Things URL Scheme can be found
+    [here](https://culturedcode.com/things/help/url-scheme/).
+
+    The returned link can be called with
+    >>> os.system(f"open {quote(link)}") # doctest: +SKIP
+    """
+    auth_token = token()
+    if auth_token is None:
+        raise ValueError("Things URL scheme authentication token could not be read")
+    uri = f"things:///{action}?auth-token={auth_token}"
+    for key, value in kwargs.items():
+        uri += f"&{key}={value}"
+
+    return uri
 
 
 def show(uuid):  # noqa
@@ -696,7 +713,25 @@ def show(uuid):  # noqa
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])  # doctest: +SKIP
     """
-    uri = link(uuid)
+    uri = link("show", id=uuid)
+    os.system(f"open {quote(uri)}")
+
+
+def complete(uuid):  # noqa
+    """
+    Set the status of a certain uuid to complete
+
+    Parameters
+    ----------
+    uuid : str
+        A valid uuid of a project or todo.
+
+    Examples
+    --------
+    >>> task = things.todos()[0]       # doctest: +SKIP
+    >>> things.complete(task['uuid'])  # doctest: +SKIP
+    """
+    uri = link("update", id=uuid, completed=True)
     os.system(f"open {quote(uri)}")
 
 

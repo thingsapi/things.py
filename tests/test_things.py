@@ -232,8 +232,17 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(1, len(tasks))
 
     def test_get_link(self):
-        link = things.link("uuid")
-        self.assertEqual("things:///show?id=uuid", link)
+        link = things.link("show", id="uuid")
+        self.assertEqual(
+            "things:///show?auth-token=vKkylosuSuGwxrz7qcklOw&id=uuid", link
+        )
+
+    @unittest.mock.patch("things.api.token")
+    def test_get_link_no_token(self, token_mock):
+        token_mock.return_value = None
+        with self.assertRaises(ValueError):
+            things.link("show", id="uuid")
+        self.assertEqual(token_mock.call_count, 1)
 
     def test_projects(self):
         projects = things.projects()
@@ -330,7 +339,16 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     @unittest.mock.patch("os.system")
     def test_api_show(self, os_system):
         things.show("invalid_uuid")
-        os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
+        os_system.assert_called_once_with(
+            "open 'things:///show?auth-token=vKkylosuSuGwxrz7qcklOw&id=invalid_uuid'"
+        )
+
+    @unittest.mock.patch("os.system")
+    def test_api_complete(self, os_system):
+        things.complete("invalid_uuid")
+        os_system.assert_called_once_with(
+            "open 'things:///update?auth-token=vKkylosuSuGwxrz7qcklOw&id=invalid_uuid&completed=True'"
+        )
 
     def test_thingsdate(self):
         sqlfilter: str = things.database.make_thingsdate_filter(

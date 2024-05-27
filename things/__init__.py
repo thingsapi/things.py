@@ -14,6 +14,7 @@ from things.api import (  # noqa  isort:skip
     areas,
     canceled,
     checklist_items,
+    complete,
     completed,
     deadlines,
     get,
