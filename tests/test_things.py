@@ -262,11 +262,11 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         )
 
     @unittest.mock.patch("things.api.token")
-    def test_get_link_no_token(self, token_mock):
+    def test_get_url_no_token(self, token_mock):
         token_mock.return_value = None
         with self.assertRaises(ValueError):
             # currently only update and update-project require authentication
-            things.url(uuid="uuid", command="update")
+            things.url(command="update")
         self.assertEqual(token_mock.call_count, 1)
 
     def test_projects(self):
