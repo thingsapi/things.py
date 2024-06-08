@@ -10,7 +10,7 @@ data structures. Whenever that happens, we define the new term here.
 import os
 from shlex import quote
 from typing import Dict, List, Union
-
+import urllib.parse
 from things.database import Database
 
 
@@ -677,32 +677,50 @@ def token(**kwargs) -> Union[str, None]:
     return database.get_url_scheme_auth_token()
 
 
-def link(uuid, action="show", **kwargs) -> str:
+def url(uuid=None, command="show", **kwargs) -> str:
     """
-    Return a things:///<action>?id=uuid&… url.
-    Additional query parameters can be provided in **kwargs
+    Return a things:///<command>?id=uuid&… url.
 
-    uuid is required for backwards compatiblity.
-    It will be ignored if not needed.
-    …
+    Parameters
+    ----------
+    uuid : str, optional
+        A valid uuid of any Things object
+        Defaults to None
+
+    action : str, optional
+        A valid thingsURL command
+        Defaults to show
+
+    **kwargs:
+        Any aditional parameters needed.
+
+    For details about availabel commands and their parameters
+    consult the Things URL Scheme documentation
+    [here](https://culturedcode.com/things/help/url-scheme/).
+
+    Examples
+    --------
+    >>> things_url_show = things.url("test_uuid")
+    >>> things_url_update = things.url(command="update", uuid="test_uuid", title="new title")
+    >>> things_url_add = things.url(command="add", title="new task", when="in 3 days", deadline="in 6 days")
     """
-    query_params = dict(id=uuid, **kwargs)
+    query_params = dict(**kwargs) if uuid is None else dict(id=uuid, **kwargs)
 
     # authenticate if needed
-    if action not in ("add", "add-project", "show", "search", "json"):
+    if command not in ("add", "add-project", "show", "search", "json"):
         auth_token = query_params["auth-token"] = token()
         if not auth_token:
             raise ValueError("Things URL scheme authentication token could not be read")
 
-    query_params_string = "&".join(
-        f"{key}={value}" for key, value in query_params.items()
+    query_params_string = urllib.parse.urlencode(
+        query_params, quote_via=urllib.parse.quote
     )
 
-    return f"things:///{action}?{query_params_string}"
+    return f"things:///{command}?{query_params_string}"
 
 
-# Alias since Things.app talks about urls and not links
-url = link
+# Alias for backwards compatiblity
+link = url
 
 
 def show(uuid):  # noqa
@@ -719,7 +737,7 @@ def show(uuid):  # noqa
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])  # doctest: +SKIP
     """
-    uri = link(uuid=uuid)
+    uri = url(uuid=uuid)
     os.system(f"open {quote(uri)}")
 
 
@@ -737,7 +755,7 @@ def complete(uuid):  # noqa
     >>> task = things.todos()[0]       # doctest: +SKIP
     >>> things.complete(task['uuid'])  # doctest: +SKIP
     """
-    uri = link(uuid=uuid, action="update", completed=True)
+    uri = url(uuid=uuid, command="update", completed=True)
     os.system(f"open {quote(uri)}")
 
 
