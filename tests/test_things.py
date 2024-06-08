@@ -232,16 +232,19 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(1, len(tasks))
 
     def test_get_link(self):
-        link = things.link("show", id="uuid")
-        self.assertEqual(
-            "things:///show?auth-token=vKkylosuSuGwxrz7qcklOw&id=uuid", link
-        )
+        link = things.link("uuid")
+        self.assertEqual("things:///show?id=uuid", link)
+
+    def test_get_url(self):
+        url = things.url("uuid")
+        self.assertEqual("things:///show?id=uuid", url)
 
     @unittest.mock.patch("things.api.token")
     def test_get_link_no_token(self, token_mock):
         token_mock.return_value = None
         with self.assertRaises(ValueError):
-            things.link("show", id="uuid")
+            # currently only update and update-project require authentication
+            things.link(uuid="uuid", action="update")
         self.assertEqual(token_mock.call_count, 1)
 
     def test_projects(self):
@@ -339,15 +342,13 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     @unittest.mock.patch("os.system")
     def test_api_show(self, os_system):
         things.show("invalid_uuid")
-        os_system.assert_called_once_with(
-            "open 'things:///show?auth-token=vKkylosuSuGwxrz7qcklOw&id=invalid_uuid'"
-        )
+        os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
 
     @unittest.mock.patch("os.system")
     def test_api_complete(self, os_system):
         things.complete("invalid_uuid")
         os_system.assert_called_once_with(
-            "open 'things:///update?auth-token=vKkylosuSuGwxrz7qcklOw&id=invalid_uuid&completed=True'"
+            "open 'things:///update?id=invalid_uuid&completed=True&auth-token=vKkylosuSuGwxrz7qcklOw'"
         )
 
     def test_thingsdate(self):

@@ -677,26 +677,32 @@ def token(**kwargs) -> Union[str, None]:
     return database.get_url_scheme_auth_token()
 
 
-def link(action, **kwargs) -> str:
+def link(uuid, action="show", **kwargs) -> str:
     """
-    Return a things:///<action>?auth-token=<token>(&<query_params>) link.
-
+    Return a things:///<action>?id=uuid&… url.
     Additional query parameters can be provided in **kwargs
 
-    Detailed information about the Things URL Scheme can be found
-    [here](https://culturedcode.com/things/help/url-scheme/).
-
-    The returned link can be called with
-    >>> os.system(f"open {quote(link)}") # doctest: +SKIP
+    uuid is required for backwards compatiblity.
+    It will be ignored if not needed.
+    …
     """
-    auth_token = token()
-    if auth_token is None:
-        raise ValueError("Things URL scheme authentication token could not be read")
-    uri = f"things:///{action}?auth-token={auth_token}"
-    for key, value in kwargs.items():
-        uri += f"&{key}={value}"
+    query_params = dict(id=uuid, **kwargs)
 
-    return uri
+    # authenticate if needed
+    if action not in ("add", "add-project", "show", "search", "json"):
+        auth_token = query_params["auth-token"] = token()
+        if not auth_token:
+            raise ValueError("Things URL scheme authentication token could not be read")
+
+    query_params_string = "&".join(
+        f"{key}={value}" for key, value in query_params.items()
+    )
+
+    return f"things:///{action}?{query_params_string}"
+
+
+# Alias since Things.app talks about urls and not links
+url = link
 
 
 def show(uuid):  # noqa
@@ -713,7 +719,7 @@ def show(uuid):  # noqa
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])  # doctest: +SKIP
     """
-    uri = link("show", id=uuid)
+    uri = link(uuid=uuid)
     os.system(f"open {quote(uri)}")
 
 
@@ -731,7 +737,7 @@ def complete(uuid):  # noqa
     >>> task = things.todos()[0]       # doctest: +SKIP
     >>> things.complete(task['uuid'])  # doctest: +SKIP
     """
-    uri = link("update", id=uuid, completed=True)
+    uri = link(uuid=uuid, action="update", completed=True)
     os.system(f"open {quote(uri)}")
 
 
