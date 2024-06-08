@@ -10,7 +10,9 @@ data structures. Whenever that happens, we define the new term here.
 import os
 from shlex import quote
 from typing import Dict, List, Union
+
 import urllib.parse
+
 from things.database import Database
 
 
@@ -687,16 +689,16 @@ def url(uuid=None, command="show", **kwargs) -> str:
 
     Parameters
     ----------
-    uuid : str, optional
-        A valid uuid of any Things object
-        Defaults to None
+    uuid : str or None, optional
+        A valid uuid of any Things object.
+        If None id is not added as a parameter.
 
-    action : str, optional
-        A valid thingsURL command
-        Defaults to show
+    action : str, default show
+        A valid thingsURL command.
 
     **kwargs:
         Any aditional parameters needed.
+        Passing a dictionary is valid aswell.
 
     Examples
     --------
@@ -706,8 +708,11 @@ def url(uuid=None, command="show", **kwargs) -> str:
     'things:///update?id=test_uuid&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
     >>> things.url(command="add", title="new task", when="in 3 days", deadline="in 6 days")
     'things:///add?title=new%20task&when=in%203%20days&deadline=in%206%20days'
+    >>> parameters = {"title" : "test title", "list-id" : "ba5d1237-1dfa-4ab8-826b-7c27b517f29d"}
+    >>> things.url(command="add", **parameters)
+    'things:///add?title=test%20title&list-id=ba5d1237-1dfa-4ab8-826b-7c27b517f29d'
     """
-    query_params = dict(**kwargs) if uuid is None else dict(id=uuid, **kwargs)
+    query_params = dict(kwargs) if uuid is None else dict(id=uuid, **kwargs)
 
     # authenticate if needed
     if command not in ("add", "add-project", "show", "search", "json"):

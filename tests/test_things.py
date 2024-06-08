@@ -239,6 +239,17 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         url = things.url("uuid")
         self.assertEqual("things:///show?id=uuid", url)
 
+    def test_get_url_dict(self):
+        parameters = {
+            "title": "nice_title",
+            "list-id": "6c7e77b4-f4d7-44bc-8480-80c0bea585ea",
+        }
+        url = things.url(command="add", **parameters)
+        self.assertEqual(
+            "things:///add?title=nice_title&list-id=6c7e77b4-f4d7-44bc-8480-80c0bea585ea",
+            url,
+        )
+
     def test_get_url_encoding(self):
         url = things.url(
             command="add",

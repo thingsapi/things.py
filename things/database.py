@@ -1,4 +1,5 @@
 """Read from the Things SQLite database using SQL queries."""
+
 # pylint: disable=C0302
 
 import datetime
