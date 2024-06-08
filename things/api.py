@@ -681,6 +681,10 @@ def url(uuid=None, command="show", **kwargs) -> str:
     """
     Return a things:///<command>?id=uuid&… url.
 
+    For details about available commands and their parameters
+    consult the Things URL Scheme documentation
+    [here](https://culturedcode.com/things/help/url-scheme/).
+
     Parameters
     ----------
     uuid : str, optional
@@ -693,10 +697,6 @@ def url(uuid=None, command="show", **kwargs) -> str:
 
     **kwargs:
         Any aditional parameters needed.
-
-    For details about availabel commands and their parameters
-    consult the Things URL Scheme documentation
-    [here](https://culturedcode.com/things/help/url-scheme/).
 
     Examples
     --------
