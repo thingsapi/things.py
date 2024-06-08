@@ -700,9 +700,12 @@ def url(uuid=None, command="show", **kwargs) -> str:
 
     Examples
     --------
-    >>> things_url_show = things.url("test_uuid")
-    >>> things_url_update = things.url(command="update", uuid="test_uuid", title="new title")
-    >>> things_url_add = things.url(command="add", title="new task", when="in 3 days", deadline="in 6 days")
+    >>> things.url("test_uuid")
+    'things:///show?id=test_uuid'
+    >>> things.url(command="update", uuid="test_uuid", title="new title")
+    'things:///update?id=test_uuid&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
+    >>> things.url(command="add", title="new task", when="in 3 days", deadline="in 6 days")
+    'things:///add?title=new%20task&when=in%203%20days&deadline=in%206%20days'
     """
     query_params = dict(**kwargs) if uuid is None else dict(id=uuid, **kwargs)
 
