@@ -692,7 +692,7 @@ def url(uuid=None, command="show", **kwargs) -> str:
         A valid uuid of any Things object.
         If None id is not added as a parameter.
 
-    action : str, default show
+    command : str, default show
         A valid thingsURL command.
 
     **kwargs:
