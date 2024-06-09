@@ -707,12 +707,12 @@ def url(uuid=None, command="show", **query_parameters) -> str:
     'things:///update?id=6Hf2qWBjWhq7B1xszwdo34&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
     >>> things.url(command='add', title='new task', when='in 3 days', deadline='in 6 days')
     'things:///add?title=new%20task&when=in%203%20days&deadline=in%206%20days'
-    >>> query_parameters = {'title': 'test title', 'list-id': 'ba5d1237-1dfa-4ab8-826b-7c27b517f29d'}
-    >>> things.url(command="add", **query_parameters)
+    >>> query_params = {'title': 'test title', 'list-id': 'ba5d1237-1dfa-4ab8-826b-7c27b517f29d'}
+    >>> things.url(command="add", **query_params)
     'things:///add?title=test%20title&list-id=ba5d1237-1dfa-4ab8-826b-7c27b517f29d'
     """
     if uuid is not None:
-        query_parameters = dict(id=uuid, **query_parameters)
+        query_parameters = {"id": uuid, **query_parameters}
 
     # authenticate if needed
     if command in ("update", "update-project"):
