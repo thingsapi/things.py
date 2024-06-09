@@ -254,10 +254,10 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         url = things.url(
             command="add",
             title="test task",
-            notes="really nice notes\nI really like notes",
+            notes="nice notes\nI really like notes",
         )
         self.assertEqual(
-            "things:///add?title=test%20task&notes=really%20nice%20notes%0AI%20really%20like%20notes",
+            "things:///add?title=test%20task&notes=nice%20notes%0AI%20really%20like%20notes",
             url,
         )
 
@@ -368,9 +368,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     @unittest.mock.patch("os.system")
     def test_api_complete(self, os_system):
-        things.complete("invalid_uuid")
+        things.complete("test_uuid")
         os_system.assert_called_once_with(
-            "open 'things:///update?id=invalid_uuid&completed=True&auth-token=vKkylosuSuGwxrz7qcklOw'"
+            "open 'things:///update?id=test_uuid&completed=True&auth-token=vKkylosuSuGwxrz7qcklOw'"
         )
 
     def test_thingsdate(self):
