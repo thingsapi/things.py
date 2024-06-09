@@ -1043,10 +1043,11 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
         modifier = f"-{number * 7} days"
     elif suffix == "y":
         modifier = f"-{number} years"
+    else:
+        raise ValueError()  # for pylint; `validate_offset` already checks this
 
     column_datetime = f"datetime({date_column}, 'unixepoch')"
-    offset_datetime = f"datetime('now', '{modifier}')" \
-        # pylint: disable=E0606; # type: ignore
+    offset_datetime = f"datetime('now', '{modifier}')"
 
     return f"AND {column_datetime} > {offset_datetime}"
 
