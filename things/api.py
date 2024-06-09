@@ -678,9 +678,9 @@ def token(**kwargs) -> Union[str, None]:
     return database.get_url_scheme_auth_token()
 
 
-def url(uuid=None, command="show", **kwargs) -> str:
+def url(uuid=None, command="show", **query_parameters) -> str:
     """
-    Return a things:///<command>?id=uuid&… url.
+    Return a things:///<command>?<query> url.
 
     For details about available commands and their parameters
     consult the Things URL Scheme documentation
@@ -690,40 +690,41 @@ def url(uuid=None, command="show", **kwargs) -> str:
     ----------
     uuid : str or None, optional
         A valid uuid of any Things object.
-        If None id is not added as a parameter.
+        If `None`, then 'id' is not added as a parameter unless
+        specified in `query_parameters`.
 
-    command : str, default show
-        A valid thingsURL command.
+    command : str, default 'show'
+        A valid command name.
 
-    **kwargs:
-        Any aditional parameters needed.
-        Passing a dictionary is valid aswell.
+    **query_parameters:
+        Additional URL query parameters.
 
     Examples
     --------
-    >>> things.url("test_uuid")
-    'things:///show?id=test_uuid'
-    >>> things.url(command="update", uuid="test_uuid", title="new title")
-    'things:///update?id=test_uuid&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
-    >>> things.url(command="add", title="new task", when="in 3 days", deadline="in 6 days")
+    >>> things.url('6Hf2qWBjWhq7B1xszwdo34')
+    'things:///show?id=6Hf2qWBjWhq7B1xszwdo34'
+    >>> things.url(command='update', uuid='6Hf2qWBjWhq7B1xszwdo34', title='new title')
+    'things:///update?id=6Hf2qWBjWhq7B1xszwdo34&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
+    >>> things.url(command='add', title='new task', when='in 3 days', deadline='in 6 days')
     'things:///add?title=new%20task&when=in%203%20days&deadline=in%206%20days'
-    >>> parameters = {"title" : "test title", "list-id" : "ba5d1237-1dfa-4ab8-826b-7c27b517f29d"}
-    >>> things.url(command="add", **parameters)
+    >>> query_parameters = {'title': 'test title', 'list-id': 'ba5d1237-1dfa-4ab8-826b-7c27b517f29d'}
+    >>> things.url(command="add", **query_parameters)
     'things:///add?title=test%20title&list-id=ba5d1237-1dfa-4ab8-826b-7c27b517f29d'
     """
-    query_params = dict(kwargs) if uuid is None else dict(id=uuid, **kwargs)
+    if uuid is not None:
+        query_parameters = dict(id=uuid, **query_parameters)
 
     # authenticate if needed
-    if command not in ("add", "add-project", "show", "search", "json"):
-        auth_token = query_params["auth-token"] = token()
+    if command in ("update", "update-project"):
+        auth_token = query_parameters["auth-token"] = token()
         if not auth_token:
             raise ValueError("Things URL scheme authentication token could not be read")
 
-    query_params_string = urllib.parse.urlencode(
-        query_params, quote_via=urllib.parse.quote
+    query_string = urllib.parse.urlencode(
+        query_parameters, quote_via=urllib.parse.quote
     )
 
-    return f"things:///{command}?{query_params_string}"
+    return f"things:///{command}?{query_string}"
 
 
 # Alias for backwards compatiblity
@@ -750,12 +751,12 @@ def show(uuid):  # noqa
 
 def complete(uuid):  # noqa
     """
-    Set the status of a certain uuid to complete
+    Set the status of a certain uuid to complete.
 
     Parameters
     ----------
     uuid : str
-        A valid uuid of a project or todo.
+        A valid uuid of a project or to-do.
 
     Examples
     --------
