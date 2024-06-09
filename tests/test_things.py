@@ -235,6 +235,40 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         link = things.link("uuid")
         self.assertEqual("things:///show?id=uuid", link)
 
+    def test_get_url(self):
+        url = things.url("uuid")
+        self.assertEqual("things:///show?id=uuid", url)
+
+    def test_get_url_dict(self):
+        parameters = {
+            "title": "nice_title",
+            "list-id": "6c7e77b4-f4d7-44bc-8480-80c0bea585ea",
+        }
+        url = things.url(command="add", **parameters)
+        self.assertEqual(
+            "things:///add?title=nice_title&list-id=6c7e77b4-f4d7-44bc-8480-80c0bea585ea",
+            url,
+        )
+
+    def test_get_url_encoding(self):
+        url = things.url(
+            command="add",
+            title="test task",
+            notes="nice notes\nI really like notes",
+        )
+        self.assertEqual(
+            "things:///add?title=test%20task&notes=nice%20notes%0AI%20really%20like%20notes",
+            url,
+        )
+
+    @unittest.mock.patch("things.api.token")
+    def test_get_url_no_token(self, token_mock):
+        token_mock.return_value = None
+        with self.assertRaises(ValueError):
+            # currently only update and update-project require authentication
+            things.url(command="update")
+        self.assertEqual(token_mock.call_count, 1)
+
     def test_projects(self):
         projects = things.projects()
         self.assertEqual(3, len(projects))
@@ -331,6 +365,13 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_api_show(self, os_system):
         things.show("invalid_uuid")
         os_system.assert_called_once_with("open 'things:///show?id=invalid_uuid'")
+
+    @unittest.mock.patch("os.system")
+    def test_api_complete(self, os_system):
+        things.complete("test_uuid")
+        os_system.assert_called_once_with(
+            "open 'things:///update?id=test_uuid&completed=True&auth-token=vKkylosuSuGwxrz7qcklOw'"
+        )
 
     def test_thingsdate(self):
         sqlfilter: str = things.database.make_thingsdate_filter(
