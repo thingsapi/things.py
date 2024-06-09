@@ -1315,146 +1315,147 @@
 </span><span id="L-1044"><a href="#L-1044"><span class="linenos">1044</span></a>    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
 </span><span id="L-1045"><a href="#L-1045"><span class="linenos">1045</span></a>        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
 </span><span id="L-1046"><a href="#L-1046"><span class="linenos">1046</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-1047"><a href="#L-1047"><span class="linenos">1047</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>  <span class="c1"># for pylint; `validate_offset` already checks this</span>
-</span><span id="L-1048"><a href="#L-1048"><span class="linenos">1048</span></a>
-</span><span id="L-1049"><a href="#L-1049"><span class="linenos">1049</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
-</span><span id="L-1050"><a href="#L-1050"><span class="linenos">1050</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
-</span><span id="L-1051"><a href="#L-1051"><span class="linenos">1051</span></a>
-</span><span id="L-1052"><a href="#L-1052"><span class="linenos">1052</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="L-1053"><a href="#L-1053"><span class="linenos">1053</span></a>
+</span><span id="L-1047"><a href="#L-1047"><span class="linenos">1047</span></a>        <span class="c1"># Use `typing.assert_never(suffix)` from Python 3.11 onwards.</span>
+</span><span id="L-1048"><a href="#L-1048"><span class="linenos">1048</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;line should be unreachable.&quot;</span><span class="p">)</span>  <span class="c1"># for static code analyzers</span>
+</span><span id="L-1049"><a href="#L-1049"><span class="linenos">1049</span></a>
+</span><span id="L-1050"><a href="#L-1050"><span class="linenos">1050</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="L-1051"><a href="#L-1051"><span class="linenos">1051</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+</span><span id="L-1052"><a href="#L-1052"><span class="linenos">1052</span></a>
+</span><span id="L-1053"><a href="#L-1053"><span class="linenos">1053</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="L-1054"><a href="#L-1054"><span class="linenos">1054</span></a>
-</span><span id="L-1055"><a href="#L-1055"><span class="linenos">1055</span></a><span class="k">def</span> <span class="nf">match_date</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-</span><span id="L-1056"><a href="#L-1056"><span class="linenos">1056</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a match object if value is an ISO 8601 date str.&quot;&quot;&quot;</span>
-</span><span id="L-1057"><a href="#L-1057"><span class="linenos">1057</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(=|==|&lt;|&lt;=|&gt;|&gt;=)?(\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-</span><span id="L-1058"><a href="#L-1058"><span class="linenos">1058</span></a>
+</span><span id="L-1055"><a href="#L-1055"><span class="linenos">1055</span></a>
+</span><span id="L-1056"><a href="#L-1056"><span class="linenos">1056</span></a><span class="k">def</span> <span class="nf">match_date</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+</span><span id="L-1057"><a href="#L-1057"><span class="linenos">1057</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a match object if value is an ISO 8601 date str.&quot;&quot;&quot;</span>
+</span><span id="L-1058"><a href="#L-1058"><span class="linenos">1058</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(=|==|&lt;|&lt;=|&gt;|&gt;=)?(\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span><span id="L-1059"><a href="#L-1059"><span class="linenos">1059</span></a>
-</span><span id="L-1060"><a href="#L-1060"><span class="linenos">1060</span></a><span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
-</span><span id="L-1061"><a href="#L-1061"><span class="linenos">1061</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
-</span><span id="L-1062"><a href="#L-1062"><span class="linenos">1062</span></a>    <span class="c1"># remove indentation and leading and trailing whitespace</span>
-</span><span id="L-1063"><a href="#L-1063"><span class="linenos">1063</span></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="L-1064"><a href="#L-1064"><span class="linenos">1064</span></a>    <span class="c1"># remove empty lines</span>
-</span><span id="L-1065"><a href="#L-1065"><span class="linenos">1065</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^$\n&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
-</span><span id="L-1066"><a href="#L-1066"><span class="linenos">1066</span></a>
+</span><span id="L-1060"><a href="#L-1060"><span class="linenos">1060</span></a>
+</span><span id="L-1061"><a href="#L-1061"><span class="linenos">1061</span></a><span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
+</span><span id="L-1062"><a href="#L-1062"><span class="linenos">1062</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
+</span><span id="L-1063"><a href="#L-1063"><span class="linenos">1063</span></a>    <span class="c1"># remove indentation and leading and trailing whitespace</span>
+</span><span id="L-1064"><a href="#L-1064"><span class="linenos">1064</span></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="L-1065"><a href="#L-1065"><span class="linenos">1065</span></a>    <span class="c1"># remove empty lines</span>
+</span><span id="L-1066"><a href="#L-1066"><span class="linenos">1066</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^$\n&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
 </span><span id="L-1067"><a href="#L-1067"><span class="linenos">1067</span></a>
-</span><span id="L-1068"><a href="#L-1068"><span class="linenos">1068</span></a><span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
-</span><span id="L-1069"><a href="#L-1069"><span class="linenos">1069</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove prefix from text (as removeprefix() is 3.9+ only).&quot;&quot;&quot;</span>
-</span><span id="L-1070"><a href="#L-1070"><span class="linenos">1070</span></a>    <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span>
-</span><span id="L-1071"><a href="#L-1071"><span class="linenos">1071</span></a>
+</span><span id="L-1068"><a href="#L-1068"><span class="linenos">1068</span></a>
+</span><span id="L-1069"><a href="#L-1069"><span class="linenos">1069</span></a><span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+</span><span id="L-1070"><a href="#L-1070"><span class="linenos">1070</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove prefix from text (as removeprefix() is 3.9+ only).&quot;&quot;&quot;</span>
+</span><span id="L-1071"><a href="#L-1071"><span class="linenos">1071</span></a>    <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span>
 </span><span id="L-1072"><a href="#L-1072"><span class="linenos">1072</span></a>
-</span><span id="L-1073"><a href="#L-1073"><span class="linenos">1073</span></a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
-</span><span id="L-1074"><a href="#L-1074"><span class="linenos">1074</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-1075"><a href="#L-1075"><span class="linenos">1075</span></a><span class="sd">    For a given parameter, check if its argument type is valid.</span>
-</span><span id="L-1076"><a href="#L-1076"><span class="linenos">1076</span></a>
-</span><span id="L-1077"><a href="#L-1077"><span class="linenos">1077</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="L-1078"><a href="#L-1078"><span class="linenos">1078</span></a>
-</span><span id="L-1079"><a href="#L-1079"><span class="linenos">1079</span></a><span class="sd">    Examples</span>
-</span><span id="L-1080"><a href="#L-1080"><span class="linenos">1080</span></a><span class="sd">    --------</span>
-</span><span id="L-1081"><a href="#L-1081"><span class="linenos">1081</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
-</span><span id="L-1082"><a href="#L-1082"><span class="linenos">1082</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
-</span><span id="L-1083"><a href="#L-1083"><span class="linenos">1083</span></a><span class="sd">    ...     argument=&#39;completed&#39;,</span>
-</span><span id="L-1084"><a href="#L-1084"><span class="linenos">1084</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="L-1085"><a href="#L-1085"><span class="linenos">1085</span></a><span class="sd">    ... )</span>
-</span><span id="L-1086"><a href="#L-1086"><span class="linenos">1086</span></a><span class="sd">    ...</span>
-</span><span id="L-1087"><a href="#L-1087"><span class="linenos">1087</span></a>
-</span><span id="L-1088"><a href="#L-1088"><span class="linenos">1088</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
-</span><span id="L-1089"><a href="#L-1089"><span class="linenos">1089</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
-</span><span id="L-1090"><a href="#L-1090"><span class="linenos">1090</span></a><span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
-</span><span id="L-1091"><a href="#L-1091"><span class="linenos">1091</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="L-1092"><a href="#L-1092"><span class="linenos">1092</span></a><span class="sd">    ... )</span>
-</span><span id="L-1093"><a href="#L-1093"><span class="linenos">1093</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="L-1094"><a href="#L-1094"><span class="linenos">1094</span></a><span class="sd">    ...</span>
-</span><span id="L-1095"><a href="#L-1095"><span class="linenos">1095</span></a><span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
-</span><span id="L-1096"><a href="#L-1096"><span class="linenos">1096</span></a><span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="L-1097"><a href="#L-1097"><span class="linenos">1097</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-1098"><a href="#L-1098"><span class="linenos">1098</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="n">valid_arguments</span><span class="p">:</span>
-</span><span id="L-1099"><a href="#L-1099"><span class="linenos">1099</span></a>        <span class="k">return</span>
-</span><span id="L-1100"><a href="#L-1100"><span class="linenos">1100</span></a>    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> type: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="s2">&quot;</span>
-</span><span id="L-1101"><a href="#L-1101"><span class="linenos">1101</span></a>    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Valid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> types are </span><span class="si">{</span><span class="n">valid_arguments</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="L-1102"><a href="#L-1102"><span class="linenos">1102</span></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</span><span id="L-1103"><a href="#L-1103"><span class="linenos">1103</span></a>
+</span><span id="L-1073"><a href="#L-1073"><span class="linenos">1073</span></a>
+</span><span id="L-1074"><a href="#L-1074"><span class="linenos">1074</span></a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
+</span><span id="L-1075"><a href="#L-1075"><span class="linenos">1075</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-1076"><a href="#L-1076"><span class="linenos">1076</span></a><span class="sd">    For a given parameter, check if its argument type is valid.</span>
+</span><span id="L-1077"><a href="#L-1077"><span class="linenos">1077</span></a>
+</span><span id="L-1078"><a href="#L-1078"><span class="linenos">1078</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="L-1079"><a href="#L-1079"><span class="linenos">1079</span></a>
+</span><span id="L-1080"><a href="#L-1080"><span class="linenos">1080</span></a><span class="sd">    Examples</span>
+</span><span id="L-1081"><a href="#L-1081"><span class="linenos">1081</span></a><span class="sd">    --------</span>
+</span><span id="L-1082"><a href="#L-1082"><span class="linenos">1082</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
+</span><span id="L-1083"><a href="#L-1083"><span class="linenos">1083</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
+</span><span id="L-1084"><a href="#L-1084"><span class="linenos">1084</span></a><span class="sd">    ...     argument=&#39;completed&#39;,</span>
+</span><span id="L-1085"><a href="#L-1085"><span class="linenos">1085</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="L-1086"><a href="#L-1086"><span class="linenos">1086</span></a><span class="sd">    ... )</span>
+</span><span id="L-1087"><a href="#L-1087"><span class="linenos">1087</span></a><span class="sd">    ...</span>
+</span><span id="L-1088"><a href="#L-1088"><span class="linenos">1088</span></a>
+</span><span id="L-1089"><a href="#L-1089"><span class="linenos">1089</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
+</span><span id="L-1090"><a href="#L-1090"><span class="linenos">1090</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
+</span><span id="L-1091"><a href="#L-1091"><span class="linenos">1091</span></a><span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
+</span><span id="L-1092"><a href="#L-1092"><span class="linenos">1092</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="L-1093"><a href="#L-1093"><span class="linenos">1093</span></a><span class="sd">    ... )</span>
+</span><span id="L-1094"><a href="#L-1094"><span class="linenos">1094</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="L-1095"><a href="#L-1095"><span class="linenos">1095</span></a><span class="sd">    ...</span>
+</span><span id="L-1096"><a href="#L-1096"><span class="linenos">1096</span></a><span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
+</span><span id="L-1097"><a href="#L-1097"><span class="linenos">1097</span></a><span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="L-1098"><a href="#L-1098"><span class="linenos">1098</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-1099"><a href="#L-1099"><span class="linenos">1099</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="n">valid_arguments</span><span class="p">:</span>
+</span><span id="L-1100"><a href="#L-1100"><span class="linenos">1100</span></a>        <span class="k">return</span>
+</span><span id="L-1101"><a href="#L-1101"><span class="linenos">1101</span></a>    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> type: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="s2">&quot;</span>
+</span><span id="L-1102"><a href="#L-1102"><span class="linenos">1102</span></a>    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Valid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> types are </span><span class="si">{</span><span class="n">valid_arguments</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-1103"><a href="#L-1103"><span class="linenos">1103</span></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span><span id="L-1104"><a href="#L-1104"><span class="linenos">1104</span></a>
-</span><span id="L-1105"><a href="#L-1105"><span class="linenos">1105</span></a><span class="k">def</span> <span class="nf">validate_date</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
-</span><span id="L-1106"><a href="#L-1106"><span class="linenos">1106</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-1107"><a href="#L-1107"><span class="linenos">1107</span></a><span class="sd">    For a given date parameter, check if its argument is valid.</span>
-</span><span id="L-1108"><a href="#L-1108"><span class="linenos">1108</span></a>
-</span><span id="L-1109"><a href="#L-1109"><span class="linenos">1109</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="L-1110"><a href="#L-1110"><span class="linenos">1110</span></a>
-</span><span id="L-1111"><a href="#L-1111"><span class="linenos">1111</span></a><span class="sd">    Examples</span>
-</span><span id="L-1112"><a href="#L-1112"><span class="linenos">1112</span></a><span class="sd">    --------</span>
-</span><span id="L-1113"><a href="#L-1113"><span class="linenos">1113</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=None)</span>
-</span><span id="L-1114"><a href="#L-1114"><span class="linenos">1114</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;future&#39;)</span>
-</span><span id="L-1115"><a href="#L-1115"><span class="linenos">1115</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;2020-01-01&#39;)</span>
-</span><span id="L-1116"><a href="#L-1116"><span class="linenos">1116</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;&lt;=2020-01-01&#39;)</span>
-</span><span id="L-1117"><a href="#L-1117"><span class="linenos">1117</span></a>
-</span><span id="L-1118"><a href="#L-1118"><span class="linenos">1118</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;stopDate&#39;, argument=&#39;=2020-01-01&#39;)</span>
-</span><span id="L-1119"><a href="#L-1119"><span class="linenos">1119</span></a>
-</span><span id="L-1120"><a href="#L-1120"><span class="linenos">1120</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;deadline&#39;, argument=&#39;XYZ&#39;)</span>
-</span><span id="L-1121"><a href="#L-1121"><span class="linenos">1121</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="L-1122"><a href="#L-1122"><span class="linenos">1122</span></a><span class="sd">    ...</span>
-</span><span id="L-1123"><a href="#L-1123"><span class="linenos">1123</span></a><span class="sd">    ValueError: Invalid deadline argument: &#39;XYZ&#39;</span>
-</span><span id="L-1124"><a href="#L-1124"><span class="linenos">1124</span></a><span class="sd">    Please see the documentation for `deadline` in `things.tasks`.</span>
-</span><span id="L-1125"><a href="#L-1125"><span class="linenos">1125</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-1126"><a href="#L-1126"><span class="linenos">1126</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-1127"><a href="#L-1127"><span class="linenos">1127</span></a>        <span class="k">return</span>
-</span><span id="L-1128"><a href="#L-1128"><span class="linenos">1128</span></a>
-</span><span id="L-1129"><a href="#L-1129"><span class="linenos">1129</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">DATES</span><span class="p">):</span>
-</span><span id="L-1130"><a href="#L-1130"><span class="linenos">1130</span></a>        <span class="k">return</span>
-</span><span id="L-1131"><a href="#L-1131"><span class="linenos">1131</span></a>
-</span><span id="L-1132"><a href="#L-1132"><span class="linenos">1132</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-1133"><a href="#L-1133"><span class="linenos">1133</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-1134"><a href="#L-1134"><span class="linenos">1134</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="L-1135"><a href="#L-1135"><span class="linenos">1135</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
-</span><span id="L-1136"><a href="#L-1136"><span class="linenos">1136</span></a>        <span class="p">)</span>
-</span><span id="L-1137"><a href="#L-1137"><span class="linenos">1137</span></a>
-</span><span id="L-1138"><a href="#L-1138"><span class="linenos">1138</span></a>    <span class="n">match</span> <span class="o">=</span> <span class="n">match_date</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
-</span><span id="L-1139"><a href="#L-1139"><span class="linenos">1139</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-</span><span id="L-1140"><a href="#L-1140"><span class="linenos">1140</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-1141"><a href="#L-1141"><span class="linenos">1141</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="L-1142"><a href="#L-1142"><span class="linenos">1142</span></a>            <span class="sa">f</span><span class="s2">&quot;Please see the documentation for `</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">` in `things.tasks`.&quot;</span>
-</span><span id="L-1143"><a href="#L-1143"><span class="linenos">1143</span></a>        <span class="p">)</span>
-</span><span id="L-1144"><a href="#L-1144"><span class="linenos">1144</span></a>
-</span><span id="L-1145"><a href="#L-1145"><span class="linenos">1145</span></a>    <span class="n">_</span><span class="p">,</span> <span class="n">isodate</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-</span><span id="L-1146"><a href="#L-1146"><span class="linenos">1146</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="L-1147"><a href="#L-1147"><span class="linenos">1147</span></a>        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">isodate</span><span class="p">)</span>
-</span><span id="L-1148"><a href="#L-1148"><span class="linenos">1148</span></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span id="L-1149"><a href="#L-1149"><span class="linenos">1149</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-1150"><a href="#L-1150"><span class="linenos">1150</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="L-1151"><a href="#L-1151"><span class="linenos">1151</span></a>        <span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
-</span><span id="L-1152"><a href="#L-1152"><span class="linenos">1152</span></a>
+</span><span id="L-1105"><a href="#L-1105"><span class="linenos">1105</span></a>
+</span><span id="L-1106"><a href="#L-1106"><span class="linenos">1106</span></a><span class="k">def</span> <span class="nf">validate_date</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+</span><span id="L-1107"><a href="#L-1107"><span class="linenos">1107</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-1108"><a href="#L-1108"><span class="linenos">1108</span></a><span class="sd">    For a given date parameter, check if its argument is valid.</span>
+</span><span id="L-1109"><a href="#L-1109"><span class="linenos">1109</span></a>
+</span><span id="L-1110"><a href="#L-1110"><span class="linenos">1110</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="L-1111"><a href="#L-1111"><span class="linenos">1111</span></a>
+</span><span id="L-1112"><a href="#L-1112"><span class="linenos">1112</span></a><span class="sd">    Examples</span>
+</span><span id="L-1113"><a href="#L-1113"><span class="linenos">1113</span></a><span class="sd">    --------</span>
+</span><span id="L-1114"><a href="#L-1114"><span class="linenos">1114</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=None)</span>
+</span><span id="L-1115"><a href="#L-1115"><span class="linenos">1115</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;future&#39;)</span>
+</span><span id="L-1116"><a href="#L-1116"><span class="linenos">1116</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;2020-01-01&#39;)</span>
+</span><span id="L-1117"><a href="#L-1117"><span class="linenos">1117</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;&lt;=2020-01-01&#39;)</span>
+</span><span id="L-1118"><a href="#L-1118"><span class="linenos">1118</span></a>
+</span><span id="L-1119"><a href="#L-1119"><span class="linenos">1119</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;stopDate&#39;, argument=&#39;=2020-01-01&#39;)</span>
+</span><span id="L-1120"><a href="#L-1120"><span class="linenos">1120</span></a>
+</span><span id="L-1121"><a href="#L-1121"><span class="linenos">1121</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;deadline&#39;, argument=&#39;XYZ&#39;)</span>
+</span><span id="L-1122"><a href="#L-1122"><span class="linenos">1122</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="L-1123"><a href="#L-1123"><span class="linenos">1123</span></a><span class="sd">    ...</span>
+</span><span id="L-1124"><a href="#L-1124"><span class="linenos">1124</span></a><span class="sd">    ValueError: Invalid deadline argument: &#39;XYZ&#39;</span>
+</span><span id="L-1125"><a href="#L-1125"><span class="linenos">1125</span></a><span class="sd">    Please see the documentation for `deadline` in `things.tasks`.</span>
+</span><span id="L-1126"><a href="#L-1126"><span class="linenos">1126</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-1127"><a href="#L-1127"><span class="linenos">1127</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-1128"><a href="#L-1128"><span class="linenos">1128</span></a>        <span class="k">return</span>
+</span><span id="L-1129"><a href="#L-1129"><span class="linenos">1129</span></a>
+</span><span id="L-1130"><a href="#L-1130"><span class="linenos">1130</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">DATES</span><span class="p">):</span>
+</span><span id="L-1131"><a href="#L-1131"><span class="linenos">1131</span></a>        <span class="k">return</span>
+</span><span id="L-1132"><a href="#L-1132"><span class="linenos">1132</span></a>
+</span><span id="L-1133"><a href="#L-1133"><span class="linenos">1133</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-1134"><a href="#L-1134"><span class="linenos">1134</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-1135"><a href="#L-1135"><span class="linenos">1135</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-1136"><a href="#L-1136"><span class="linenos">1136</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+</span><span id="L-1137"><a href="#L-1137"><span class="linenos">1137</span></a>        <span class="p">)</span>
+</span><span id="L-1138"><a href="#L-1138"><span class="linenos">1138</span></a>
+</span><span id="L-1139"><a href="#L-1139"><span class="linenos">1139</span></a>    <span class="n">match</span> <span class="o">=</span> <span class="n">match_date</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+</span><span id="L-1140"><a href="#L-1140"><span class="linenos">1140</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="L-1141"><a href="#L-1141"><span class="linenos">1141</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-1142"><a href="#L-1142"><span class="linenos">1142</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-1143"><a href="#L-1143"><span class="linenos">1143</span></a>            <span class="sa">f</span><span class="s2">&quot;Please see the documentation for `</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">` in `things.tasks`.&quot;</span>
+</span><span id="L-1144"><a href="#L-1144"><span class="linenos">1144</span></a>        <span class="p">)</span>
+</span><span id="L-1145"><a href="#L-1145"><span class="linenos">1145</span></a>
+</span><span id="L-1146"><a href="#L-1146"><span class="linenos">1146</span></a>    <span class="n">_</span><span class="p">,</span> <span class="n">isodate</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+</span><span id="L-1147"><a href="#L-1147"><span class="linenos">1147</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="L-1148"><a href="#L-1148"><span class="linenos">1148</span></a>        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">isodate</span><span class="p">)</span>
+</span><span id="L-1149"><a href="#L-1149"><span class="linenos">1149</span></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="L-1150"><a href="#L-1150"><span class="linenos">1150</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-1151"><a href="#L-1151"><span class="linenos">1151</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-1152"><a href="#L-1152"><span class="linenos">1152</span></a>        <span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
 </span><span id="L-1153"><a href="#L-1153"><span class="linenos">1153</span></a>
-</span><span id="L-1154"><a href="#L-1154"><span class="linenos">1154</span></a><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
-</span><span id="L-1155"><a href="#L-1155"><span class="linenos">1155</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-1156"><a href="#L-1156"><span class="linenos">1156</span></a><span class="sd">    For a given offset parameter, check if its argument is valid.</span>
-</span><span id="L-1157"><a href="#L-1157"><span class="linenos">1157</span></a>
-</span><span id="L-1158"><a href="#L-1158"><span class="linenos">1158</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="L-1159"><a href="#L-1159"><span class="linenos">1159</span></a>
-</span><span id="L-1160"><a href="#L-1160"><span class="linenos">1160</span></a><span class="sd">    Examples</span>
-</span><span id="L-1161"><a href="#L-1161"><span class="linenos">1161</span></a><span class="sd">    --------</span>
-</span><span id="L-1162"><a href="#L-1162"><span class="linenos">1162</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
-</span><span id="L-1163"><a href="#L-1163"><span class="linenos">1163</span></a>
-</span><span id="L-1164"><a href="#L-1164"><span class="linenos">1164</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
-</span><span id="L-1165"><a href="#L-1165"><span class="linenos">1165</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="L-1166"><a href="#L-1166"><span class="linenos">1166</span></a><span class="sd">    ...</span>
-</span><span id="L-1167"><a href="#L-1167"><span class="linenos">1167</span></a><span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
-</span><span id="L-1168"><a href="#L-1168"><span class="linenos">1168</span></a><span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
-</span><span id="L-1169"><a href="#L-1169"><span class="linenos">1169</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-1170"><a href="#L-1170"><span class="linenos">1170</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-1171"><a href="#L-1171"><span class="linenos">1171</span></a>        <span class="k">return</span>
-</span><span id="L-1172"><a href="#L-1172"><span class="linenos">1172</span></a>
-</span><span id="L-1173"><a href="#L-1173"><span class="linenos">1173</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-1174"><a href="#L-1174"><span class="linenos">1174</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-1175"><a href="#L-1175"><span class="linenos">1175</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="L-1176"><a href="#L-1176"><span class="linenos">1176</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
-</span><span id="L-1177"><a href="#L-1177"><span class="linenos">1177</span></a>        <span class="p">)</span>
-</span><span id="L-1178"><a href="#L-1178"><span class="linenos">1178</span></a>
-</span><span id="L-1179"><a href="#L-1179"><span class="linenos">1179</span></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
-</span><span id="L-1180"><a href="#L-1180"><span class="linenos">1180</span></a>    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
-</span><span id="L-1181"><a href="#L-1181"><span class="linenos">1181</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-1182"><a href="#L-1182"><span class="linenos">1182</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="L-1183"><a href="#L-1183"><span class="linenos">1183</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
-</span><span id="L-1184"><a href="#L-1184"><span class="linenos">1184</span></a>            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
-</span><span id="L-1185"><a href="#L-1185"><span class="linenos">1185</span></a>            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
-</span><span id="L-1186"><a href="#L-1186"><span class="linenos">1186</span></a>        <span class="p">)</span>
+</span><span id="L-1154"><a href="#L-1154"><span class="linenos">1154</span></a>
+</span><span id="L-1155"><a href="#L-1155"><span class="linenos">1155</span></a><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+</span><span id="L-1156"><a href="#L-1156"><span class="linenos">1156</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-1157"><a href="#L-1157"><span class="linenos">1157</span></a><span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+</span><span id="L-1158"><a href="#L-1158"><span class="linenos">1158</span></a>
+</span><span id="L-1159"><a href="#L-1159"><span class="linenos">1159</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="L-1160"><a href="#L-1160"><span class="linenos">1160</span></a>
+</span><span id="L-1161"><a href="#L-1161"><span class="linenos">1161</span></a><span class="sd">    Examples</span>
+</span><span id="L-1162"><a href="#L-1162"><span class="linenos">1162</span></a><span class="sd">    --------</span>
+</span><span id="L-1163"><a href="#L-1163"><span class="linenos">1163</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
+</span><span id="L-1164"><a href="#L-1164"><span class="linenos">1164</span></a>
+</span><span id="L-1165"><a href="#L-1165"><span class="linenos">1165</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
+</span><span id="L-1166"><a href="#L-1166"><span class="linenos">1166</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="L-1167"><a href="#L-1167"><span class="linenos">1167</span></a><span class="sd">    ...</span>
+</span><span id="L-1168"><a href="#L-1168"><span class="linenos">1168</span></a><span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+</span><span id="L-1169"><a href="#L-1169"><span class="linenos">1169</span></a><span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
+</span><span id="L-1170"><a href="#L-1170"><span class="linenos">1170</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-1171"><a href="#L-1171"><span class="linenos">1171</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-1172"><a href="#L-1172"><span class="linenos">1172</span></a>        <span class="k">return</span>
+</span><span id="L-1173"><a href="#L-1173"><span class="linenos">1173</span></a>
+</span><span id="L-1174"><a href="#L-1174"><span class="linenos">1174</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-1175"><a href="#L-1175"><span class="linenos">1175</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-1176"><a href="#L-1176"><span class="linenos">1176</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-1177"><a href="#L-1177"><span class="linenos">1177</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+</span><span id="L-1178"><a href="#L-1178"><span class="linenos">1178</span></a>        <span class="p">)</span>
+</span><span id="L-1179"><a href="#L-1179"><span class="linenos">1179</span></a>
+</span><span id="L-1180"><a href="#L-1180"><span class="linenos">1180</span></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
+</span><span id="L-1181"><a href="#L-1181"><span class="linenos">1181</span></a>    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+</span><span id="L-1182"><a href="#L-1182"><span class="linenos">1182</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-1183"><a href="#L-1183"><span class="linenos">1183</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-1184"><a href="#L-1184"><span class="linenos">1184</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
+</span><span id="L-1185"><a href="#L-1185"><span class="linenos">1185</span></a>            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
+</span><span id="L-1186"><a href="#L-1186"><span class="linenos">1186</span></a>            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
+</span><span id="L-1187"><a href="#L-1187"><span class="linenos">1187</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 
@@ -3902,12 +3903,13 @@ return the empty string.</li>
 </span><span id="make_unixtime_range_filter-1045"><a href="#make_unixtime_range_filter-1045"><span class="linenos">1045</span></a>    <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
 </span><span id="make_unixtime_range_filter-1046"><a href="#make_unixtime_range_filter-1046"><span class="linenos">1046</span></a>        <span class="n">modifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2"> years&quot;</span>
 </span><span id="make_unixtime_range_filter-1047"><a href="#make_unixtime_range_filter-1047"><span class="linenos">1047</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="make_unixtime_range_filter-1048"><a href="#make_unixtime_range_filter-1048"><span class="linenos">1048</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>  <span class="c1"># for pylint; `validate_offset` already checks this</span>
-</span><span id="make_unixtime_range_filter-1049"><a href="#make_unixtime_range_filter-1049"><span class="linenos">1049</span></a>
-</span><span id="make_unixtime_range_filter-1050"><a href="#make_unixtime_range_filter-1050"><span class="linenos">1050</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
-</span><span id="make_unixtime_range_filter-1051"><a href="#make_unixtime_range_filter-1051"><span class="linenos">1051</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
-</span><span id="make_unixtime_range_filter-1052"><a href="#make_unixtime_range_filter-1052"><span class="linenos">1052</span></a>
-</span><span id="make_unixtime_range_filter-1053"><a href="#make_unixtime_range_filter-1053"><span class="linenos">1053</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="make_unixtime_range_filter-1048"><a href="#make_unixtime_range_filter-1048"><span class="linenos">1048</span></a>        <span class="c1"># Use `typing.assert_never(suffix)` from Python 3.11 onwards.</span>
+</span><span id="make_unixtime_range_filter-1049"><a href="#make_unixtime_range_filter-1049"><span class="linenos">1049</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;line should be unreachable.&quot;</span><span class="p">)</span>  <span class="c1"># for static code analyzers</span>
+</span><span id="make_unixtime_range_filter-1050"><a href="#make_unixtime_range_filter-1050"><span class="linenos">1050</span></a>
+</span><span id="make_unixtime_range_filter-1051"><a href="#make_unixtime_range_filter-1051"><span class="linenos">1051</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="make_unixtime_range_filter-1052"><a href="#make_unixtime_range_filter-1052"><span class="linenos">1052</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+</span><span id="make_unixtime_range_filter-1053"><a href="#make_unixtime_range_filter-1053"><span class="linenos">1053</span></a>
+</span><span id="make_unixtime_range_filter-1054"><a href="#make_unixtime_range_filter-1054"><span class="linenos">1054</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
 </span></pre></div>
 
 
@@ -3961,9 +3963,9 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#match_date"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="match_date-1056"><a href="#match_date-1056"><span class="linenos">1056</span></a><span class="k">def</span> <span class="nf">match_date</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-</span><span id="match_date-1057"><a href="#match_date-1057"><span class="linenos">1057</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a match object if value is an ISO 8601 date str.&quot;&quot;&quot;</span>
-</span><span id="match_date-1058"><a href="#match_date-1058"><span class="linenos">1058</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(=|==|&lt;|&lt;=|&gt;|&gt;=)?(\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="match_date-1057"><a href="#match_date-1057"><span class="linenos">1057</span></a><span class="k">def</span> <span class="nf">match_date</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+</span><span id="match_date-1058"><a href="#match_date-1058"><span class="linenos">1058</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a match object if value is an ISO 8601 date str.&quot;&quot;&quot;</span>
+</span><span id="match_date-1059"><a href="#match_date-1059"><span class="linenos">1059</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(=|==|&lt;|&lt;=|&gt;|&gt;=)?(\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -3983,12 +3985,12 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#prettify_sql"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="prettify_sql-1061"><a href="#prettify_sql-1061"><span class="linenos">1061</span></a><span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
-</span><span id="prettify_sql-1062"><a href="#prettify_sql-1062"><span class="linenos">1062</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
-</span><span id="prettify_sql-1063"><a href="#prettify_sql-1063"><span class="linenos">1063</span></a>    <span class="c1"># remove indentation and leading and trailing whitespace</span>
-</span><span id="prettify_sql-1064"><a href="#prettify_sql-1064"><span class="linenos">1064</span></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="prettify_sql-1065"><a href="#prettify_sql-1065"><span class="linenos">1065</span></a>    <span class="c1"># remove empty lines</span>
-</span><span id="prettify_sql-1066"><a href="#prettify_sql-1066"><span class="linenos">1066</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^$\n&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="prettify_sql-1062"><a href="#prettify_sql-1062"><span class="linenos">1062</span></a><span class="k">def</span> <span class="nf">prettify_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
+</span><span id="prettify_sql-1063"><a href="#prettify_sql-1063"><span class="linenos">1063</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a SQL query easier to read for humans.&quot;&quot;&quot;</span>
+</span><span id="prettify_sql-1064"><a href="#prettify_sql-1064"><span class="linenos">1064</span></a>    <span class="c1"># remove indentation and leading and trailing whitespace</span>
+</span><span id="prettify_sql-1065"><a href="#prettify_sql-1065"><span class="linenos">1065</span></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="prettify_sql-1066"><a href="#prettify_sql-1066"><span class="linenos">1066</span></a>    <span class="c1"># remove empty lines</span>
+</span><span id="prettify_sql-1067"><a href="#prettify_sql-1067"><span class="linenos">1067</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^$\n&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -4008,9 +4010,9 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#remove_prefix"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="remove_prefix-1069"><a href="#remove_prefix-1069"><span class="linenos">1069</span></a><span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
-</span><span id="remove_prefix-1070"><a href="#remove_prefix-1070"><span class="linenos">1070</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove prefix from text (as removeprefix() is 3.9+ only).&quot;&quot;&quot;</span>
-</span><span id="remove_prefix-1071"><a href="#remove_prefix-1071"><span class="linenos">1071</span></a>    <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="remove_prefix-1070"><a href="#remove_prefix-1070"><span class="linenos">1070</span></a><span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+</span><span id="remove_prefix-1071"><a href="#remove_prefix-1071"><span class="linenos">1071</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove prefix from text (as removeprefix() is 3.9+ only).&quot;&quot;&quot;</span>
+</span><span id="remove_prefix-1072"><a href="#remove_prefix-1072"><span class="linenos">1072</span></a>    <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span>
 </span></pre></div>
 
 
@@ -4030,36 +4032,36 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#validate"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="validate-1074"><a href="#validate-1074"><span class="linenos">1074</span></a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
-</span><span id="validate-1075"><a href="#validate-1075"><span class="linenos">1075</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="validate-1076"><a href="#validate-1076"><span class="linenos">1076</span></a><span class="sd">    For a given parameter, check if its argument type is valid.</span>
-</span><span id="validate-1077"><a href="#validate-1077"><span class="linenos">1077</span></a>
-</span><span id="validate-1078"><a href="#validate-1078"><span class="linenos">1078</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="validate-1079"><a href="#validate-1079"><span class="linenos">1079</span></a>
-</span><span id="validate-1080"><a href="#validate-1080"><span class="linenos">1080</span></a><span class="sd">    Examples</span>
-</span><span id="validate-1081"><a href="#validate-1081"><span class="linenos">1081</span></a><span class="sd">    --------</span>
-</span><span id="validate-1082"><a href="#validate-1082"><span class="linenos">1082</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
-</span><span id="validate-1083"><a href="#validate-1083"><span class="linenos">1083</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
-</span><span id="validate-1084"><a href="#validate-1084"><span class="linenos">1084</span></a><span class="sd">    ...     argument=&#39;completed&#39;,</span>
-</span><span id="validate-1085"><a href="#validate-1085"><span class="linenos">1085</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="validate-1086"><a href="#validate-1086"><span class="linenos">1086</span></a><span class="sd">    ... )</span>
-</span><span id="validate-1087"><a href="#validate-1087"><span class="linenos">1087</span></a><span class="sd">    ...</span>
-</span><span id="validate-1088"><a href="#validate-1088"><span class="linenos">1088</span></a>
-</span><span id="validate-1089"><a href="#validate-1089"><span class="linenos">1089</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
-</span><span id="validate-1090"><a href="#validate-1090"><span class="linenos">1090</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
-</span><span id="validate-1091"><a href="#validate-1091"><span class="linenos">1091</span></a><span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
-</span><span id="validate-1092"><a href="#validate-1092"><span class="linenos">1092</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="validate-1093"><a href="#validate-1093"><span class="linenos">1093</span></a><span class="sd">    ... )</span>
-</span><span id="validate-1094"><a href="#validate-1094"><span class="linenos">1094</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="validate-1095"><a href="#validate-1095"><span class="linenos">1095</span></a><span class="sd">    ...</span>
-</span><span id="validate-1096"><a href="#validate-1096"><span class="linenos">1096</span></a><span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
-</span><span id="validate-1097"><a href="#validate-1097"><span class="linenos">1097</span></a><span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
-</span><span id="validate-1098"><a href="#validate-1098"><span class="linenos">1098</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="validate-1099"><a href="#validate-1099"><span class="linenos">1099</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="n">valid_arguments</span><span class="p">:</span>
-</span><span id="validate-1100"><a href="#validate-1100"><span class="linenos">1100</span></a>        <span class="k">return</span>
-</span><span id="validate-1101"><a href="#validate-1101"><span class="linenos">1101</span></a>    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> type: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="s2">&quot;</span>
-</span><span id="validate-1102"><a href="#validate-1102"><span class="linenos">1102</span></a>    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Valid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> types are </span><span class="si">{</span><span class="n">valid_arguments</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="validate-1103"><a href="#validate-1103"><span class="linenos">1103</span></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="validate-1075"><a href="#validate-1075"><span class="linenos">1075</span></a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">valid_arguments</span><span class="p">):</span>
+</span><span id="validate-1076"><a href="#validate-1076"><span class="linenos">1076</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="validate-1077"><a href="#validate-1077"><span class="linenos">1077</span></a><span class="sd">    For a given parameter, check if its argument type is valid.</span>
+</span><span id="validate-1078"><a href="#validate-1078"><span class="linenos">1078</span></a>
+</span><span id="validate-1079"><a href="#validate-1079"><span class="linenos">1079</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="validate-1080"><a href="#validate-1080"><span class="linenos">1080</span></a>
+</span><span id="validate-1081"><a href="#validate-1081"><span class="linenos">1081</span></a><span class="sd">    Examples</span>
+</span><span id="validate-1082"><a href="#validate-1082"><span class="linenos">1082</span></a><span class="sd">    --------</span>
+</span><span id="validate-1083"><a href="#validate-1083"><span class="linenos">1083</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
+</span><span id="validate-1084"><a href="#validate-1084"><span class="linenos">1084</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
+</span><span id="validate-1085"><a href="#validate-1085"><span class="linenos">1085</span></a><span class="sd">    ...     argument=&#39;completed&#39;,</span>
+</span><span id="validate-1086"><a href="#validate-1086"><span class="linenos">1086</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="validate-1087"><a href="#validate-1087"><span class="linenos">1087</span></a><span class="sd">    ... )</span>
+</span><span id="validate-1088"><a href="#validate-1088"><span class="linenos">1088</span></a><span class="sd">    ...</span>
+</span><span id="validate-1089"><a href="#validate-1089"><span class="linenos">1089</span></a>
+</span><span id="validate-1090"><a href="#validate-1090"><span class="linenos">1090</span></a><span class="sd">    &gt;&gt;&gt; validate(</span>
+</span><span id="validate-1091"><a href="#validate-1091"><span class="linenos">1091</span></a><span class="sd">    ...     parameter=&#39;status&#39;,</span>
+</span><span id="validate-1092"><a href="#validate-1092"><span class="linenos">1092</span></a><span class="sd">    ...     argument=&#39;XYZXZY&#39;,</span>
+</span><span id="validate-1093"><a href="#validate-1093"><span class="linenos">1093</span></a><span class="sd">    ...     valid_arguments=[&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="validate-1094"><a href="#validate-1094"><span class="linenos">1094</span></a><span class="sd">    ... )</span>
+</span><span id="validate-1095"><a href="#validate-1095"><span class="linenos">1095</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="validate-1096"><a href="#validate-1096"><span class="linenos">1096</span></a><span class="sd">    ...</span>
+</span><span id="validate-1097"><a href="#validate-1097"><span class="linenos">1097</span></a><span class="sd">    ValueError: Unrecognized status type: &#39;XYZXZY&#39;</span>
+</span><span id="validate-1098"><a href="#validate-1098"><span class="linenos">1098</span></a><span class="sd">    Valid status types are [&#39;incomplete&#39;, &#39;completed&#39;]</span>
+</span><span id="validate-1099"><a href="#validate-1099"><span class="linenos">1099</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="validate-1100"><a href="#validate-1100"><span class="linenos">1100</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="n">valid_arguments</span><span class="p">:</span>
+</span><span id="validate-1101"><a href="#validate-1101"><span class="linenos">1101</span></a>        <span class="k">return</span>
+</span><span id="validate-1102"><a href="#validate-1102"><span class="linenos">1102</span></a>    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> type: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="s2">&quot;</span>
+</span><span id="validate-1103"><a href="#validate-1103"><span class="linenos">1103</span></a>    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Valid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> types are </span><span class="si">{</span><span class="n">valid_arguments</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="validate-1104"><a href="#validate-1104"><span class="linenos">1104</span></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -4106,53 +4108,53 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#validate_date"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="validate_date-1106"><a href="#validate_date-1106"><span class="linenos">1106</span></a><span class="k">def</span> <span class="nf">validate_date</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
-</span><span id="validate_date-1107"><a href="#validate_date-1107"><span class="linenos">1107</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="validate_date-1108"><a href="#validate_date-1108"><span class="linenos">1108</span></a><span class="sd">    For a given date parameter, check if its argument is valid.</span>
-</span><span id="validate_date-1109"><a href="#validate_date-1109"><span class="linenos">1109</span></a>
-</span><span id="validate_date-1110"><a href="#validate_date-1110"><span class="linenos">1110</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="validate_date-1111"><a href="#validate_date-1111"><span class="linenos">1111</span></a>
-</span><span id="validate_date-1112"><a href="#validate_date-1112"><span class="linenos">1112</span></a><span class="sd">    Examples</span>
-</span><span id="validate_date-1113"><a href="#validate_date-1113"><span class="linenos">1113</span></a><span class="sd">    --------</span>
-</span><span id="validate_date-1114"><a href="#validate_date-1114"><span class="linenos">1114</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=None)</span>
-</span><span id="validate_date-1115"><a href="#validate_date-1115"><span class="linenos">1115</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;future&#39;)</span>
-</span><span id="validate_date-1116"><a href="#validate_date-1116"><span class="linenos">1116</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;2020-01-01&#39;)</span>
-</span><span id="validate_date-1117"><a href="#validate_date-1117"><span class="linenos">1117</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;&lt;=2020-01-01&#39;)</span>
-</span><span id="validate_date-1118"><a href="#validate_date-1118"><span class="linenos">1118</span></a>
-</span><span id="validate_date-1119"><a href="#validate_date-1119"><span class="linenos">1119</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;stopDate&#39;, argument=&#39;=2020-01-01&#39;)</span>
-</span><span id="validate_date-1120"><a href="#validate_date-1120"><span class="linenos">1120</span></a>
-</span><span id="validate_date-1121"><a href="#validate_date-1121"><span class="linenos">1121</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;deadline&#39;, argument=&#39;XYZ&#39;)</span>
-</span><span id="validate_date-1122"><a href="#validate_date-1122"><span class="linenos">1122</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="validate_date-1123"><a href="#validate_date-1123"><span class="linenos">1123</span></a><span class="sd">    ...</span>
-</span><span id="validate_date-1124"><a href="#validate_date-1124"><span class="linenos">1124</span></a><span class="sd">    ValueError: Invalid deadline argument: &#39;XYZ&#39;</span>
-</span><span id="validate_date-1125"><a href="#validate_date-1125"><span class="linenos">1125</span></a><span class="sd">    Please see the documentation for `deadline` in `things.tasks`.</span>
-</span><span id="validate_date-1126"><a href="#validate_date-1126"><span class="linenos">1126</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="validate_date-1127"><a href="#validate_date-1127"><span class="linenos">1127</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="validate_date-1128"><a href="#validate_date-1128"><span class="linenos">1128</span></a>        <span class="k">return</span>
-</span><span id="validate_date-1129"><a href="#validate_date-1129"><span class="linenos">1129</span></a>
-</span><span id="validate_date-1130"><a href="#validate_date-1130"><span class="linenos">1130</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">DATES</span><span class="p">):</span>
-</span><span id="validate_date-1131"><a href="#validate_date-1131"><span class="linenos">1131</span></a>        <span class="k">return</span>
-</span><span id="validate_date-1132"><a href="#validate_date-1132"><span class="linenos">1132</span></a>
-</span><span id="validate_date-1133"><a href="#validate_date-1133"><span class="linenos">1133</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="validate_date-1134"><a href="#validate_date-1134"><span class="linenos">1134</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="validate_date-1135"><a href="#validate_date-1135"><span class="linenos">1135</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="validate_date-1136"><a href="#validate_date-1136"><span class="linenos">1136</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
-</span><span id="validate_date-1137"><a href="#validate_date-1137"><span class="linenos">1137</span></a>        <span class="p">)</span>
-</span><span id="validate_date-1138"><a href="#validate_date-1138"><span class="linenos">1138</span></a>
-</span><span id="validate_date-1139"><a href="#validate_date-1139"><span class="linenos">1139</span></a>    <span class="n">match</span> <span class="o">=</span> <span class="n">match_date</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
-</span><span id="validate_date-1140"><a href="#validate_date-1140"><span class="linenos">1140</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-</span><span id="validate_date-1141"><a href="#validate_date-1141"><span class="linenos">1141</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="validate_date-1142"><a href="#validate_date-1142"><span class="linenos">1142</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="validate_date-1143"><a href="#validate_date-1143"><span class="linenos">1143</span></a>            <span class="sa">f</span><span class="s2">&quot;Please see the documentation for `</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">` in `things.tasks`.&quot;</span>
-</span><span id="validate_date-1144"><a href="#validate_date-1144"><span class="linenos">1144</span></a>        <span class="p">)</span>
-</span><span id="validate_date-1145"><a href="#validate_date-1145"><span class="linenos">1145</span></a>
-</span><span id="validate_date-1146"><a href="#validate_date-1146"><span class="linenos">1146</span></a>    <span class="n">_</span><span class="p">,</span> <span class="n">isodate</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-</span><span id="validate_date-1147"><a href="#validate_date-1147"><span class="linenos">1147</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="validate_date-1148"><a href="#validate_date-1148"><span class="linenos">1148</span></a>        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">isodate</span><span class="p">)</span>
-</span><span id="validate_date-1149"><a href="#validate_date-1149"><span class="linenos">1149</span></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span id="validate_date-1150"><a href="#validate_date-1150"><span class="linenos">1150</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="validate_date-1151"><a href="#validate_date-1151"><span class="linenos">1151</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="validate_date-1152"><a href="#validate_date-1152"><span class="linenos">1152</span></a>        <span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="validate_date-1107"><a href="#validate_date-1107"><span class="linenos">1107</span></a><span class="k">def</span> <span class="nf">validate_date</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+</span><span id="validate_date-1108"><a href="#validate_date-1108"><span class="linenos">1108</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="validate_date-1109"><a href="#validate_date-1109"><span class="linenos">1109</span></a><span class="sd">    For a given date parameter, check if its argument is valid.</span>
+</span><span id="validate_date-1110"><a href="#validate_date-1110"><span class="linenos">1110</span></a>
+</span><span id="validate_date-1111"><a href="#validate_date-1111"><span class="linenos">1111</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="validate_date-1112"><a href="#validate_date-1112"><span class="linenos">1112</span></a>
+</span><span id="validate_date-1113"><a href="#validate_date-1113"><span class="linenos">1113</span></a><span class="sd">    Examples</span>
+</span><span id="validate_date-1114"><a href="#validate_date-1114"><span class="linenos">1114</span></a><span class="sd">    --------</span>
+</span><span id="validate_date-1115"><a href="#validate_date-1115"><span class="linenos">1115</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=None)</span>
+</span><span id="validate_date-1116"><a href="#validate_date-1116"><span class="linenos">1116</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;future&#39;)</span>
+</span><span id="validate_date-1117"><a href="#validate_date-1117"><span class="linenos">1117</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;2020-01-01&#39;)</span>
+</span><span id="validate_date-1118"><a href="#validate_date-1118"><span class="linenos">1118</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;startDate&#39;, argument=&#39;&lt;=2020-01-01&#39;)</span>
+</span><span id="validate_date-1119"><a href="#validate_date-1119"><span class="linenos">1119</span></a>
+</span><span id="validate_date-1120"><a href="#validate_date-1120"><span class="linenos">1120</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;stopDate&#39;, argument=&#39;=2020-01-01&#39;)</span>
+</span><span id="validate_date-1121"><a href="#validate_date-1121"><span class="linenos">1121</span></a>
+</span><span id="validate_date-1122"><a href="#validate_date-1122"><span class="linenos">1122</span></a><span class="sd">    &gt;&gt;&gt; validate_date(parameter=&#39;deadline&#39;, argument=&#39;XYZ&#39;)</span>
+</span><span id="validate_date-1123"><a href="#validate_date-1123"><span class="linenos">1123</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="validate_date-1124"><a href="#validate_date-1124"><span class="linenos">1124</span></a><span class="sd">    ...</span>
+</span><span id="validate_date-1125"><a href="#validate_date-1125"><span class="linenos">1125</span></a><span class="sd">    ValueError: Invalid deadline argument: &#39;XYZ&#39;</span>
+</span><span id="validate_date-1126"><a href="#validate_date-1126"><span class="linenos">1126</span></a><span class="sd">    Please see the documentation for `deadline` in `things.tasks`.</span>
+</span><span id="validate_date-1127"><a href="#validate_date-1127"><span class="linenos">1127</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="validate_date-1128"><a href="#validate_date-1128"><span class="linenos">1128</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="validate_date-1129"><a href="#validate_date-1129"><span class="linenos">1129</span></a>        <span class="k">return</span>
+</span><span id="validate_date-1130"><a href="#validate_date-1130"><span class="linenos">1130</span></a>
+</span><span id="validate_date-1131"><a href="#validate_date-1131"><span class="linenos">1131</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">DATES</span><span class="p">):</span>
+</span><span id="validate_date-1132"><a href="#validate_date-1132"><span class="linenos">1132</span></a>        <span class="k">return</span>
+</span><span id="validate_date-1133"><a href="#validate_date-1133"><span class="linenos">1133</span></a>
+</span><span id="validate_date-1134"><a href="#validate_date-1134"><span class="linenos">1134</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="validate_date-1135"><a href="#validate_date-1135"><span class="linenos">1135</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="validate_date-1136"><a href="#validate_date-1136"><span class="linenos">1136</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="validate_date-1137"><a href="#validate_date-1137"><span class="linenos">1137</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+</span><span id="validate_date-1138"><a href="#validate_date-1138"><span class="linenos">1138</span></a>        <span class="p">)</span>
+</span><span id="validate_date-1139"><a href="#validate_date-1139"><span class="linenos">1139</span></a>
+</span><span id="validate_date-1140"><a href="#validate_date-1140"><span class="linenos">1140</span></a>    <span class="n">match</span> <span class="o">=</span> <span class="n">match_date</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+</span><span id="validate_date-1141"><a href="#validate_date-1141"><span class="linenos">1141</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="validate_date-1142"><a href="#validate_date-1142"><span class="linenos">1142</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="validate_date-1143"><a href="#validate_date-1143"><span class="linenos">1143</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="validate_date-1144"><a href="#validate_date-1144"><span class="linenos">1144</span></a>            <span class="sa">f</span><span class="s2">&quot;Please see the documentation for `</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">` in `things.tasks`.&quot;</span>
+</span><span id="validate_date-1145"><a href="#validate_date-1145"><span class="linenos">1145</span></a>        <span class="p">)</span>
+</span><span id="validate_date-1146"><a href="#validate_date-1146"><span class="linenos">1146</span></a>
+</span><span id="validate_date-1147"><a href="#validate_date-1147"><span class="linenos">1147</span></a>    <span class="n">_</span><span class="p">,</span> <span class="n">isodate</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+</span><span id="validate_date-1148"><a href="#validate_date-1148"><span class="linenos">1148</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="validate_date-1149"><a href="#validate_date-1149"><span class="linenos">1149</span></a>        <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">isodate</span><span class="p">)</span>
+</span><span id="validate_date-1150"><a href="#validate_date-1150"><span class="linenos">1150</span></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="validate_date-1151"><a href="#validate_date-1151"><span class="linenos">1151</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="validate_date-1152"><a href="#validate_date-1152"><span class="linenos">1152</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="validate_date-1153"><a href="#validate_date-1153"><span class="linenos">1153</span></a>        <span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
 </span></pre></div>
 
 
@@ -4198,39 +4200,39 @@ return the empty string.</li>
 
     </div>
     <a class="headerlink" href="#validate_offset"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="validate_offset-1155"><a href="#validate_offset-1155"><span class="linenos">1155</span></a><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
-</span><span id="validate_offset-1156"><a href="#validate_offset-1156"><span class="linenos">1156</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="validate_offset-1157"><a href="#validate_offset-1157"><span class="linenos">1157</span></a><span class="sd">    For a given offset parameter, check if its argument is valid.</span>
-</span><span id="validate_offset-1158"><a href="#validate_offset-1158"><span class="linenos">1158</span></a>
-</span><span id="validate_offset-1159"><a href="#validate_offset-1159"><span class="linenos">1159</span></a><span class="sd">    If not, then raise `ValueError`.</span>
-</span><span id="validate_offset-1160"><a href="#validate_offset-1160"><span class="linenos">1160</span></a>
-</span><span id="validate_offset-1161"><a href="#validate_offset-1161"><span class="linenos">1161</span></a><span class="sd">    Examples</span>
-</span><span id="validate_offset-1162"><a href="#validate_offset-1162"><span class="linenos">1162</span></a><span class="sd">    --------</span>
-</span><span id="validate_offset-1163"><a href="#validate_offset-1163"><span class="linenos">1163</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
-</span><span id="validate_offset-1164"><a href="#validate_offset-1164"><span class="linenos">1164</span></a>
-</span><span id="validate_offset-1165"><a href="#validate_offset-1165"><span class="linenos">1165</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
-</span><span id="validate_offset-1166"><a href="#validate_offset-1166"><span class="linenos">1166</span></a><span class="sd">    Traceback (most recent call last):</span>
-</span><span id="validate_offset-1167"><a href="#validate_offset-1167"><span class="linenos">1167</span></a><span class="sd">    ...</span>
-</span><span id="validate_offset-1168"><a href="#validate_offset-1168"><span class="linenos">1168</span></a><span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
-</span><span id="validate_offset-1169"><a href="#validate_offset-1169"><span class="linenos">1169</span></a><span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
-</span><span id="validate_offset-1170"><a href="#validate_offset-1170"><span class="linenos">1170</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="validate_offset-1171"><a href="#validate_offset-1171"><span class="linenos">1171</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="validate_offset-1172"><a href="#validate_offset-1172"><span class="linenos">1172</span></a>        <span class="k">return</span>
-</span><span id="validate_offset-1173"><a href="#validate_offset-1173"><span class="linenos">1173</span></a>
-</span><span id="validate_offset-1174"><a href="#validate_offset-1174"><span class="linenos">1174</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="validate_offset-1175"><a href="#validate_offset-1175"><span class="linenos">1175</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="validate_offset-1176"><a href="#validate_offset-1176"><span class="linenos">1176</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="validate_offset-1177"><a href="#validate_offset-1177"><span class="linenos">1177</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
-</span><span id="validate_offset-1178"><a href="#validate_offset-1178"><span class="linenos">1178</span></a>        <span class="p">)</span>
-</span><span id="validate_offset-1179"><a href="#validate_offset-1179"><span class="linenos">1179</span></a>
-</span><span id="validate_offset-1180"><a href="#validate_offset-1180"><span class="linenos">1180</span></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
-</span><span id="validate_offset-1181"><a href="#validate_offset-1181"><span class="linenos">1181</span></a>    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
-</span><span id="validate_offset-1182"><a href="#validate_offset-1182"><span class="linenos">1182</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="validate_offset-1183"><a href="#validate_offset-1183"><span class="linenos">1183</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="validate_offset-1184"><a href="#validate_offset-1184"><span class="linenos">1184</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
-</span><span id="validate_offset-1185"><a href="#validate_offset-1185"><span class="linenos">1185</span></a>            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
-</span><span id="validate_offset-1186"><a href="#validate_offset-1186"><span class="linenos">1186</span></a>            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
-</span><span id="validate_offset-1187"><a href="#validate_offset-1187"><span class="linenos">1187</span></a>        <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="validate_offset-1156"><a href="#validate_offset-1156"><span class="linenos">1156</span></a><span class="k">def</span> <span class="nf">validate_offset</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+</span><span id="validate_offset-1157"><a href="#validate_offset-1157"><span class="linenos">1157</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="validate_offset-1158"><a href="#validate_offset-1158"><span class="linenos">1158</span></a><span class="sd">    For a given offset parameter, check if its argument is valid.</span>
+</span><span id="validate_offset-1159"><a href="#validate_offset-1159"><span class="linenos">1159</span></a>
+</span><span id="validate_offset-1160"><a href="#validate_offset-1160"><span class="linenos">1160</span></a><span class="sd">    If not, then raise `ValueError`.</span>
+</span><span id="validate_offset-1161"><a href="#validate_offset-1161"><span class="linenos">1161</span></a>
+</span><span id="validate_offset-1162"><a href="#validate_offset-1162"><span class="linenos">1162</span></a><span class="sd">    Examples</span>
+</span><span id="validate_offset-1163"><a href="#validate_offset-1163"><span class="linenos">1163</span></a><span class="sd">    --------</span>
+</span><span id="validate_offset-1164"><a href="#validate_offset-1164"><span class="linenos">1164</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;3d&#39;)</span>
+</span><span id="validate_offset-1165"><a href="#validate_offset-1165"><span class="linenos">1165</span></a>
+</span><span id="validate_offset-1166"><a href="#validate_offset-1166"><span class="linenos">1166</span></a><span class="sd">    &gt;&gt;&gt; validate_offset(parameter=&#39;last&#39;, argument=&#39;XYZ&#39;)</span>
+</span><span id="validate_offset-1167"><a href="#validate_offset-1167"><span class="linenos">1167</span></a><span class="sd">    Traceback (most recent call last):</span>
+</span><span id="validate_offset-1168"><a href="#validate_offset-1168"><span class="linenos">1168</span></a><span class="sd">    ...</span>
+</span><span id="validate_offset-1169"><a href="#validate_offset-1169"><span class="linenos">1169</span></a><span class="sd">    ValueError: Invalid last argument: &#39;XYZ&#39;</span>
+</span><span id="validate_offset-1170"><a href="#validate_offset-1170"><span class="linenos">1170</span></a><span class="sd">    Please specify a string of the format &#39;X[d/w/y]&#39; where X is ...</span>
+</span><span id="validate_offset-1171"><a href="#validate_offset-1171"><span class="linenos">1171</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="validate_offset-1172"><a href="#validate_offset-1172"><span class="linenos">1172</span></a>    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="validate_offset-1173"><a href="#validate_offset-1173"><span class="linenos">1173</span></a>        <span class="k">return</span>
+</span><span id="validate_offset-1174"><a href="#validate_offset-1174"><span class="linenos">1174</span></a>
+</span><span id="validate_offset-1175"><a href="#validate_offset-1175"><span class="linenos">1175</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="validate_offset-1176"><a href="#validate_offset-1176"><span class="linenos">1176</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="validate_offset-1177"><a href="#validate_offset-1177"><span class="linenos">1177</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="validate_offset-1178"><a href="#validate_offset-1178"><span class="linenos">1178</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string or None.&quot;</span>
+</span><span id="validate_offset-1179"><a href="#validate_offset-1179"><span class="linenos">1179</span></a>        <span class="p">)</span>
+</span><span id="validate_offset-1180"><a href="#validate_offset-1180"><span class="linenos">1180</span></a>
+</span><span id="validate_offset-1181"><a href="#validate_offset-1181"><span class="linenos">1181</span></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="n">argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># slicing here to handle empty strings</span>
+</span><span id="validate_offset-1182"><a href="#validate_offset-1182"><span class="linenos">1182</span></a>    <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+</span><span id="validate_offset-1183"><a href="#validate_offset-1183"><span class="linenos">1183</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="validate_offset-1184"><a href="#validate_offset-1184"><span class="linenos">1184</span></a>            <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> argument: </span><span class="si">{</span><span class="n">argument</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="validate_offset-1185"><a href="#validate_offset-1185"><span class="linenos">1185</span></a>            <span class="sa">f</span><span class="s2">&quot;Please specify a string of the format &#39;X[d/w/y]&#39; &quot;</span>
+</span><span id="validate_offset-1186"><a href="#validate_offset-1186"><span class="linenos">1186</span></a>            <span class="s2">&quot;where X is a non-negative integer followed by &#39;d&#39;, &#39;w&#39;, or &#39;y&#39; &quot;</span>
+</span><span id="validate_offset-1187"><a href="#validate_offset-1187"><span class="linenos">1187</span></a>            <span class="s2">&quot;that indicates days, weeks, or years.&quot;</span>
+</span><span id="validate_offset-1188"><a href="#validate_offset-1188"><span class="linenos">1188</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 
