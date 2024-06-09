@@ -1045,7 +1045,8 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
         modifier = f"-{number} years"
 
     column_datetime = f"datetime({date_column}, 'unixepoch')"
-    offset_datetime = f"datetime('now', '{modifier}')"  # type: ignore
+    offset_datetime = f"datetime('now', '{modifier}')" \
+        # pylint: disable=E0606; # type: ignore
 
     return f"AND {column_datetime} > {offset_datetime}"
 
