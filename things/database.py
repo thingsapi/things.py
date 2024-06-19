@@ -1042,6 +1042,9 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
         modifier = f"-{number * 7} days"
     elif suffix == "y":
         modifier = f"-{number} years"
+    else:
+        # Use `typing.assert_never(suffix)` from Python 3.11 onwards.
+        raise AssertionError("line should be unreachable.")  # for static code analyzers
 
     column_datetime = f"datetime({date_column}, 'unixepoch', 'localtime')"
     offset_datetime = f"datetime('now', '{modifier}')"
