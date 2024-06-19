@@ -314,6 +314,19 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
 
+    def test_tasks_stopdate_timezones(self):
+        # see https://github.com/thingsapi/things.py/issues/117
+
+        # make sure we get back tasks completed for date by midnight UTC+5
+        os.environ['TZ'] = 'Etc/GMT-5' # UTC+5
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 2)
+
+        # make sure we get back tasks completed for date by midnight UTC
+        os.environ['TZ'] = 'UTC' # UTC+0
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 1)
+
     def test_database_details(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
