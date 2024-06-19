@@ -318,12 +318,12 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         # see https://github.com/thingsapi/things.py/issues/117
 
         # make sure we get back tasks completed for date by midnight UTC+5
-        os.environ['TZ'] = 'Etc/GMT-5' # UTC+5
+        os.environ['TZ'] = 'UTC-5' # UTC+5, per https://unix.stackexchange.com/a/104091
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 2)
 
         # make sure we get back tasks completed for date by midnight UTC
-        os.environ['TZ'] = 'UTC' # UTC+0
+        os.environ['TZ'] = 'UTC'
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 1)
 
