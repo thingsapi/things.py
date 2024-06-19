@@ -10,6 +10,7 @@ data structures. Whenever that happens, we define the new term here.
 import os
 from shlex import quote
 from typing import Dict, List, Union
+import urllib.parse
 
 from things.database import Database
 
@@ -677,9 +678,57 @@ def token(**kwargs) -> Union[str, None]:
     return database.get_url_scheme_auth_token()
 
 
-def link(uuid):
-    """Return a things:///show?id=uuid link."""
-    return f"things:///show?id={uuid}"
+def url(uuid=None, command="show", **query_parameters) -> str:
+    """
+    Return a things:///<command>?<query> url.
+
+    For details about available commands and their parameters
+    consult the Things URL Scheme documentation
+    [here](https://culturedcode.com/things/help/url-scheme/).
+
+    Parameters
+    ----------
+    uuid : str or None, optional
+        A valid uuid of any Things object.
+        If `None`, then 'id' is not added as a parameter unless
+        specified in `query_parameters`.
+
+    command : str, default 'show'
+        A valid command name.
+
+    **query_parameters:
+        Additional URL query parameters.
+
+    Examples
+    --------
+    >>> things.url('6Hf2qWBjWhq7B1xszwdo34')
+    'things:///show?id=6Hf2qWBjWhq7B1xszwdo34'
+    >>> things.url(command='update', uuid='6Hf2qWBjWhq7B1xszwdo34', title='new title')
+    'things:///update?id=6Hf2qWBjWhq7B1xszwdo34&title=new%20title&auth-token=vKkylosuSuGwxrz7qcklOw'
+    >>> things.url(command='add', title='new task', when='in 3 days', deadline='in 6 days')
+    'things:///add?title=new%20task&when=in%203%20days&deadline=in%206%20days'
+    >>> query_params = {'title': 'test title', 'list-id': 'ba5d1237-1dfa-4ab8-826b-7c27b517f29d'}
+    >>> things.url(command="add", **query_params)
+    'things:///add?title=test%20title&list-id=ba5d1237-1dfa-4ab8-826b-7c27b517f29d'
+    """
+    if uuid is not None:
+        query_parameters = {"id": uuid, **query_parameters}
+
+    # authenticate if needed
+    if command in ("update", "update-project"):
+        auth_token = query_parameters["auth-token"] = token()
+        if not auth_token:
+            raise ValueError("Things URL scheme authentication token could not be read")
+
+    query_string = urllib.parse.urlencode(
+        query_parameters, quote_via=urllib.parse.quote
+    )
+
+    return f"things:///{command}?{query_string}"
+
+
+# Alias for backwards compatiblity
+link = url
 
 
 def show(uuid):  # noqa
@@ -696,7 +745,25 @@ def show(uuid):  # noqa
     >>> tag = things.tags('Home')
     >>> things.show(tag['uuid'])  # doctest: +SKIP
     """
-    uri = link(uuid)
+    uri = url(uuid=uuid)
+    os.system(f"open {quote(uri)}")
+
+
+def complete(uuid):  # noqa
+    """
+    Set the status of a certain uuid to complete.
+
+    Parameters
+    ----------
+    uuid : str
+        A valid uuid of a project or to-do.
+
+    Examples
+    --------
+    >>> task = things.todos()[0]       # doctest: +SKIP
+    >>> things.complete(task['uuid'])  # doctest: +SKIP
+    """
+    uri = url(uuid=uuid, command="update", completed=True)
     os.system(f"open {quote(uri)}")
 
 
