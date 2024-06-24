@@ -350,16 +350,23 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_tasks_stopdate_timezones(self):
         # see https://github.com/thingsapi/things.py/issues/117
+        # this test looks at changes to two tasks based on timezone, on either side of midnight UTC
 
-        # make sure we get back tasks completed for date by midnight UTC+5
+        # make sure we get back both tasks completed for date by midnight UTC+5
+        # change timezone to Pakistan
         os.environ['TZ'] = 'UTC-5' # UTC+5, per https://unix.stackexchange.com/a/104091
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 2)
 
-        # make sure we get back tasks completed for date by midnight UTC
+        # make sure we get back one task completed for date by midnight UTC
         os.environ['TZ'] = 'UTC'
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 1)
+
+        # change timezone to New York
+        os.environ['TZ'] = 'UTC+5' # UTC-5, per https://unix.stackexchange.com/a/104091
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 0)
 
     def test_database_details(self):
         output = io.StringIO()
