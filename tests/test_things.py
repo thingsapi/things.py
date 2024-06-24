@@ -5,6 +5,7 @@
 import contextlib
 import io
 import os
+import time
 import sqlite3
 import unittest
 import unittest.mock
@@ -355,16 +356,19 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         # make sure we get back both tasks completed for date by midnight UTC+5
         # change timezone to Pakistan
         os.environ['TZ'] = 'UTC-5' # UTC+5, per https://unix.stackexchange.com/a/104091
+        time.tzset()
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 2)
 
         # make sure we get back one task completed for date by midnight UTC
         os.environ['TZ'] = 'UTC'
+        time.tzset()
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 1)
 
         # change timezone to New York
         os.environ['TZ'] = 'UTC+5' # UTC-5, per https://unix.stackexchange.com/a/104091
+        time.tzset()
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 0)
 
