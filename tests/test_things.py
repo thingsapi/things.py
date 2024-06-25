@@ -3,6 +3,7 @@
 """Module documentation goes here."""
 
 import contextlib
+from datetime import datetime
 import io
 import os
 import time
@@ -355,7 +356,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
         # make sure we get back both tasks completed for date by midnight UTC+5
         # change timezone to Pakistan
-        os.environ['TZ'] = 'UTC-5' # UTC+5, per https://unix.stackexchange.com/a/104091
+        os.environ['TZ'] = 'UTC-5'  # UTC+5, per https://unix.stackexchange.com/a/104091
         time.tzset()
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 2)
@@ -367,7 +368,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(tasks, 1)
 
         # change timezone to New York
-        os.environ['TZ'] = 'UTC+5' # UTC-5, per https://unix.stackexchange.com/a/104091
+        os.environ['TZ'] = 'UTC+5'  # UTC-5, per https://unix.stackexchange.com/a/104091
         time.tzset()
         tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
         self.assertEqual(tasks, 0)
