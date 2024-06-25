@@ -3,7 +3,6 @@
 """Module documentation goes here."""
 
 import contextlib
-from datetime import datetime
 import io
 import os
 import time
