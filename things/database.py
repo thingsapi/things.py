@@ -962,16 +962,16 @@ def make_unixtime_filter(date_column: str, value) -> str:
     'AND stopDate IS NULL'
 
     >>> make_unixtime_filter('stopDate', 'future')
-    "AND date(stopDate, 'unixepoch') > date('now', 'localtime')"
+    "AND date(stopDate, 'unixepoch', 'localtime') > date('now', 'localtime')"
 
     >>> make_unixtime_filter('creationDate', '2021-03-28')
-    "AND date(creationDate, 'unixepoch') == date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch', 'localtime') == date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '=2021-03-28')
-    "AND date(creationDate, 'unixepoch') = date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch', 'localtime') = date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', '<=2021-03-28')
-    "AND date(creationDate, 'unixepoch') <= date('2021-03-28')"
+    "AND date(creationDate, 'unixepoch', 'localtime') <= date('2021-03-28')"
 
     >>> make_unixtime_filter('creationDate', None)
     ''
@@ -1026,7 +1026,7 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
     Examples
     --------
     >>> make_unixtime_range_filter('creationDate', '3d')
-    "AND datetime(creationDate, 'unixepoch') > datetime('now', '-3 days')"
+    "AND datetime(creationDate, 'unixepoch', 'localtime') > datetime('now', '-3 days')"
 
     >>> make_unixtime_range_filter('creationDate', None)
     ''
