@@ -1233,16 +1233,16 @@
 </span><span id="L-962"><a href="#L-962"><span class="linenos"> 962</span></a><span class="sd">    &#39;AND stopDate IS NULL&#39;</span>
 </span><span id="L-963"><a href="#L-963"><span class="linenos"> 963</span></a>
 </span><span id="L-964"><a href="#L-964"><span class="linenos"> 964</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;stopDate&#39;, &#39;future&#39;)</span>
-</span><span id="L-965"><a href="#L-965"><span class="linenos"> 965</span></a><span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+</span><span id="L-965"><a href="#L-965"><span class="linenos"> 965</span></a><span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="L-966"><a href="#L-966"><span class="linenos"> 966</span></a>
 </span><span id="L-967"><a href="#L-967"><span class="linenos"> 967</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;2021-03-28&#39;)</span>
-</span><span id="L-968"><a href="#L-968"><span class="linenos"> 968</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="L-968"><a href="#L-968"><span class="linenos"> 968</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="L-969"><a href="#L-969"><span class="linenos"> 969</span></a>
 </span><span id="L-970"><a href="#L-970"><span class="linenos"> 970</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;=2021-03-28&#39;)</span>
-</span><span id="L-971"><a href="#L-971"><span class="linenos"> 971</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="L-971"><a href="#L-971"><span class="linenos"> 971</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="L-972"><a href="#L-972"><span class="linenos"> 972</span></a>
 </span><span id="L-973"><a href="#L-973"><span class="linenos"> 973</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;&lt;=2021-03-28&#39;)</span>
-</span><span id="L-974"><a href="#L-974"><span class="linenos"> 974</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="L-974"><a href="#L-974"><span class="linenos"> 974</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="L-975"><a href="#L-975"><span class="linenos"> 975</span></a>
 </span><span id="L-976"><a href="#L-976"><span class="linenos"> 976</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, None)</span>
 </span><span id="L-977"><a href="#L-977"><span class="linenos"> 977</span></a><span class="sd">    &#39;&#39;</span>
@@ -1267,7 +1267,7 @@
 </span><span id="L-996"><a href="#L-996"><span class="linenos"> 996</span></a>        <span class="n">threshold</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="L-997"><a href="#L-997"><span class="linenos"> 997</span></a>        <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 </span><span id="L-998"><a href="#L-998"><span class="linenos"> 998</span></a>
-</span><span id="L-999"><a href="#L-999"><span class="linenos"> 999</span></a>    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="L-999"><a href="#L-999"><span class="linenos"> 999</span></a>    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="L-1000"><a href="#L-1000"><span class="linenos">1000</span></a>
 </span><span id="L-1001"><a href="#L-1001"><span class="linenos">1001</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">comparator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="L-1002"><a href="#L-1002"><span class="linenos">1002</span></a>
@@ -1297,7 +1297,7 @@
 </span><span id="L-1026"><a href="#L-1026"><span class="linenos">1026</span></a><span class="sd">    Examples</span>
 </span><span id="L-1027"><a href="#L-1027"><span class="linenos">1027</span></a><span class="sd">    --------</span>
 </span><span id="L-1028"><a href="#L-1028"><span class="linenos">1028</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_range_filter(&#39;creationDate&#39;, &#39;3d&#39;)</span>
-</span><span id="L-1029"><a href="#L-1029"><span class="linenos">1029</span></a><span class="sd">    &quot;AND datetime(creationDate, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+</span><span id="L-1029"><a href="#L-1029"><span class="linenos">1029</span></a><span class="sd">    &quot;AND datetime(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
 </span><span id="L-1030"><a href="#L-1030"><span class="linenos">1030</span></a>
 </span><span id="L-1031"><a href="#L-1031"><span class="linenos">1031</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_range_filter(&#39;creationDate&#39;, None)</span>
 </span><span id="L-1032"><a href="#L-1032"><span class="linenos">1032</span></a><span class="sd">    &#39;&#39;</span>
@@ -1318,7 +1318,7 @@
 </span><span id="L-1047"><a href="#L-1047"><span class="linenos">1047</span></a>        <span class="c1"># Use `typing.assert_never(suffix)` from Python 3.11 onwards.</span>
 </span><span id="L-1048"><a href="#L-1048"><span class="linenos">1048</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;line should be unreachable.&quot;</span><span class="p">)</span>  <span class="c1"># for static code analyzers</span>
 </span><span id="L-1049"><a href="#L-1049"><span class="linenos">1049</span></a>
-</span><span id="L-1050"><a href="#L-1050"><span class="linenos">1050</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="L-1050"><a href="#L-1050"><span class="linenos">1050</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="L-1051"><a href="#L-1051"><span class="linenos">1051</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 </span><span id="L-1052"><a href="#L-1052"><span class="linenos">1052</span></a>
 </span><span id="L-1053"><a href="#L-1053"><span class="linenos">1053</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -3737,16 +3737,16 @@ to how Python defines it natively.</p>
 </span><span id="make_unixtime_filter-963"><a href="#make_unixtime_filter-963"><span class="linenos"> 963</span></a><span class="sd">    &#39;AND stopDate IS NULL&#39;</span>
 </span><span id="make_unixtime_filter-964"><a href="#make_unixtime_filter-964"><span class="linenos"> 964</span></a>
 </span><span id="make_unixtime_filter-965"><a href="#make_unixtime_filter-965"><span class="linenos"> 965</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;stopDate&#39;, &#39;future&#39;)</span>
-</span><span id="make_unixtime_filter-966"><a href="#make_unixtime_filter-966"><span class="linenos"> 966</span></a><span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+</span><span id="make_unixtime_filter-966"><a href="#make_unixtime_filter-966"><span class="linenos"> 966</span></a><span class="sd">    &quot;AND date(stopDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-967"><a href="#make_unixtime_filter-967"><span class="linenos"> 967</span></a>
 </span><span id="make_unixtime_filter-968"><a href="#make_unixtime_filter-968"><span class="linenos"> 968</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;2021-03-28&#39;)</span>
-</span><span id="make_unixtime_filter-969"><a href="#make_unixtime_filter-969"><span class="linenos"> 969</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="make_unixtime_filter-969"><a href="#make_unixtime_filter-969"><span class="linenos"> 969</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-970"><a href="#make_unixtime_filter-970"><span class="linenos"> 970</span></a>
 </span><span id="make_unixtime_filter-971"><a href="#make_unixtime_filter-971"><span class="linenos"> 971</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;=2021-03-28&#39;)</span>
-</span><span id="make_unixtime_filter-972"><a href="#make_unixtime_filter-972"><span class="linenos"> 972</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="make_unixtime_filter-972"><a href="#make_unixtime_filter-972"><span class="linenos"> 972</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-973"><a href="#make_unixtime_filter-973"><span class="linenos"> 973</span></a>
 </span><span id="make_unixtime_filter-974"><a href="#make_unixtime_filter-974"><span class="linenos"> 974</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, &#39;&lt;=2021-03-28&#39;)</span>
-</span><span id="make_unixtime_filter-975"><a href="#make_unixtime_filter-975"><span class="linenos"> 975</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
+</span><span id="make_unixtime_filter-975"><a href="#make_unixtime_filter-975"><span class="linenos"> 975</span></a><span class="sd">    &quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-976"><a href="#make_unixtime_filter-976"><span class="linenos"> 976</span></a>
 </span><span id="make_unixtime_filter-977"><a href="#make_unixtime_filter-977"><span class="linenos"> 977</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_filter(&#39;creationDate&#39;, None)</span>
 </span><span id="make_unixtime_filter-978"><a href="#make_unixtime_filter-978"><span class="linenos"> 978</span></a><span class="sd">    &#39;&#39;</span>
@@ -3771,7 +3771,7 @@ to how Python defines it natively.</p>
 </span><span id="make_unixtime_filter-997"><a href="#make_unixtime_filter-997"><span class="linenos"> 997</span></a>        <span class="n">threshold</span> <span class="o">=</span> <span class="s2">&quot;date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-998"><a href="#make_unixtime_filter-998"><span class="linenos"> 998</span></a>        <span class="n">comparator</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;future&quot;</span> <span class="k">else</span> <span class="s2">&quot;&lt;=&quot;</span>
 </span><span id="make_unixtime_filter-999"><a href="#make_unixtime_filter-999"><span class="linenos"> 999</span></a>
-</span><span id="make_unixtime_filter-1000"><a href="#make_unixtime_filter-1000"><span class="linenos">1000</span></a>    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="make_unixtime_filter-1000"><a href="#make_unixtime_filter-1000"><span class="linenos">1000</span></a>    <span class="n">date</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;date(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="make_unixtime_filter-1001"><a href="#make_unixtime_filter-1001"><span class="linenos">1001</span></a>
 </span><span id="make_unixtime_filter-1002"><a href="#make_unixtime_filter-1002"><span class="linenos">1002</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">comparator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
 </span></pre></div>
@@ -3818,25 +3818,25 @@ return the empty string.</li>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_unixtime_filter</span><span class="p">(</span><span class="s1">&#39;stopDate&#39;</span><span class="p">,</span> <span class="s1">&#39;future&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(stopDate, &#39;unixepoch&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
+<span class="go">&quot;AND date(stopDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; date(&#39;now&#39;, &#39;localtime&#39;)&quot;</span>
 </code></pre>
 </div>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_unixtime_filter</span><span class="p">(</span><span class="s1">&#39;creationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-28&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
+<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) == date(&#39;2021-03-28&#39;)&quot;</span>
 </code></pre>
 </div>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_unixtime_filter</span><span class="p">(</span><span class="s1">&#39;creationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;=2021-03-28&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
+<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) = date(&#39;2021-03-28&#39;)&quot;</span>
 </code></pre>
 </div>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_unixtime_filter</span><span class="p">(</span><span class="s1">&#39;creationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;=2021-03-28&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
+<span class="go">&quot;AND date(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &lt;= date(&#39;2021-03-28&#39;)&quot;</span>
 </code></pre>
 </div>
 
@@ -3885,7 +3885,7 @@ return the empty string.</li>
 </span><span id="make_unixtime_range_filter-1027"><a href="#make_unixtime_range_filter-1027"><span class="linenos">1027</span></a><span class="sd">    Examples</span>
 </span><span id="make_unixtime_range_filter-1028"><a href="#make_unixtime_range_filter-1028"><span class="linenos">1028</span></a><span class="sd">    --------</span>
 </span><span id="make_unixtime_range_filter-1029"><a href="#make_unixtime_range_filter-1029"><span class="linenos">1029</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_range_filter(&#39;creationDate&#39;, &#39;3d&#39;)</span>
-</span><span id="make_unixtime_range_filter-1030"><a href="#make_unixtime_range_filter-1030"><span class="linenos">1030</span></a><span class="sd">    &quot;AND datetime(creationDate, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+</span><span id="make_unixtime_range_filter-1030"><a href="#make_unixtime_range_filter-1030"><span class="linenos">1030</span></a><span class="sd">    &quot;AND datetime(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
 </span><span id="make_unixtime_range_filter-1031"><a href="#make_unixtime_range_filter-1031"><span class="linenos">1031</span></a>
 </span><span id="make_unixtime_range_filter-1032"><a href="#make_unixtime_range_filter-1032"><span class="linenos">1032</span></a><span class="sd">    &gt;&gt;&gt; make_unixtime_range_filter(&#39;creationDate&#39;, None)</span>
 </span><span id="make_unixtime_range_filter-1033"><a href="#make_unixtime_range_filter-1033"><span class="linenos">1033</span></a><span class="sd">    &#39;&#39;</span>
@@ -3906,7 +3906,7 @@ return the empty string.</li>
 </span><span id="make_unixtime_range_filter-1048"><a href="#make_unixtime_range_filter-1048"><span class="linenos">1048</span></a>        <span class="c1"># Use `typing.assert_never(suffix)` from Python 3.11 onwards.</span>
 </span><span id="make_unixtime_range_filter-1049"><a href="#make_unixtime_range_filter-1049"><span class="linenos">1049</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;line should be unreachable.&quot;</span><span class="p">)</span>  <span class="c1"># for static code analyzers</span>
 </span><span id="make_unixtime_range_filter-1050"><a href="#make_unixtime_range_filter-1050"><span class="linenos">1050</span></a>
-</span><span id="make_unixtime_range_filter-1051"><a href="#make_unixtime_range_filter-1051"><span class="linenos">1051</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;)&quot;</span>
+</span><span id="make_unixtime_range_filter-1051"><a href="#make_unixtime_range_filter-1051"><span class="linenos">1051</span></a>    <span class="n">column_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(</span><span class="si">{</span><span class="n">date_column</span><span class="si">}</span><span class="s2">, &#39;unixepoch&#39;, &#39;localtime&#39;)&quot;</span>
 </span><span id="make_unixtime_range_filter-1052"><a href="#make_unixtime_range_filter-1052"><span class="linenos">1052</span></a>    <span class="n">offset_datetime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;datetime(&#39;now&#39;, &#39;</span><span class="si">{</span><span class="n">modifier</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 </span><span id="make_unixtime_range_filter-1053"><a href="#make_unixtime_range_filter-1053"><span class="linenos">1053</span></a>
 </span><span id="make_unixtime_range_filter-1054"><a href="#make_unixtime_range_filter-1054"><span class="linenos">1054</span></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AND </span><span class="si">{</span><span class="n">column_datetime</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">offset_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -3939,7 +3939,7 @@ return the empty string.</li>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">make_unixtime_range_filter</span><span class="p">(</span><span class="s1">&#39;creationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-<span class="go">&quot;AND datetime(creationDate, &#39;unixepoch&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
+<span class="go">&quot;AND datetime(creationDate, &#39;unixepoch&#39;, &#39;localtime&#39;) &gt; datetime(&#39;now&#39;, &#39;-3 days&#39;)&quot;</span>
 </code></pre>
 </div>
 

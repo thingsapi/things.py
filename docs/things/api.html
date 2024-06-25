@@ -316,7 +316,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 </span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(area=&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;, include_items=True)</span>
 </span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">    []</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">    10</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">    12</span>
 </span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39;, count_only=True)</span>
 </span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">    0</span>
 </span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>
@@ -740,7 +740,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 </span><span id="L-605"><a href="#L-605"><span class="linenos">605</span></a><span class="sd">    Examples</span>
 </span><span id="L-606"><a href="#L-606"><span class="linenos">606</span></a><span class="sd">    --------</span>
 </span><span id="L-607"><a href="#L-607"><span class="linenos">607</span></a><span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
-</span><span id="L-608"><a href="#L-608"><span class="linenos">608</span></a><span class="sd">    10</span>
+</span><span id="L-608"><a href="#L-608"><span class="linenos">608</span></a><span class="sd">    12</span>
 </span><span id="L-609"><a href="#L-609"><span class="linenos">609</span></a><span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
 </span><span id="L-610"><a href="#L-610"><span class="linenos">610</span></a><span class="sd">    0</span>
 </span><span id="L-611"><a href="#L-611"><span class="linenos">611</span></a><span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
@@ -1090,7 +1090,7 @@ data structures. Whenever that happens, we define the new term here.</p>
 </span><span id="tasks-182"><a href="#tasks-182"><span class="linenos">182</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(area=&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;, include_items=True)</span>
 </span><span id="tasks-183"><a href="#tasks-183"><span class="linenos">183</span></a><span class="sd">    []</span>
 </span><span id="tasks-184"><a href="#tasks-184"><span class="linenos">184</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, count_only=True)</span>
-</span><span id="tasks-185"><a href="#tasks-185"><span class="linenos">185</span></a><span class="sd">    10</span>
+</span><span id="tasks-185"><a href="#tasks-185"><span class="linenos">185</span></a><span class="sd">    12</span>
 </span><span id="tasks-186"><a href="#tasks-186"><span class="linenos">186</span></a><span class="sd">    &gt;&gt;&gt; things.tasks(status=&#39;completed&#39;, last=&#39;1w&#39;, count_only=True)</span>
 </span><span id="tasks-187"><a href="#tasks-187"><span class="linenos">187</span></a><span class="sd">    0</span>
 </span><span id="tasks-188"><a href="#tasks-188"><span class="linenos">188</span></a>
@@ -1306,7 +1306,7 @@ Any valid database object previously instantiated.</li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">area</span><span class="o">=</span><span class="s1">&#39;hIo1FJlAYGKt1Yj38vzKc3&#39;</span><span class="p">,</span> <span class="n">include_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">10</span>
+<span class="go">12</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;completed&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">0</span>
 </code></pre>
@@ -2090,7 +2090,7 @@ See the <code>things.api.deadline</code> function instead.</p>
 </span><span id="completed-606"><a href="#completed-606"><span class="linenos">606</span></a><span class="sd">    Examples</span>
 </span><span id="completed-607"><a href="#completed-607"><span class="linenos">607</span></a><span class="sd">    --------</span>
 </span><span id="completed-608"><a href="#completed-608"><span class="linenos">608</span></a><span class="sd">    &gt;&gt;&gt; things.completed(count_only=True)</span>
-</span><span id="completed-609"><a href="#completed-609"><span class="linenos">609</span></a><span class="sd">    10</span>
+</span><span id="completed-609"><a href="#completed-609"><span class="linenos">609</span></a><span class="sd">    12</span>
 </span><span id="completed-610"><a href="#completed-610"><span class="linenos">610</span></a><span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;project&#39;, count_only=True)</span>
 </span><span id="completed-611"><a href="#completed-611"><span class="linenos">611</span></a><span class="sd">    0</span>
 </span><span id="completed-612"><a href="#completed-612"><span class="linenos">612</span></a><span class="sd">    &gt;&gt;&gt; things.completed(type=&#39;to-do&#39;, last=&#39;1w&#39;)</span>
@@ -2108,7 +2108,7 @@ See the <code>things.api.deadline</code> function instead.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">10</span>
+<span class="go">12</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="n">count_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">things</span><span class="o">.</span><span class="n">completed</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;to-do&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s1">&#39;1w&#39;</span><span class="p">)</span>
