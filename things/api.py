@@ -181,7 +181,7 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     >>> things.tasks(area='hIo1FJlAYGKt1Yj38vzKc3', include_items=True)
     []
     >>> things.tasks(status='completed', count_only=True)
-    10
+    12
     >>> things.tasks(status='completed', last='1w', count_only=True)
     0
 
@@ -605,7 +605,7 @@ def completed(**kwargs):
     Examples
     --------
     >>> things.completed(count_only=True)
-    10
+    12
     >>> things.completed(type='project', count_only=True)
     0
     >>> things.completed(type='to-do', last='1w')

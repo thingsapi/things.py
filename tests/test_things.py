@@ -5,6 +5,7 @@
 import contextlib
 import io
 import os
+import time
 import sqlite3
 import unittest
 import unittest.mock
@@ -167,13 +168,13 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_logbook(self):
         tasks = things.logbook()
-        self.assertEqual(21, len(tasks))
+        self.assertEqual(23, len(tasks))
         tasks = things.logbook(stop_date=">2099-03-29")
         self.assertEqual(0, len(tasks))
         tasks = things.logbook(stop_date="2021-03-28")
         self.assertEqual(21, len(tasks))
         tasks = things.logbook(stop_date=">=2021-03-27")
-        self.assertEqual(21, len(tasks))
+        self.assertEqual(23, len(tasks))
         tasks = things.logbook(stop_date="=2021-03-27")
         self.assertEqual(0, len(tasks))
 
@@ -183,7 +184,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_completed(self):
         tasks = things.completed()
-        self.assertEqual(10, len(tasks))
+        self.assertEqual(12, len(tasks))
 
     def test_someday(self):
         tasks = things.someday()
@@ -199,11 +200,11 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_todos(self):
         todos = things.todos(start="Anytime", status="completed")
-        self.assertEqual(6, len(todos))
+        self.assertEqual(8, len(todos))
         todos = things.todos(start="Anytime")
         self.assertEqual(10, len(todos))
         todos = things.todos(status="completed")
-        self.assertEqual(10, len(todos))
+        self.assertEqual(12, len(todos))
         todos = things.todos(include_items=True)
         self.assertEqual(15, len(todos))
         tasks = things.tasks(include_items=True)
@@ -304,7 +305,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(len(last_tasks), 19)
 
         last_tasks = things.last("100y", status="completed")
-        self.assertEqual(len(last_tasks), 10)
+        self.assertEqual(len(last_tasks), 12)
 
         with self.assertRaises(ValueError):
             things.last(None)
@@ -323,7 +324,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_tasks(self):
         count = things.tasks(status="completed", last="100y", count_only=True)
-        self.assertEqual(count, 10)
+        self.assertEqual(count, 12)
 
         count = things.last("1y", tag="Important", status="completed", count_only=True)
         self.assertEqual(count, 0)
@@ -347,6 +348,29 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
         with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
+
+    def test_tasks_stopdate_timezones(self):
+        # see https://github.com/thingsapi/things.py/issues/117
+        # this test looks at changes to two tasks based on timezone, on either side of midnight UTC
+
+        # make sure we get back both tasks completed for date by midnight UTC+5
+        # change timezone to Pakistan
+        os.environ['TZ'] = 'UTC-5'  # UTC+5, per https://unix.stackexchange.com/a/104091
+        time.tzset()
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 2)
+
+        # make sure we get back one task completed for date by midnight UTC
+        os.environ['TZ'] = 'UTC'
+        time.tzset()
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 1)
+
+        # change timezone to New York
+        os.environ['TZ'] = 'UTC+5'  # UTC-5, per https://unix.stackexchange.com/a/104091
+        time.tzset()
+        tasks = things.tasks(stop_date="2024-06-18", status="completed", count_only=True)
+        self.assertEqual(tasks, 0)
 
     def test_database_details(self):
         output = io.StringIO()
@@ -380,7 +404,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual("AND deadline == 132464128", sqlfilter)
         sqlfilter = things.database.make_unixtime_filter("stopDate", "future")
         self.assertEqual(
-            "AND date(stopDate, 'unixepoch') > date('now', 'localtime')", sqlfilter
+            "AND date(stopDate, 'unixepoch', 'localtime') > date('now', 'localtime')", sqlfilter
         )
         sqlfilter = things.database.make_unixtime_filter("stopDate", False)
         self.assertEqual("AND stopDate IS NULL", sqlfilter)
