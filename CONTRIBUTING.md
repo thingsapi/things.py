@@ -122,7 +122,10 @@ make lint
 
 ### Other Make targets
 
-Run `make help` to see the full list of targets available in the [Makefile](https://github.com/thingsapi/things.py/blob/master/Makefile).
+Run `make help` to see the full list of targets available in the [Makefile](https://github.com/thingsapi/things.py/blob/master/Makefile) that may be helpful.
 
+### Wait for a review
 
-Thank you for contributing!
+Assuming your work passes the test and lint scripts, your PR will then be fully reviewed by the maintainers.
+
+_Thank you for contributing!_
