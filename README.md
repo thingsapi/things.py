@@ -129,6 +129,10 @@ The full documentation for this library can be found here: https://thingsapi.git
 
 You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Also updates are possible. Read an introduction [here](https://culturedcode.com/things/blog/2018/02/hey-things/) and see the documentation [here](https://culturedcode.com/things/help/url-scheme/).
 
+## Contributing
+
+We welcome contributions to things.py! Before submitting a pull request, please take a moment to look over the [contributing guidelines](https://github.com/thingsapi/things.py/blob/master/CONTRIBUTING.md) first.
+
 ## Used By
 
 The following open-source projects make use of this library:
