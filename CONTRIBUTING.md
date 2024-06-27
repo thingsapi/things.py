@@ -4,12 +4,13 @@ Thank you for considering contributing to things.py! Here are some guidelines to
 
 ## Do you think you found a bug?
 
-- Check out the [list of open issues](https://github.com/thingsapi/things.py/issues) first, to make sure it hasn't already been reported.
-- If it has not, [submit a bug report](https://github.com/thingsapi/things.py/issues/new/choose). Provide a list of steps to reproduce the issue and the expected outcome.
+Check out the [list of open issues](https://github.com/thingsapi/things.py/issues) first, to make sure it hasn't already been reported.
+
+If it has not, [submit a bug report](https://github.com/thingsapi/things.py/issues/new/choose). Provide a list of steps to reproduce the issue and the expected outcome.
 
 ## Want to fix an issue?
 
-- Before submitting, read below for the pull request process.
+Before submitting a patch, read below for the pull request process.
 
 ## Have an idea for a feature?
 
@@ -44,9 +45,9 @@ Start work on your PR.
 
 Confirming your changes work against your own Things database is one thing, but for everybody else to see the effects of your change, they need to be tested with the Things test database included with things.py.
 
-### Back up your existing Things database
+### 1. Back up your own Things database
 
-Your local Things app's database will be replaced with the Test database, so you will want to make a backup.
+Your local (personal) Things app's database will be replaced with the Test database, so you will want to make a backup.
 
 Following [these instructions](https://culturedcode.com/things/support/articles/2803570/), effectively all you need to do is close the Things app, and make a copy of this folder:
 
@@ -56,7 +57,7 @@ Following [these instructions](https://culturedcode.com/things/support/articles/
 
 ...where the `xxxxx` portion is a unique combination of letters and numbers.
 
-### Copy the test database to your Things app folder
+### 2. Copy the test database to your Things app folder
 
 In the things.py repo folder, run this command to copy the test database over top of your local Things database:
 
@@ -64,7 +65,7 @@ In the things.py repo folder, run this command to copy the test database over to
 make db-to-things
 ```
 
-### Make changes if necessary
+### 3. Make changes if necessary
 
 Launch the Things app, and you should see the test tasks and projects, instead of your own tasks.
 
@@ -72,7 +73,7 @@ Confirm there isn't already a task, project, or other Things object that you can
 
 If you need to make changes to say the `createdDate`, you'll need to open the database with `sqlite3` or another tool that can update SQLite databases. Changes to the test database may require schema knowledge. Reading the `things.py` documentation and code can help with that.
 
-### Copy the test database back from your Things app folder
+### 4. Copy the test database back from your Things app folder
 
 If you had to make changes to the test database, update the test database in the project by running this command to copy the local Things database to the `tests` folder:
 
@@ -82,7 +83,7 @@ make db-from-things
 
 Make sure to include the updated `.thingsdatabase` file in your PR.
 
-### Restore your personal Things database
+### 5. Restore your personal Things database
 
 Once your PR has been submitted, you should be able to restore your personal Things database simply by:
 
