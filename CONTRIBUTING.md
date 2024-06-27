@@ -28,7 +28,7 @@ git clone git@github.com:thingsapi/things.py.git
 
 #### 2. Create a virtual environment
 
-A virtual environment allows you to install and upgrade Python distribution packages without interfering with the behaviour of other Python applications running on your system. You will probably need to do this before you run all the test targets, which require additional Python packages to be installed.
+A virtual environment allows you to install and upgrade Python distribution packages without interfering with the behaviour of other Python applications running on your system. You will probably want to do this before you run all the test targets, which require additional Python packages to be installed.
 
 Follow the [official Python documentation](https://docs.python.org/3/tutorial/venv.html) to create a virtual environment:
 ```sh
@@ -48,7 +48,7 @@ Confirming your changes work against your own Things database is one thing, but 
 
 Your local Things app's database will be replaced with the Test database, so you will want to make a backup.
 
-Following [these instructions](https://culturedcode.com/things/support/articles/2803570/), effectively all you need to do is quit Things, and make a copy of this folder:
+Following [these instructions](https://culturedcode.com/things/support/articles/2803570/), effectively all you need to do is close the Things app, and make a copy of this folder:
 
 ```
 ~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/ThingsData-xxxxx/Things Database.thingsdatabase
@@ -86,7 +86,7 @@ Make sure to include the updated `.thingsdatabase` file in your PR.
 
 Once your PR has been submitted, you should be able to restore your personal Things database simply by:
 
-1. Closing the Things app
+1. Closing the Things app.
 2. Copy the `Things Database.thingsdatabase` folder you backed up into your local Library folder. 
 3. If required, you may have to log back into Things Cloud, as todos may have changed on other devices during development, and to make sure you're back in sync.
 
