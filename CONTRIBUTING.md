@@ -59,6 +59,8 @@ Following [these instructions](https://culturedcode.com/things/support/articles/
 
 ### 2. Copy the test database to your Things app folder
 
+⚠️ _Before you proceed, make sure you've actually backed up your database per step 1._
+
 In the things.py repo folder, run this command to copy the test database over top of your local Things database:
 
 ```sh
