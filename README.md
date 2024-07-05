@@ -131,7 +131,7 @@ You can make good use of the `uuid` to link to to-dos, areas, tags, and more fro
 
 ## Contributing
 
-We welcome contributions to things.py! Before submitting a pull request, please take a moment to look over the [contributing guidelines](https://github.com/thingsapi/things.py/blob/master/CONTRIBUTING.md) first.
+We welcome contributions to things.py! Before submitting a pull request, please take a moment to look over the [contributing guidelines](https://github.com/thingsapi/things.py/blob/main/CONTRIBUTING.md) first.
 
 ## Used By
 
