@@ -1,22 +1,20 @@
 # Contributing to things.py
 
-Thank you for considering contributing to things.py! Here are some guidelines to help you get started.
+Thank you for considering contributing to things.py! Here are some pointers to help you get started.
 
-## Do you think you found a bug?
+## Have you found an issue?
 
 Check out the [list of open issues](https://github.com/thingsapi/things.py/issues) first, to make sure it hasn't already been reported.
 
 If it has not, [submit a bug report](https://github.com/thingsapi/things.py/issues/new/choose). Provide a list of steps to reproduce the issue and the expected outcome.
 
-## Want to fix an issue?
-
-Before submitting a patch, read below for the pull request process.
-
 ## Have an idea for a feature?
 
 [Submit a feature request](https://github.com/thingsapi/things.py/issues/new/choose). Include the goal of the new feature, (ideally) a suggested approach, and any additional context.
 
-## How to contribute
+## Want to fix an issue?
+
+Read below for guidance on setting up a local environment and testing.
 
 ### Setting up your environment
 
@@ -34,16 +32,49 @@ A virtual environment allows you to install and upgrade Python distribution pack
 Follow the [official Python documentation](https://docs.python.org/3/tutorial/venv.html) to create a virtual environment:
 ```sh
 python3 -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+source venv/bin/activate
 ```
 
 #### 3. Start development
 
-Start work on your PR.
+Start work on your pull request (PR).
+
+## Pull request process
+
+- Open a GitHub pull request with the patch.
+- Ensure the PR description clearly describes the problem and solution. Link to the relevant issue, if applicable.
+- Generally speaking, pull requests require `test_script.py` to be updated to ensure changes to the code and new features have test coverage. Sometimes, the test database itself needs to be updated; see [here](#working-with-the-test-things-database) for guidance.
+
+### Run tests
+
+Run:
+```sh
+make test
+```
+
+Add any additional tests required, [updating the Test Things database](#working-with-the-test-things-database) if neccessary.
+
+### Validate documentation examples
+
+Examples in the documentation should produce the expected results with your changes. Any documentation examples you've added should pass these tests as well.
+```sh
+make testdoc
+```
+
+### Check linting compliance
+
+Ensure code changes comply with linting rules. Make any necessary changes based on the linting report run when executing:
+```sh
+make lint
+```
+
+### Other Make targets
+
+Run `make help` to see the full list of targets available in the [Makefile](https://github.com/thingsapi/things.py/blob/master/Makefile) that may be helpful.
 
 ## Working with the Test Things Database
 
-Confirming your changes work against your own Things database is one thing, but for everybody else to see the effects of your change, they need to be tested with the Things test database included with things.py.
+For tests, sometimes the test database needs to be updated. Confirming your changes work against your own Things database is one thing, but for everybody else to see the effects of your change, they need to be tested with the Things test database included with things.py. Here's how you update said database if needed.
 
 ### 1. Back up your own Things database
 
@@ -92,42 +123,3 @@ Once your PR has been submitted, you should be able to restore your personal Thi
 1. Closing the Things app.
 2. Copy the `Things Database.thingsdatabase` folder you backed up into your local Library folder. 
 3. If required, you may have to log back into Things Cloud, as todos may have changed on other devices during development, and to make sure you're back in sync.
-
-## Pull request process
-
-- Open a GitHub pull request with the patch.
-- Ensure the PR description clearly describes the problem and solution. Link to the relevant issue, if applicable.
-- Generally speaking, pull requests require `test_script.py` to be updated to ensure changes to the code and new features have test coverage.
-
-### Run tests
-
-Ensure you've copied the test database to your Things app folder (after backing it up first), and then run tests:
-```sh
-make test
-```
-
-Add any additional tests required, updating the Test Things database if neccessary.
-
-### Validate documentation examples
-
-Examples in the documentation should produce the expected results with your changes. Any documentation examples you've added should pass these tests as well.
-```sh
-make testdoc
-```
-
-### Check linting compliance
-
-Ensure code changes comply with linting rules. Make any necessary changes based on the linting report run when executing:
-```sh
-make lint
-```
-
-### Other Make targets
-
-Run `make help` to see the full list of targets available in the [Makefile](https://github.com/thingsapi/things.py/blob/master/Makefile) that may be helpful.
-
-### Wait for a review
-
-Assuming your work passes the test and lint scripts, your PR will then be fully reviewed by the maintainers.
-
-_Thank you for contributing!_
