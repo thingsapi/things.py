@@ -137,12 +137,14 @@ We welcome contributions to things.py! Before submitting a pull request, please 
 
 The following open-source projects make use of this library:
 
-- [KanbanView](https://github.com/AlexanderWillner/KanbanView)
+- [Asana to Things (ryansteed)](https://github.com/ryansteed/asana-to-things)
+- [Things to CSV (nathankoerschner)](https://github.com/nathankoerschner/things_to_csv)
+- [Things to Markdown (chrisgurney)](https://github.com/chrisgurney/things2md)
+- [Things to Notion (Avery2)](https://github.com/Avery2/things3notionscript)
+- [Things to Notion (MrAsynchronous)](https://github.com/MrAsynchronous/things3-to-notion-sync)
+- [Things to Org file (chrizel)](https://github.com/chrizel/things-to-org)
+- [KanbanView (AlexanderWillner)](https://github.com/AlexanderWillner/KanbanView)
 - [Things CLI](https://github.com/thingsapi/things-cli)
-- [Things to CSV](https://github.com/nathankoerschner/things_to_csv)
-- [things-3-report](https://github.com/CaAlden/things-3-report)
-- [things-to-org](https://github.com/chrizel/things-to-org)
-- [Things3 to Markdown](https://github.com/chrisgurney/things2md)
-- [Things3 to Notion](https://github.com/Avery2/things3notionscript)
-- [ThingsStats](https://github.com/lmgibson/ThingsStats)
-- [ThingsReview](https://github.com/minthemiddle/things-review-py)
+- [things-3-report (CaAlden)](https://github.com/CaAlden/things-3-report)
+- [ThingsReview (minthemiddle)](https://github.com/minthemiddle/things-review-py)
+- [ThingsStats (lmgibson)](https://github.com/lmgibson/ThingsStats)
