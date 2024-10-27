@@ -168,6 +168,7 @@ class Database:
     """
 
     debug = False
+    connection: sqlite3.Connection
 
     # pylint: disable=R0913
     def __init__(self, filepath=None, print_sql=False):
@@ -180,6 +181,11 @@ class Database:
         self.print_sql = print_sql
         if self.print_sql:
             self.execute_query_count = 0
+
+        # "ro" means read-only
+        # See: https://sqlite.org/uri.html#recognized_query_parameters
+        uri = f"file:{self.filepath}?mode=ro"
+        self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
 
         # Test for migrated database in Things 3.15.16+
         # --------------------------------
@@ -495,17 +501,14 @@ class Database:
             print(prettify_sql(sql_query))
             print()
 
-        # "ro" means read-only
-        # See: https://sqlite.org/uri.html#recognized_query_parameters
-        uri = f"file:{self.filepath}?mode=ro"
-        connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
-        connection.row_factory = row_factory or dict_factory
-        cursor = connection.cursor()
-        cursor.execute(sql_query, parameters)
+        with self.connection:
+            # Using context manager to keep queries in separate transactions,
+            # see https://docs.python.org/3/library/sqlite3.html#sqlite3-connection-context-manager
+            self.connection.row_factory = row_factory or dict_factory
+            cursor = self.connection.cursor()
+            cursor.execute(sql_query, parameters)
 
-        result = cursor.fetchall()
-        connection.close()
-        return result
+            return cursor.fetchall()
 
 
 # Helper functions
