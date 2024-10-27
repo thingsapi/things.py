@@ -503,7 +503,9 @@ class Database:
         cursor = connection.cursor()
         cursor.execute(sql_query, parameters)
 
-        return cursor.fetchall()
+        result = cursor.fetchall()
+        connection.close()
+        return result
 
 
 # Helper functions
