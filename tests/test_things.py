@@ -6,6 +6,7 @@ import contextlib
 import io
 import os
 import time
+import tracemalloc
 import sqlite3
 import unittest
 import unittest.mock
@@ -13,6 +14,7 @@ import unittest.mock
 import things
 import things.database
 
+tracemalloc.start()
 
 TEST_DATABASE_FILEPATH = "tests/main.sqlite"
 TEST_DATABASE_FILEPATH_2022 = "tests/db2022/main.sqlite"

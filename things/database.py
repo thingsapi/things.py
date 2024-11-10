@@ -207,7 +207,7 @@ class Database:
 
     # Core methods
 
-    def get_tasks(  # pylint: disable=R0914
+    def get_tasks(  # pylint: disable=R0914,R0917
         self,
         uuid: Optional[str] = None,
         type: Optional[str] = None,  # pylint: disable=W0622
