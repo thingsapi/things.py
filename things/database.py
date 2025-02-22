@@ -10,6 +10,7 @@ import re
 import sqlite3
 from textwrap import dedent
 from typing import Optional, Union
+import weakref
 
 
 # --------------------------------------------------
@@ -186,6 +187,7 @@ class Database:
         # See: https://sqlite.org/uri.html#recognized_query_parameters
         uri = f"file:{self.filepath}?mode=ro"
         self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
+        self._finalizer = weakref.finalize(self, self._close_connection)
 
         # Test for migrated database in Things 3.15.16+
         # --------------------------------
@@ -509,6 +511,10 @@ class Database:
             cursor.execute(sql_query, parameters)
 
             return cursor.fetchall()
+
+    def _close_connection(self):
+        """Close the database connection."""
+        self.connection.close()
 
 
 # Helper functions
