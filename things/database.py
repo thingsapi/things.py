@@ -8,6 +8,7 @@ import os
 import plistlib
 import re
 import sqlite3
+import weakref
 from textwrap import dedent
 from typing import Optional, Union
 
@@ -186,6 +187,8 @@ class Database:
         # See: https://sqlite.org/uri.html#recognized_query_parameters
         uri = f"file:{self.filepath}?mode=ro"
         self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
+        # Close the underlying SQLite connection when this Database object is garbage collected
+        weakref.finalize(self, sqlite3.Connection.close, self.connection)
 
         # Test for migrated database in Things 3.15.16+
         # --------------------------------
