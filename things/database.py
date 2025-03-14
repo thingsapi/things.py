@@ -77,6 +77,7 @@ COLUMNS_TO_OMIT_IF_NONE = (
     "project_title",
     "trashed",
     "tags",
+    "reminder_time",
 )
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("checklist", "tags", "trashed")
 
@@ -107,6 +108,7 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
+REMINDER_TIME = "reminderTime"  # INTEGER: HHHHHHmmmmm00000000000000000000, in binary
 
 # --------------------------------------------------
 # Various filters
@@ -528,6 +530,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     deadline_expression = convert_thingsdate_sql_expression_to_isodate(
         f"TASK.{DATE_DEADLINE}"
     )
+    reminder_time_expression = convert_thingstime_sql_expression_to_isotime(
+        f"TASK.{REMINDER_TIME}"
+    )
 
     return f"""
             SELECT DISTINCT
@@ -578,6 +583,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 END AS checklist,
                 date({start_date_expression}) AS start_date,
                 date({deadline_expression}) AS deadline,
+                time({reminder_time_expression}) AS reminder_time,
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -701,6 +707,28 @@ def convert_thingsdate_sql_expression_to_isodate(sql_expression):
     isodate = f"printf('%d-%02d-%02d', {year}, {month}, {day})"
     # when thingsdate is NULL, return thingsdate as-is
     return f"CASE WHEN {thingsdate} THEN {isodate} ELSE {thingsdate} END"
+
+
+def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
+    """
+    Return SQL Expression as a string
+
+    Parameters
+    ----------
+    sql_expression : str
+        A sql expression pointing to a "Things time" integer in
+        format HHHHHmmmmmm00000000000000000000, in binary.
+        See: `convert_isodate_sql_expression_to_thingsdate` for details.
+    """
+    h_mask = 0b11111
+    m_mask = 0b111111
+
+    thingstime = sql_expression
+    hours = f"({thingstime} & {h_mask}) >> 26"
+    minutes = f"({thingstime} & {m_mask}) >> 20"
+
+    isotime = f"printf('%02d:%02d', {hours}, {minutes})" 
+    return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
 
 def dict_factory(cursor, row):
