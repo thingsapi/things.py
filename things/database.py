@@ -108,7 +108,7 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
-REMINDER_TIME = "reminderTime"  # INTEGER: HHHHHHmmmmm00000000000000000000, in binary
+REMINDER_TIME = "reminderTime"  # INTEGER: HHHHHmmmmmm00000000000000000000, in binary
 
 # --------------------------------------------------
 # Various filters
@@ -720,14 +720,15 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
         format HHHHHmmmmmm00000000000000000000, in binary.
         See: `convert_isodate_sql_expression_to_thingsdate` for details.
     """
-    h_mask = 0b11111
-    m_mask = 0b111111
+    h_mask = 0b1111100000000000000000000000000
+    m_mask = 0b0000011111100000000000000000000
 
     thingstime = sql_expression
     hours = f"({thingstime} & {h_mask}) >> 26"
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
     isotime = f"printf('%02d:%02d', {hours}, {minutes})" 
+    # when thingstime is NULL, return thingsdate as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
 
