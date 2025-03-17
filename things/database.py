@@ -583,7 +583,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 END AS checklist,
                 date({start_date_expression}) AS start_date,
                 date({deadline_expression}) AS deadline,
-                time({reminder_time_expression}) AS reminder_time,
+                time({reminder_time_expression}) AS "reminder_time",
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -1222,3 +1222,7 @@ def validate_offset(parameter, argument):
             "where X is a non-negative integer followed by 'd', 'w', or 'y' "
             "that indicates days, weeks, or years."
         )
+
+
+if __name__ == "__main__": 
+    print(make_tasks_sql_query())
