@@ -1222,7 +1222,3 @@ def validate_offset(parameter, argument):
             "where X is a non-negative integer followed by 'd', 'w', or 'y' "
             "that indicates days, weeks, or years."
         )
-
-
-if __name__ == "__main__": 
-    print(make_tasks_sql_query())
