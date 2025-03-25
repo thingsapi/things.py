@@ -415,23 +415,6 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_thingstime(self):
         sqlfilter: str = "TASK.reminderTime"
         self.assertEqual(things.database.convert_thingstime_sql_expression_to_isotime(sqlfilter), f"CASE WHEN TASK.reminderTime THEN printf('%02d:%02d', (TASK.reminderTime & 2080374784) >> 26, (TASK.reminderTime & 66060288) >> 20) ELSE TASK.reminderTime END")
-        
-        
-        ##### Function for testing thingsTime integers #######
-        # for task in things.upcoming():
-        #     if 'reminder_time' in task and task['reminder_time'] != None:
-        #         segments = [int(i) for i in task['reminder_time'].split(":")]
-        #         hours = segments[0]
-        #         minutes = segments[1]
-        #         seconds = segments[2]
-        #         # Check that hours is greater than 0 and less than 24
-        #         self.assertGreater(hours, 0)
-        #         self.assertLess(hours, 24)
-        #         # Check that minutes is greater than 0 and less than 60
-        #         self.assertGreater(minutes, 0)
-        #         self.assertLess(minutes, 60)
-        #         # Check that seconds is equal to 0
-        #         self.assertEqual(seconds, 0)
 
 
 if __name__ == "__main__":
