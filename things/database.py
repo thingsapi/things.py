@@ -75,9 +75,9 @@ COLUMNS_TO_OMIT_IF_NONE = (
     "heading_title",
     "project",
     "project_title",
+    "reminder_time",
     "trashed",
     "tags",
-    "reminder_time",
 )
 COLUMNS_TO_TRANSFORM_TO_BOOL = ("checklist", "tags", "trashed")
 
@@ -108,7 +108,8 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
-REMINDER_TIME = "reminderTime"  # INTEGER: HHHHHmmmmmm00000000000000000000, in binary
+# See 'convert_isodate_sql_expresstion_to_thingstime' for details. 
+REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
 # --------------------------------------------------
 # Various filters
@@ -711,15 +712,35 @@ def convert_thingsdate_sql_expression_to_isodate(sql_expression):
 
 def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     """
-    Return SQL Expression as a string
+    Return SQL Expression that decodes a Things time as a string.
+
+    A _Things time_ is an integer where the binary digits are 
+    hhhhhmmmmmm00000000000000000000; h is hours, m is minutes.
+    Seconds are not encoded in a Things time. 
+
+    For example, the ISO 8601 time '12:34:00' corresponds to the Things 
+    time 840957952 as integer; in binary that is: 
+        1100100010000000000000000000000
+        hhhhhmmmmmm00000000000000000000
+           12    34                  00
 
     Parameters
     ----------
     sql_expression : str
         A sql expression pointing to a "Things time" integer in
-        format HHHHHmmmmmm00000000000000000000, in binary.
-        See: `convert_isodate_sql_expression_to_thingsdate` for details.
+        format hhhhhmmmmmm00000000000000000000, in binary.
+        
+        
+
+    Example
+    -------
+    >>> convert_thingstime_sql_expression_to_isotime(TASK.reminderTime) 
+    "time(CASE WHEN TASK.reminderTime THEN \
+    printf('%02d:%02d', (TASK.reminderTime & 2080374784) >> 26, \
+    (TASK.reminderTime & 66060288) >> 20) \
+    ELSE TASK.reminderTime END) AS "reminder_time"",
     """
+    
     h_mask = 0b1111100000000000000000000000000
     m_mask = 0b0000011111100000000000000000000
 
@@ -728,7 +749,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
     isotime = f"printf('%02d:%02d', {hours}, {minutes})" 
-    # when thingstime is NULL, return thingsdate as-is
+    # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
 
