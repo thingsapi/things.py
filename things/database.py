@@ -108,7 +108,7 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
-# See 'convert_isodate_sql_expresstion_to_thingstime' for details. 
+# See 'convert_thingstime_sql_expression_to_isotime' for details. 
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
 # --------------------------------------------------
@@ -582,9 +582,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 CASE
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
-                date({start_date_expression}) AS start_date,
-                date({deadline_expression}) AS deadline,
-                time({reminder_time_expression}) AS "reminder_time",
+                {start_date_expression} AS start_date,
+                {deadline_expression} AS deadline,
+                {reminder_time_expression} AS "reminder_time",
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -720,7 +720,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
 
     For example, the ISO 8601 time '12:34:00' corresponds to the Things 
     time 840957952 as integer; in binary that is: 
-        1100100010000000000000000000000
+        0110010001000000000000000000000
         hhhhhmmmmmm00000000000000000000
            12    34                  00
 
