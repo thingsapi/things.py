@@ -8,9 +8,9 @@ import os
 import plistlib
 import re
 import sqlite3
-import weakref
 from textwrap import dedent
 from typing import Optional, Union
+import weakref
 
 
 # --------------------------------------------------
@@ -108,7 +108,7 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
-# See 'convert_thingstime_sql_expression_to_isotime' for details. 
+# See 'convert_thingstime_sql_expression_to_isotime' for details.
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
 # --------------------------------------------------
@@ -727,20 +727,14 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     Parameters
     ----------
     sql_expression : str
-        A sql expression pointing to a "Things time" integer in
-        format hhhhhmmmmmm00000000000000000000, in binary.
+        A sql expression pointing to a "Things time" integer in format hhhhhmmmmmm00000000000000000000, in binary.
         
-        
-
     Example
     -------
-    >>> convert_thingstime_sql_expression_to_isotime(TASK.reminderTime) 
-    "time(CASE WHEN TASK.reminderTime THEN \
-    printf('%02d:%02d', (TASK.reminderTime & 2080374784) >> 26, \
-    (TASK.reminderTime & 66060288) >> 20) \
-    ELSE TASK.reminderTime END) AS "reminder_time"",
+    >>> convert_thingstime_sql_expression_to_isotime(840957952) 
+    "CASE WHEN 840957952 THEN printf('%02d:%02d', (840957952 & 2080374784) >> 26, (840957952 & 66060288) >> 20) ELSE 840957952 END"
     """
-    
+
     h_mask = 0b1111100000000000000000000000000
     m_mask = 0b0000011111100000000000000000000
 
@@ -748,7 +742,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     hours = f"({thingstime} & {h_mask}) >> 26"
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
-    isotime = f"printf('%02d:%02d', {hours}, {minutes})" 
+    isotime = f"printf('%02d:%02d', {hours}, {minutes})"
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
