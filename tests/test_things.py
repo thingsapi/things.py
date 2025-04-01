@@ -420,8 +420,8 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual("AND stopDate IS NULL", sqlfilter)
 
     def test_thingstime(self):
-        test_task = things.get("7F4vqUNiTvGKaCUfv5pqYG")
-        self.assertEqual(test_task.get('reminder_time'), "12:34")
+        test_task = things.tasks("7F4vqUNiTvGKaCUfv5pqYG")
+        self.assertEqual(test_task.get("reminder_time"), "12:34")
 
 
 if __name__ == "__main__":
