@@ -727,12 +727,19 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     Parameters
     ----------
     sql_expression : str
-        A sql expression pointing to a "Things time" integer in format hhhhhmmmmmm00000000000000000000, in binary.
+        A sql expression pointing to a "Things time" integer 
+        in format hhhhhmmmmmm00000000000000000000, in binary.
         
     Example
     -------
-    >>> convert_thingstime_sql_expression_to_isotime(840957952) 
-    "CASE WHEN 840957952 THEN printf('%02d:%02d', (840957952 & 2080374784) >> 26, (840957952 & 66060288) >> 20) ELSE 840957952 END"
+    >>> convert_thingstime_sql_expression_to_isotime('840957952') 
+    "CASE WHEN 840957952 THEN \
+    printf('%02d:%02d', (840957952 & 2080374784) >> 26, \
+    (840957952 & 66060288) >> 20) ELSE 840957952 END" 
+    >>> convert_thingstime_sql_expression_to_isotime('reminderTime')
+    "CASE WHEN reminderTime THEN \
+    printf('%02d:%02d', (reminderTime & 2080374784) >> 26, \
+    (reminderTime & 66060288) >> 20) ELSE reminderTime END"
     """
 
     h_mask = 0b1111100000000000000000000000000

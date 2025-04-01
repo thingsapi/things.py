@@ -421,7 +421,7 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
 
     def test_thingstime(self):
         test_task = things.get("7F4vqUNiTvGKaCUfv5pqYG")
-        self.assertEqual(test_task['reminder_time'], "12:34")
+        self.assertEqual(test_task.get('reminder_time'), "12:34")
 
 
 if __name__ == "__main__":
