@@ -127,7 +127,7 @@ The full documentation for this library can be found here: https://thingsapi.git
 
 ## Things URL Scheme
 
-You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Also updates are possible. Read an introduction [here](https://culturedcode.com/things/blog/2018/02/hey-things/) and see the documentation [here](https://culturedcode.com/things/help/url-scheme/).
+You can make good use of the `uuid` to link to to-dos, areas, tags, and more from other apps. Doing updates are possible as well. Read an introduction [here](https://culturedcode.com/things/blog/2018/02/hey-things/) and see the documentation [here](https://culturedcode.com/things/help/url-scheme/).
 
 ## Contributing
 
@@ -142,10 +142,10 @@ The following open-source projects make use of this library:
 - [Things to Markdown (chrisgurney)](https://github.com/chrisgurney/things2md)
 - [Things to Notion (Avery2)](https://github.com/Avery2/things3notionscript)
 - [Things to Notion (MrAsynchronous)](https://github.com/MrAsynchronous/things3-to-notion-sync)
+- [Things to OmniFocus via TaskPaper (wolf)](https://github.com/wolf/export-things-to-taskpaper)
 - [Things to Org file (chrizel)](https://github.com/chrizel/things-to-org)
 - [Things to Reclaim (cato447)](https://github.com/cato447/things2reclaim)
 - [Things to Slack report (CaAlden)](https://github.com/CaAlden/things-3-report)
-- [Things to Taskpaper (wolf)](https://github.com/wolf/export-things-to-taskpaper)
 - [CLI for Things](https://github.com/thingsapi/things-cli)
 - [FastMCP Server for Things (stepankuzmin)](https://github.com/stepankuzmin/things-mcp)
 - [GTD-like Reviews (minthemiddle)](https://github.com/minthemiddle/things-review-py)
