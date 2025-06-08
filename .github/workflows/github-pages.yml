@@ -21,8 +21,7 @@ jobs:
         make deps-install
     - name: Run docs
       run: |
-        pip install pytest
-        pip install pdoc
+        pip install pytest pdoc macholib modulegraph
         make doc
     - name: Commit files
       run: |
