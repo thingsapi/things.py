@@ -140,6 +140,10 @@ The following open-source projects make use of this library:
 - [Asana to Things (ryansteed)](https://github.com/ryansteed/asana-to-things)
 - [Things to CSV (nathankoerschner)](https://github.com/nathankoerschner/things_to_csv)
 - [Things to Markdown (chrisgurney)](https://github.com/chrisgurney/things2md)
+- [Things to Markdown (yinan-c)](https://github.com/yinan-c/things2md)
+- [Things MCP Server (excelsier)](https://github.com/excelsier/things-fastmcp)
+- [Things MCP Server (hald)](https://github.com/hald/things-mcp)
+- [Things MCP Server (alexanderwillner)](https://github.com/AlexanderWillner/things-mcp)
 - [Things to Notion (Avery2)](https://github.com/Avery2/things3notionscript)
 - [Things to Notion (MrAsynchronous)](https://github.com/MrAsynchronous/things3-to-notion-sync)
 - [Things to OmniFocus via TaskPaper (wolf)](https://github.com/wolf/export-things-to-taskpaper)
@@ -152,3 +156,6 @@ The following open-source projects make use of this library:
 - [KanbanView for Things (AlexanderWillner)](https://github.com/AlexanderWillner/KanbanView)
 - [Pomodoro timer for Things (walteh fork)](https://github.com/walteh/timebox)
 - [ThingsStats (lmgibson)](https://github.com/lmgibson/ThingsStats)
+
+
+
