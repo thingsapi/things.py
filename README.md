@@ -146,7 +146,6 @@ The following open-source projects make use of this library:
 - [Things to OmniFocus via TaskPaper (wolf)](https://github.com/wolf/export-things-to-taskpaper)
 - [Things to Org file (chrizel)](https://github.com/chrizel/things-to-org)
 - [Things to Reclaim (cato447)](https://github.com/cato447/things2reclaim)
-- [Things to Slack report (CaAlden)](https://github.com/CaAlden/things-3-report)
 - [CLI for Things](https://github.com/thingsapi/things-cli)
 - [GTD-like Reviews (minthemiddle)](https://github.com/minthemiddle/things-review-py)
 - [KanbanView for Things (AlexanderWillner)](https://github.com/AlexanderWillner/KanbanView)
