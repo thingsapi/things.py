@@ -325,6 +325,46 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         with self.assertRaises(ValueError):
             things.last("3X")
 
+    def test_created_at_date_or_offset(self):
+        # for offsets it's the same as last:
+        last_tasks = things.tasks(created_at = "0d")
+        self.assertEqual(len(last_tasks), 0)
+
+        last_tasks = things.tasks(created_at = "10000w")
+        self.assertEqual(len(last_tasks), 19)
+
+        last_tasks = things.tasks(created_at = "100y", status="completed")
+        self.assertEqual(len(last_tasks), 12)
+
+        # for offsets it's the same as last:
+        last_tasks = things.tasks(created_at = "0d")
+        self.assertEqual(len(last_tasks), 0)
+
+        last_tasks = things.tasks(created_at = "10000w")
+        self.assertEqual(len(last_tasks), 19)
+
+        last_tasks = things.tasks(created_at = ">1925-01-01", status="completed")
+        self.assertEqual(len(last_tasks), 12)
+
+        # None is allowed as it's allowed for dates
+        last_tasks = things.tasks(created_at = None)
+        self.assertEqual(len(last_tasks), 19)
+
+        # exceptions are also the same as with last:
+        with self.assertRaises(TypeError):
+            things.tasks(created_at = [])
+
+        with self.assertRaises(ValueError):
+            things.tasks(created_at = "XYZ")
+
+        with self.assertRaises(ValueError):
+            things.tasks(created_at = "")
+
+        with self.assertRaises(ValueError):
+            things.tasks(created_at = "3X")
+
+
+
     def test_tasks(self):
         count = things.tasks(status="completed", last="100y", count_only=True)
         self.assertEqual(count, 12)
