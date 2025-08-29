@@ -230,6 +230,7 @@ class Database:
         trashed: Optional[bool] = False,
         context_trashed: Optional[bool] = False,
         last: Optional[str] = None,
+        createdat: Optional[str] = None,
         search_query: Optional[str] = None,
         index: str = "index",
         count_only: bool = False,
@@ -303,6 +304,7 @@ class Database:
             {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
+            {make_unixtime_filter(f"TASK.{DATE_CREATED}", createdat)}
             {make_search_filter(search_query)}
             """
         order_predicate = f'TASK."{index}"'
