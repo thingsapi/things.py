@@ -253,6 +253,7 @@ class Database:
         validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
+        validate_date_or_offset("createdat", last)
 
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
@@ -1243,3 +1244,20 @@ def validate_offset(parameter, argument):
             "where X is a non-negative integer followed by 'd', 'w', or 'y' "
             "that indicates days, weeks, or years."
         )
+
+
+def validate_date_or_offset(parameter, argument):
+    errors = []
+    try:
+        validate_date(parameter, argument)
+    except ValueError as error1:
+        errors.append(error1)
+        try:
+            validate_offset(parameter, argument)
+        except ValueError as error2:
+            errors.append(error2)
+            raise ValueError(
+                f"Invalid {parameter} argument: {argument!r}\n"
+                f"Could not validate {argument!r} as date or offset."
+            )
+
