@@ -4,6 +4,7 @@
 
 import datetime
 import glob
+import math
 import os
 import plistlib
 import re
@@ -230,7 +231,7 @@ class Database:
         trashed: Optional[bool] = False,
         context_trashed: Optional[bool] = False,
         last: Optional[str] = None,
-        createdat: Optional[str] = None,
+        created_at: Optional[str] = None,
         search_query: Optional[str] = None,
         index: str = "index",
         count_only: bool = False,
@@ -254,7 +255,7 @@ class Database:
         validate("context_trashed", context_trashed, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
-        validate_date_or_offset("createdat", last)
+        validate_date_or_offset("created_at", last)
 
         if tag is not None:
             valid_tags = self.get_tags(titles_only=True)
@@ -304,7 +305,7 @@ class Database:
             {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
-            {make_unixtime_filter(f"TASK.{DATE_CREATED}", createdat)}
+            {make_unixtime_filter_allowing_range(f"TASK.{DATE_CREATED}", created_at)}
             {make_search_filter(search_query)}
             """
         order_predicate = f'TASK."{index}"'
@@ -1112,6 +1113,15 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
     offset_datetime = f"datetime('now', '{modifier}')"
 
     return f"AND {column_datetime} > {offset_datetime}"
+
+def make_unixtime_filter_allowing_range(date_column: str, date_or_offset ):
+    if date_or_offset is None:
+        return ""
+    if isinstance(date_or_offset, bool) or match_date(date_or_offset):
+        return make_unixtime_filter(date_column, date_or_offset)
+    else:
+        return make_unixtime_range_filter(date_column, date_or_offset)
+
 
 
 def match_date(value):
