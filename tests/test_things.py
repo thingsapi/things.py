@@ -340,11 +340,17 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         last_tasks = things.tasks(created_at = "0d")
         self.assertEqual(len(last_tasks), 0)
 
+        last_tasks = things.tasks(created_at="2025-09-29")
+        self.assertEqual(len(last_tasks), 0)
+
         last_tasks = things.tasks(created_at = "10000w")
         self.assertEqual(len(last_tasks), 19)
 
         last_tasks = things.tasks(created_at = ">1925-01-01", status="completed")
         self.assertEqual(len(last_tasks), 12)
+
+        last_tasks = things.tasks(created_at=">1825-01-01")
+        self.assertEqual(len(last_tasks), 19)
 
         # None is allowed as it's allowed for dates
         last_tasks = things.tasks(created_at = None)
