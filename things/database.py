@@ -1124,8 +1124,7 @@ def make_unixtime_filter_allowing_range(date_column: str, date_or_offset):
         return ""
     if isinstance(date_or_offset, bool) or match_date(date_or_offset):
         return make_unixtime_filter(date_column, date_or_offset)
-    else:
-        return make_unixtime_range_filter(date_column, date_or_offset)
+    return make_unixtime_range_filter(date_column, date_or_offset)
 
 
 def match_date(value):
@@ -1277,7 +1276,9 @@ def validate_date_or_offset(parameter, argument):
             validate_offset(parameter, argument)
         except ValueError as error2:
             errors.append(error2)
-            raise ValueError(
+            raise ValueError(     # pylint: disable=W0707
+                # re-raising the last error does not really make sense as it both errors apply.
+                # https://pylint.readthedocs.io/en/stable/user_guide/messages/warning/raise-missing-from.html
                 f"Invalid {parameter} argument: {argument!r}\n"
                 f"Could not validate {argument!r} as date or offset."
             )
