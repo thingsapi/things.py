@@ -1114,14 +1114,19 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
 
     return f"AND {column_datetime} > {offset_datetime}"
 
-def make_unixtime_filter_allowing_range(date_column: str, date_or_offset ):
+
+def make_unixtime_filter_allowing_range(date_column: str, date_or_offset):
+    """
+    Create a SQL filter for a date or an offset.
+
+    Combines make_unixtime_filter and make_unixtime_range_filter in the simplest way possible.
+    """
     if date_or_offset is None:
         return ""
     if isinstance(date_or_offset, bool) or match_date(date_or_offset):
         return make_unixtime_filter(date_column, date_or_offset)
     else:
         return make_unixtime_range_filter(date_column, date_or_offset)
-
 
 
 def match_date(value):
@@ -1259,6 +1264,11 @@ def validate_offset(parameter, argument):
 
 
 def validate_date_or_offset(parameter, argument):
+    """
+    For a given date parameter, check if it is either a date or an offset.
+
+    Proof of concept, just combines validate_date and validate_offset.
+    """
     errors = []
     try:
         validate_date(parameter, argument)
@@ -1272,4 +1282,3 @@ def validate_date_or_offset(parameter, argument):
                 f"Invalid {parameter} argument: {argument!r}\n"
                 f"Could not validate {argument!r} as date or offset."
             )
-
