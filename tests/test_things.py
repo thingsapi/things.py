@@ -6,6 +6,7 @@ import contextlib
 import io
 import os
 import sqlite3
+import datetime
 import time
 import tracemalloc
 import unittest
@@ -40,6 +41,7 @@ TRASHED = (
 )
 PROJECTS = 4
 UPCOMING = 1
+UPCOMING_2020_12_18=UPCOMING+1
 DEADLINE_PAST = 3
 DEADLINE_FUTURE = 1
 DEADLINE = DEADLINE_PAST + DEADLINE_FUTURE
@@ -130,6 +132,29 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     def test_upcoming(self):
         tasks = things.upcoming()
         self.assertEqual(UPCOMING, len(tasks))
+        titles = {t['title'] for t in tasks}
+        assert 'To-Do in Upcoming' in titles
+        assert 'Completed To-Do in Upcoming' not in titles
+        assert 'Cancelled To-Do in Upcoming' not in titles
+
+    def test_upcoming_includes_completed_and_cancelled(self):
+        completed_todo = things.tasks(uuid = 'LE2WEGxANmtHWD3c9g5iWA')
+        canceled_todo = things.tasks(uuid = 'ADLex1EmJzLpu2GHxFvLvc')
+        assert completed_todo['stop_date'] == '2021-03-28 14:14:21'
+        assert canceled_todo['stop_date'] == '2021-03-28 14:14:24'
+        # as their stop dates are after the manualLogDate, they should be shown in upcoming().
+        # manualLogDate:
+        assert datetime.datetime.fromtimestamp(1616958822.8444772).isoformat() == '2021-03-28T14:13:42.844477'
+
+    @unittest.mock.patch("things.database.date_today")
+    def test_upcoming_includes_repeating(self,today_mock):
+        today_mock.return_value = '2020-12-18'
+        tasks = things.upcoming()
+        self.assertEqual(UPCOMING_2020_12_18, len(tasks))
+        titles = {t['title'] for t in tasks}
+        assert 'To-Do in Upcoming' in titles
+        assert 'Upcoming To-Do in Today (yellow)' in titles
+
 
     def test_deadlines(self):
         tasks = things.tasks(deadline="past")
