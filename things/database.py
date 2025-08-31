@@ -951,7 +951,7 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     else:
         # "future" or "past"
         validate("value", value, ["future", "past"])
-        today = isodate_to_yyyyyyyyyyymmmmddddd(datetime.date.today().strftime("%Y-%m-%d"))
+        today = isodate_to_yyyyyyyyyyymmmmddddd(date_today())
         # threshold = convert_isodate_sql_expression_to_thingsdate(
         #     "date('now', 'localtime')", null_possible=False
         # )
@@ -959,6 +959,10 @@ def make_thingsdate_filter(date_column: str, value) -> str:
         comparator = ">" if value == "future" else "<="
 
     return f"AND {date_column} {comparator} {threshold}"
+
+
+def date_today():
+    return datetime.date.today().strftime("%Y-%m-%d")
 
 
 def make_truthy_filter(column: str, value) -> str:
