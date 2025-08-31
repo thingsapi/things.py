@@ -812,7 +812,9 @@ def isodate_to_yyyyyyyyyyymmmmddddd(value: str):
     >>> isodate_to_yyyyyyyyyyymmmmddddd('2021-03-28')
     132464128
     """
-    year, month, day = map(int, value.split("-"))
+    datetimetag = datetime.datetime.fromisoformat(value)
+    year, month, day = datetimetag.year, datetimetag.month, datetimetag.day
+    #year, month, day = map(int, value.split("-"))
     return year << 16 | month << 12 | day << 7
 
 
@@ -949,6 +951,7 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     else:
         # "future" or "past"
         validate("value", value, ["future", "past"])
+        today = isodate_to_yyyyyyyyyyymmmmddddd(datetime.date.today().strftime("%Y-%m-%d"))
         threshold = convert_isodate_sql_expression_to_thingsdate(
             "date('now', 'localtime')", null_possible=False
         )
