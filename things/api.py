@@ -538,7 +538,9 @@ def upcoming(**kwargs):
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date="future", start="Someday", **kwargs)
+    scheduled_tasks = tasks(start_date="future", start="Someday", **kwargs)
+    repeating_task_templates = tasks(is_repeating_task_template=True, **kwargs)
+    return scheduled_tasks #+ repeating_task_templates
 
 
 def anytime(**kwargs):

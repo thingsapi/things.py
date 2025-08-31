@@ -67,6 +67,7 @@ INDICES = ("index", "todayIndex")
 
 # Response modification
 
+
 COLUMNS_TO_OMIT_IF_NONE = (
     "area",
     "area_title",
@@ -132,6 +133,9 @@ IS_SOMEDAY = START_TO_FILTER["Someday"]
 
 # Repeats
 IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
+IS_REPEATING_TEMPLATE = "rt1_recurrenceRule IS NOT NULL"
+START_DATE_NEXT_INSTANCE = "rt1_nextInstanceStartDate"
+
 
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
@@ -229,6 +233,7 @@ class Database:
         deadline_suppressed: Optional[bool] = None,
         trashed: Optional[bool] = False,
         context_trashed: Optional[bool] = False,
+        is_repeating_task_template: Optional[bool] = False,
         last: Optional[str] = None,
         search_query: Optional[str] = None,
         index: str = "index",
