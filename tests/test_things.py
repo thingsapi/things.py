@@ -40,7 +40,7 @@ TRASHED = (
     + TRASHED_PROJECT_TRASHED_TODOS
 )
 PROJECTS = 4
-UPCOMING = 1
+UPCOMING = 2
 UPCOMING_2020_12_18=UPCOMING+1
 DEADLINE_PAST = 3
 DEADLINE_FUTURE = 1
@@ -137,7 +137,11 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         assert 'Completed To-Do in Upcoming' not in titles
         assert 'Cancelled To-Do in Upcoming' not in titles
 
-    def test_upcoming_includes_completed_and_cancelled(self):
+    def test_upcoming_includes_completed_and_canceled(self):
+        # they are shown in upcoming if they have a start_date > today.
+        # those two test cases have start=1 which never happens in the
+        # real db- upcoming tasks always have start=2=Someday.
+
         completed_todo = things.tasks(uuid = 'LE2WEGxANmtHWD3c9g5iWA')
         canceled_todo = things.tasks(uuid = 'ADLex1EmJzLpu2GHxFvLvc')
         assert completed_todo['stop_date'] == '2021-03-28 14:14:21'
@@ -151,24 +155,27 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
     @unittest.mock.patch("things.database.date_today")
     def test_upcoming_includes_repeating_instance(self, today_mock):
         today_mock.return_value = '2020-12-18'
-        created_instance = things.tasks(uuid='K9bx7h1xCJdevvyWardZDq')
+        created_from_template_uuid = 'K9bx7h1xCJdevvyWardZDq'
+        created_instance = things.tasks(uuid=created_from_template_uuid)
         assert created_instance['status'] == 'incomplete'
-        assert created_instance['start'] == 'Anytime' # this is why it's not found.
+        assert created_instance['start'] == 'Anytime' # never occurs in real data
         # I was not able to re-create a task that has a startDate and start different from 2/Someday.
         assert created_instance['start_date'] == '2020-12-19'
         tasks = things.upcoming()
-        titles = {t['title'] for t in tasks}
-        assert created_instance['title'] not in titles
+        uuids = {t['uuid'] for t in tasks}
+        # was not found!
+        assert created_from_template_uuid not in uuids
 
     @unittest.mock.patch("things.database.date_today")
     def test_upcoming_includes_repeating_template(self,today_mock):
         today_mock.return_value = '2020-12-18'
         tasks = things.upcoming()
-        #self.assertEqual(UPCOMING_2020_12_18+1, len(tasks))
-        titles = {t['title'] for t in tasks}
-        assert 'To-Do in Upcoming' in titles
-        assert 'Upcoming To-Do in Today (yellow)' in titles
-   #     assert 'Repeating To-Do' in titles
+        self.assertEqual(UPCOMING_2020_12_18, len(tasks))
+        template_uuid = 'N1PJHsbjct4mb1bhcs7aHa'
+        uuids =  {t['uuid'] for t in tasks}
+        assert template_uuid in uuids
+
+
 
 
     def test_deadlines(self):
