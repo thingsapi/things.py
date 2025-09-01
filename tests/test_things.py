@@ -175,8 +175,12 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         uuids =  {t['uuid'] for t in tasks}
         assert template_uuid in uuids
 
-
-
+    def test_repeating_template_fields_set(self):
+        tasks = things.tasks(is_repeating_task_template=True)
+        for task in tasks:
+            assert 'is_repeating_task_template' in list(task)
+            assert str(task['is_repeating_task_template']) == 'True'
+            assert task['start_date'] == '2025-03-28'
 
     def test_deadlines(self):
         tasks = things.tasks(deadline="past")
@@ -261,6 +265,8 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         self.assertEqual(19, len(tasks))
         with self.assertRaises(ValueError):
             things.todos(status="invalid_value")
+
+    def test_todos_length(self):
         todo = things.todos("A2oPvtt4dXoypeoLc8uYzY")
         self.assertEqual(16, len(todo.keys()))  # type: ignore
 

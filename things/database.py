@@ -79,8 +79,11 @@ COLUMNS_TO_OMIT_IF_NONE = (
     "reminder_time",
     "trashed",
     "tags",
+    "is_repeating_task_template",
+    "start_date_next_instance",
+    "start_date_instance_creation"
 )
-COLUMNS_TO_TRANSFORM_TO_BOOL = ("checklist", "tags", "trashed")
+COLUMNS_TO_TRANSFORM_TO_BOOL = ("checklist", "tags", "trashed", "is_repeating_task_template")
 
 # --------------------------------------------------
 # Table names
@@ -112,6 +115,10 @@ DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 # See 'convert_thingstime_sql_expression_to_isotime' for details.
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
+DATE_START_NEXT_INSTANCE = "rt1_nextInstanceStartDate"
+DATE_START_INSTANCE_CREATION = "rt1_instanceCreationStartDate"
+RECURRENCE_RULE = "rt1_recurrenceRule"
+
 # --------------------------------------------------
 # Various filters
 # --------------------------------------------------
@@ -130,12 +137,6 @@ IS_COMPLETED = STATUS_TO_FILTER["completed"]
 IS_INBOX = START_TO_FILTER["Inbox"]
 IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
-
-# Repeats
-IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
-IS_REPEATING_TEMPLATE = "rt1_recurrenceRule IS NOT NULL"
-START_DATE_NEXT_INSTANCE = "rt1_nextInstanceStartDate"
-
 
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
@@ -271,7 +272,7 @@ class Database:
         status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
         trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
         type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
-        is_repeating_task_template_filter: str = f"rt1_recurrenceRule IS {"NOT" if is_repeating_task_template else "" } NULL"
+        is_repeating_task_template_filter: str = f"{RECURRENCE_RULE} IS {"NOT" if is_repeating_task_template else "" } NULL"
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -534,6 +535,12 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     start_date_expression = convert_thingsdate_sql_expression_to_isodate(
         f"TASK.{DATE_START}"
     )
+    start_date_next_instance_expression = convert_thingsdate_sql_expression_to_isodate(
+        f"TASK.{DATE_START_NEXT_INSTANCE}"
+    )
+    start_date_instance_creation_expression = convert_thingsdate_sql_expression_to_isodate(
+        f"TASK.{DATE_START_INSTANCE_CREATION}"
+    )
     deadline_expression = convert_thingsdate_sql_expression_to_isodate(
         f"TASK.{DATE_DEADLINE}"
     )
@@ -558,6 +565,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                     WHEN TASK.{IS_CANCELED} THEN 'canceled'
                     WHEN TASK.{IS_COMPLETED} THEN 'completed'
                 END AS status,
+                CASE
+                    WHEN TASK.{RECURRENCE_RULE} is not NULL THEN True
+                END AS is_repeating_task_template,
                 CASE
                     WHEN AREA.uuid IS NOT NULL THEN AREA.uuid
                 END AS area,
@@ -591,6 +601,8 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                 {start_date_expression} AS start_date,
                 {deadline_expression} AS deadline,
                 {reminder_time_expression} AS "reminder_time",
+                {start_date_next_instance_expression} AS start_date_next_instance,
+                {start_date_instance_creation_expression} AS start_date_instance_creation,
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
                 datetime(TASK.{DATE_CREATED}, "unixepoch", "localtime") AS created,
                 datetime(TASK.{DATE_MODIFIED}, "unixepoch", "localtime") AS modified,
@@ -758,6 +770,17 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
+def adjust_template_dates(task_dict):
+    if task_dict.get('start_date_next_instance', None) == '1-01-01':
+        task_dict.pop('start_date_next_instance')
+    if task_dict.get('is_repeating_task_template',False):
+        # 'start_date_next_instance': '1-01-01'
+
+        if task_dict.get('start_date',None) is None:
+            start_date = task_dict.get('start_date_next_instance',None) or task_dict.get('start_date_instance_creation',None)
+            if start_date:
+                task_dict['start_date'] = start_date
+
 
 def dict_factory(cursor, row):
     """
@@ -774,6 +797,7 @@ def dict_factory(cursor, row):
         if value and key in COLUMNS_TO_TRANSFORM_TO_BOOL:
             value = bool(value)
         result[key] = value
+    adjust_template_dates(result)
     return result
 
 
