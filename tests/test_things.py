@@ -41,7 +41,7 @@ TRASHED = (
 )
 PROJECTS = 4
 UPCOMING = 2
-UPCOMING_2020_12_18=UPCOMING+1
+UPCOMING_2020_12_18 = UPCOMING + 1
 DEADLINE_PAST = 3
 DEADLINE_FUTURE = 1
 DEADLINE = DEADLINE_PAST + DEADLINE_FUTURE
@@ -142,15 +142,15 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         # those two test cases have start=1 which never happens in the
         # real db- upcoming tasks always have start=2=Someday.
 
-        completed_todo = things.tasks(uuid = 'LE2WEGxANmtHWD3c9g5iWA')
-        canceled_todo = things.tasks(uuid = 'ADLex1EmJzLpu2GHxFvLvc')
+        completed_todo = things.tasks(uuid='LE2WEGxANmtHWD3c9g5iWA')
+        canceled_todo = things.tasks(uuid='ADLex1EmJzLpu2GHxFvLvc')
         assert completed_todo['stop_date'] == '2021-03-28 14:14:21'
         assert completed_todo['start'] == 'Someday'
         assert canceled_todo['stop_date'] == '2021-03-28 14:14:24'
         assert canceled_todo['start'] == 'Someday'
         # as their stop dates are after the manualLogDate, they should be shown in upcoming().
-        # manualLogDate:
-        assert datetime.datetime.fromtimestamp(1616958822.8444772).isoformat() == '2021-03-28T14:13:42.844477'
+        manual_log_date = datetime.datetime.fromtimestamp(1616958822.8444772).isoformat()
+        assert manual_log_date == '2021-03-28T14:13:42.844477'
 
     @unittest.mock.patch("things.database.date_today")
     def test_upcoming_includes_repeating_instance(self, today_mock):
@@ -158,8 +158,9 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         created_from_template_uuid = 'K9bx7h1xCJdevvyWardZDq'
         created_instance = things.tasks(uuid=created_from_template_uuid)
         assert created_instance['status'] == 'incomplete'
-        assert created_instance['start'] == 'Anytime' # never occurs in real data
-        # I was not able to re-create a task that has a startDate and start different from 2/Someday.
+        assert created_instance['start'] == 'Anytime'    # never occurs in real data
+        # I was not able to re-create a task that has a startDate
+        # and start different from 2/Someday.
         assert created_instance['start_date'] == '2020-12-19'
         tasks = things.upcoming()
         uuids = {t['uuid'] for t in tasks}
@@ -167,12 +168,12 @@ class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
         assert created_from_template_uuid not in uuids
 
     @unittest.mock.patch("things.database.date_today")
-    def test_upcoming_includes_repeating_template(self,today_mock):
+    def test_upcoming_includes_repeating_template(self, today_mock):
         today_mock.return_value = '2020-12-18'
         tasks = things.upcoming()
         self.assertEqual(UPCOMING_2020_12_18, len(tasks))
         template_uuid = 'N1PJHsbjct4mb1bhcs7aHa'
-        uuids =  {t['uuid'] for t in tasks}
+        uuids = {t['uuid'] for t in tasks}
         assert template_uuid in uuids
 
     def test_repeating_template_fields_set(self):

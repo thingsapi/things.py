@@ -771,14 +771,16 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
-def adjust_template_dates(task_dict):
+
+def _adjust_template_dates(task_dict):
     if task_dict.get('start_date_next_instance', None) == '1-01-01':
         task_dict.pop('start_date_next_instance')
-    if task_dict.get('is_repeating_task_template',False):
+    if task_dict.get('is_repeating_task_template', False):
         # 'start_date_next_instance': '1-01-01'
 
-        if task_dict.get('start_date',None) is None:
-            start_date = task_dict.get('start_date_next_instance',None) or task_dict.get('start_date_instance_creation',None)
+        if task_dict.get('start_date', None) is None:
+            start_date = (task_dict.get('start_date_next_instance', None)
+                          or task_dict.get('start_date_instance_creation', None))
             if start_date:
                 task_dict['start_date'] = start_date
 
@@ -798,7 +800,7 @@ def dict_factory(cursor, row):
         if value and key in COLUMNS_TO_TRANSFORM_TO_BOOL:
             value = bool(value)
         result[key] = value
-    adjust_template_dates(result)
+    _adjust_template_dates(result)
     return result
 
 
@@ -845,7 +847,7 @@ def isodate_to_yyyyyyyyyyymmmmddddd(value: str):
     """
     datetimetag = datetime.datetime.fromisoformat(value)
     year, month, day = datetimetag.year, datetimetag.month, datetimetag.day
-    #year, month, day = map(int, value.split("-"))
+
     return year << 16 | month << 12 | day << 7
 
 
@@ -992,6 +994,7 @@ def make_thingsdate_filter(date_column: str, value) -> str:
 
 
 def date_today():
+    """Return today's date. Indirection necessary to enable to mock it for testing."""
     return datetime.date.today().strftime("%Y-%m-%d")
 
 
