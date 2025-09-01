@@ -4,9 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pytest = "*"
+pytest-mock = "*"
 
 [dev-packages]
-
 black = "*"
 coverage = "*"
 flake8 = "*"
