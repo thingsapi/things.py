@@ -25,7 +25,7 @@ jobs:
           make deps-install
       - name: Run tests
         run: |
-          pip install coverage pytest pytest-cov
+          pip install coverage pytest pytest-mock pytest-cov
           make test testdoc
       - name: "Upload coverage to Codecov"
         if: github.repository == 'thingsapi/things.py'
@@ -35,6 +35,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run lint
         run: |
-          pip install black pycodestyle pylama pylint flake8 mypy pydocstyle vulture pytest pytest-mock ruff
+          pip install black pycodestyle pylama pylint flake8 mypy pydocstyle vulture pytest ruff
           sudo npm install -g pyright
           make lint
