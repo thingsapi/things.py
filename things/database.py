@@ -272,7 +272,8 @@ class Database:
         status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
         trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
         type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
-        is_repeating_task_template_filter: str = f"{RECURRENCE_RULE} IS {"NOT" if is_repeating_task_template else "" } NULL"
+        not_or_not = "NOT" if is_repeating_task_template else ""
+        is_repeating_task_template_filter: str = f"{RECURRENCE_RULE} IS {not_or_not} NULL"
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
