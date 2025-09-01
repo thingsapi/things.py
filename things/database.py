@@ -947,10 +947,9 @@ def make_thingsdate_filter(date_column: str, value) -> str:
     >>> make_thingsdate_filter('startDate', False)
     'AND startDate IS NULL'
 
+    >>> today = getfixture('patch_today')
     >>> make_thingsdate_filter('startDate', 'future')
-    "AND startDate > ((strftime('%Y', date('now', 'localtime')) << 16) \
-    | (strftime('%m', date('now', 'localtime')) << 12) \
-    | (strftime('%d', date('now', 'localtime')) << 7))"
+    'AND startDate > 132747392'
 
     >>> make_thingsdate_filter('deadline', '2021-03-28')
     'AND deadline == 132464128'
