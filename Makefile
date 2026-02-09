@@ -87,7 +87,7 @@ code-lint: code-style ## Lint the code
 	@if type pylama >/dev/null 2>&1 ; then pylama *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
-	@if type pylint >/dev/null 2>&1 ; then pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Ruff...
 	@if type ruff >/dev/null 2>&1 ; then ruff check . ; \
