@@ -83,9 +83,6 @@ code-count: ## Count the code
 	 else echo "SKIPPED. Run 'brew install cloc' first." >&2 ; fi
 
 code-lint: code-style ## Lint the code
-	@echo Pylama...
-	@if type pylama >/dev/null 2>&1 ; then pylama *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
-	 else echo "SKIPPED. Run '$(PIP) install pylama' first." >&2 ; fi
 	@echo Pylint...
 	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi

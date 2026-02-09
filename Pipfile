@@ -13,13 +13,11 @@ flake8 = "*"
 mypy = "*"
 pycodestyle = "*"
 pydocstyle = "*"
-pylama = "*"
 pylint = "*"
 pyright = "*"
 pytest = "*"
 pytest-cov = "*"
 ruff = "*"
-setuptools = "*"
 vulture = "*"
 
 [requires]
