@@ -1,7 +1,7 @@
 """A simple Python 3 library to read your Things app data."""
 
 __author__ = ["Alexander Willner", "Michael Belfrage"]
-__copyright__ = "2021 Alexander Willner & Michael Belfrage"
+__copyright__ = "2026 Alexander Willner & Michael Belfrage"
 __credits__ = ["Alexander Willner", "Michael Belfrage"]
 __license__ = "Apache License 2.0"
 __version__ = "0.0.15"
