@@ -114,6 +114,11 @@ deps-install: ## Install the dependencies
 	@$(PIPENV) install --dev
 	npm install pyright
 
+update: ## Update dependencies
+	@type $(PIPENV) >/dev/null 2>&1 || (echo "Run e.g. 'brew install pipenv' first." >&2 ; exit 1)
+	@$(PIPENV) update --dev
+	npm update pyright
+
 feedback: ## Give feedback
 	@open https://github.com/thingsapi/things.py/issues
 
