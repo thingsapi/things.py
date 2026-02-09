@@ -188,7 +188,7 @@ class Database:
 
         # "ro" means read-only
         # See: https://sqlite.org/uri.html#recognized_query_parameters
-        uri = f"file:{self.filepath}?mode=ro"
+        uri = f"file:{self.filepath}?mode=ro"  # noqa
         self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
         # Close the underlying SQLite connection when this Database object is garbage collected
         weakref.finalize(self, sqlite3.Connection.close, self.connection)
@@ -213,7 +213,7 @@ class Database:
 
     # Core methods
 
-    def get_tasks(  # pylint: disable=R0914,R0917
+    def get_tasks(  # pylint: disable=R0914,R0913,R0917
         self,
         uuid: Optional[str] = None,
         type: Optional[str] = None,  # pylint: disable=W0622
@@ -748,7 +748,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     hours = f"({thingstime} & {h_mask}) >> 26"
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
-    isotime = f"printf('%02d:%02d', {hours}, {minutes})"
+    isotime = f"printf('%02d:%02d', {hours}, {minutes})"  # noqa
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 

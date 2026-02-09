@@ -7,10 +7,10 @@ that occur in the Things SQL database to closer reflect its underlying
 data structures. Whenever that happens, we define the new term here.
 """
 
-import os
+import os  # pylint: disable=C0412
+import urllib.parse
 from shlex import quote
 from typing import Dict, List, Union
-import urllib.parse
 
 from things.database import Database
 
@@ -724,7 +724,7 @@ def url(uuid=None, command="show", **query_parameters) -> str:
         query_parameters, quote_via=urllib.parse.quote
     )
 
-    return f"things:///{command}?{query_string}"
+    return f"things:///{command}?{query_string}"  # noqa
 
 
 # Alias for backwards compatiblity

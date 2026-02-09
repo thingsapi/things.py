@@ -48,7 +48,7 @@ TODAY_TASKS = 4
 TODAY = TODAY_PROJECTS + TODAY_TASKS
 
 
-class ThingsCase(unittest.TestCase):  # noqa: V103 pylint: disable=R0904
+class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
     """Class documentation goes here."""
 
     def setUp(self):
