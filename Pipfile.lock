@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "26aaa21510d4ca48c3048ba41c23b5a24940d7f7fb54408b2631a08ea91020b7"
+            "sha256": "7d0c8ae299cdb34efbc57cec0320b56331539785e79e65bcf4c131c4519a0076"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -433,15 +433,6 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.19.2"
         },
-        "pylama": {
-            "hashes": [
-                "sha256:2d4f7aecfb5b7466216d48610c7d6bad1c3990c29cdd392ad08259b161e486f6",
-                "sha256:5bbdbf5b620aba7206d688ed9fc917ecd3d73e15ec1a89647037a09fa3a86e60"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==8.4.1"
-        },
         "pylint": {
             "hashes": [
                 "sha256:63e06a37d5922555ee2c20963eb42559918c20bd2b21244e4ef426e7c43b92e0",
@@ -550,15 +541,6 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==0.15.0"
-        },
-        "setuptools": {
-            "hashes": [
-                "sha256:22e0a2d69474c6ae4feb01951cb69d515ed23728cf96d05513d36e42b62b37cb",
-                "sha256:70b18734b607bd1da571d097d236cfcfacaf01de45717d59e6e04b96877532e0"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.9'",
-            "version": "==82.0.0"
         },
         "snowballstemmer": {
             "hashes": [
