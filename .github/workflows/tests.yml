@@ -35,6 +35,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run lint
         run: |
-          pip install black pycodestyle pylama pylint flake8 mypy pydocstyle vulture pytest ruff
+          pip install black pycodestyle pylama pylint flake8 mypy pydocstyle vulture pytest ruff setuptools
           sudo npm install -g pyright
           make lint
