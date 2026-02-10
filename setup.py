@@ -2,7 +2,7 @@
 
 import os
 
-from setuptools import find_packages, setup  # type: ignore
+from setuptools import find_packages, setup  # type: ignore # pylint: disable=import-error
 
 
 def package_files(directory):
