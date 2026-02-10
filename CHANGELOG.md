@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-02-10
 
 ### Added
 
@@ -61,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - @cato447 (#121)
 - @chrisgurney (#117, #118, #123, #124)
 - @minthemiddle (#116)
+
+## [Unreleased]
 
 ## [0.0.15] - 2023-05-22
 
@@ -151,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/thingsapi/things.py/compare/v0.0.15...HEAD
+[Unreleased]: https://github.com/thingsapi/things.py/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/thingsapi/things.py/releases/tag/v1.0.0
 [0.0.15]: https://github.com/thingsapi/things.py/releases/tag/v0.0.15
 [0.0.14]: https://github.com/thingsapi/things.py/releases/tag/v0.0.14
 [0.0.13]: https://github.com/thingsapi/things.py/releases/tag/v0.0.13
