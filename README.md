@@ -45,6 +45,7 @@ $ git clone https://github.com/thingsapi/things.py && cd things.py && make insta
   'notes': "Something around 4' x 3' that's free-standing, two-sided, and magnetic.",
   'checklist': True,
   ...
+
 >>> things.todos('RLZroza3jz0XPs3uAlynS7')
 {'uuid': 'RLZroza3jz0XPs3uAlynS7',
  'type': 'to-do',
