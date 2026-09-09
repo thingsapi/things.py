@@ -28,12 +28,24 @@ DEFAULT_FILEPATH_31516502 = (
     "/Things Database.thingsdatabase/main.sqlite"
 )
 
-try:
-    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH_31616502)))
-except StopIteration:
-    DEFAULT_FILEPATH = os.path.expanduser(DEFAULT_FILEPATH_31516502)
-
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
+
+
+def resolve_default_filepath():
+    """Resolve the database path, preferring an explicit environment override."""
+    configured_filepath = os.getenv(ENVIRONMENT_VARIABLE_WITH_FILEPATH)
+    if configured_filepath:
+        return os.path.expanduser(configured_filepath)
+
+    try:
+        return next(
+            glob.iglob(os.path.expanduser(DEFAULT_FILEPATH_31616502))
+        )
+    except StopIteration:
+        return os.path.expanduser(DEFAULT_FILEPATH_31516502)
+
+
+DEFAULT_FILEPATH = resolve_default_filepath()
 
 # Translate app language to database language
 
