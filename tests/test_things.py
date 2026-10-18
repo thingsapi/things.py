@@ -381,6 +381,40 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         )
         self.assertEqual(tasks, 0)
 
+    def test_default_database_filepath(self):
+        get_default_database_filepath = things.database.get_default_database_filepath
+        with unittest.mock.patch("glob.iglob", return_value=iter(["filepath"])):
+            self.assertEqual("filepath", get_default_database_filepath())
+        with unittest.mock.patch(
+            "glob.iglob", return_value=iter([])
+        ), unittest.mock.patch("os.listdir"):
+            self.assertEqual(
+                things.database.DEFAULT_FILEPATH_31516502,
+                get_default_database_filepath(raise_on_error=True),
+            )
+
+    def test_default_database_filepath_permission_denied(self):
+        get_default_database_filepath = things.database.get_default_database_filepath
+        with unittest.mock.patch(
+            "glob.iglob", return_value=iter([])
+        ), unittest.mock.patch("os.listdir", side_effect=PermissionError):
+            with self.assertRaises(PermissionError):
+                get_default_database_filepath(raise_on_error=True)
+            self.assertTrue(
+                get_default_database_filepath().endswith(
+                    "/Things Database.thingsdatabase/main.sqlite"
+                )
+            )
+
+    def test_database_uses_default_filepath_when_thingsdb_unset(self):
+        del os.environ[THINGSDB]
+        with unittest.mock.patch(
+            "things.database.get_default_database_filepath",
+            return_value=TEST_DATABASE_FILEPATH,
+        ) as get_default_database_filepath:
+            things.database.Database()
+        get_default_database_filepath.assert_called_once_with(raise_on_error=True)
+
     def test_database_details(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):

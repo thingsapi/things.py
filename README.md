@@ -152,9 +152,8 @@ The following open-source projects make use of this library:
 - [HTTP Daemon for Things (ehippy)](https://github.com/ehippy/things.http)
 - [KanbanView for Things (AlexanderWillner)](https://github.com/AlexanderWillner/KanbanView)
 - [MCP Server for Things (hald)](https://github.com/hald/things-mcp)
+- [MCP Server for Things (ebowman)](https://github.com/ebowman/mcp-server-things)
 - [MCP Server for Things (excelsier)](https://github.com/excelsier/things-fastmcp)
-- [MCP Server for Things (stepankuzmin)](https://github.com/stepankuzmin/things-mcp)
-- [MCP Server for Things (AlexanderWillner)](https://github.com/AlexanderWillner/things-mcp)
 - [Pomodoro timer for Things (walteh fork)](https://github.com/walteh/timebox)
 - [ThingsStats (lmgibson)](https://github.com/lmgibson/ThingsStats)
 

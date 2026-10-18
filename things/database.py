@@ -17,22 +17,19 @@ import weakref
 # Core constants
 # --------------------------------------------------
 
+# Database filepath
 
-# Database filepath with glob pattern for version 3.15.16+
-DEFAULT_FILEPATH_31616502 = (
+# in Things 3.12.6 (2020) "Containers/" changed to "Group Containers/"
+THINGS_GROUP_CONTAINER = os.path.expanduser(
     "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
-    "/ThingsData-*/Things Database.thingsdatabase/main.sqlite"
+)
+# use glob pattern for version 3.17.4+ (2023+)
+DEFAULT_FILEPATH_31704015 = (
+    f"{THINGS_GROUP_CONTAINER}/ThingsData-*/Things Database.thingsdatabase/main.sqlite"
 )
 DEFAULT_FILEPATH_31516502 = (
-    "~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac"
-    "/Things Database.thingsdatabase/main.sqlite"
+    f"{THINGS_GROUP_CONTAINER}/Things Database.thingsdatabase/main.sqlite"
 )
-
-try:
-    DEFAULT_FILEPATH = next(glob.iglob(os.path.expanduser(DEFAULT_FILEPATH_31616502)))
-except StopIteration:
-    DEFAULT_FILEPATH = os.path.expanduser(DEFAULT_FILEPATH_31516502)
-
 ENVIRONMENT_VARIABLE_WITH_FILEPATH = "THINGSDB"
 
 # Translate app language to database language
@@ -180,7 +177,7 @@ class Database:
         self.filepath = (
             filepath
             or os.getenv(ENVIRONMENT_VARIABLE_WITH_FILEPATH)
-            or DEFAULT_FILEPATH
+            or get_default_database_filepath(raise_on_error=True)
         )
         self.print_sql = print_sql
         if self.print_sql:
@@ -193,23 +190,12 @@ class Database:
         # Close the underlying SQLite connection when this Database object is garbage collected
         weakref.finalize(self, sqlite3.Connection.close, self.connection)
 
-        # Test for migrated database in Things 3.15.16+
-        # --------------------------------
+        # Test for migrated database in Things 3.17.4+
         assert self.get_version() > 21, (
             "Your database is in an older format. "
             "Run 'pip install things.py==0.0.14' to downgrade to an older "
             "version of this library."
         )
-
-        # Automated migration to new database location in Things 3.12.6/3.13.1
-        # --------------------------------
-        try:
-            with open(self.filepath, encoding="utf-8") as file:
-                if "Your database file has been moved there" in file.readline():
-                    self.filepath = DEFAULT_FILEPATH
-        except (UnicodeDecodeError, FileNotFoundError, PermissionError):
-            pass  # binary file (old database) or doesn't exist
-        # --------------------------------
 
     # Core methods
 
@@ -814,6 +800,23 @@ def isodate_to_yyyyyyyyyyymmmmddddd(value: str):
     """
     year, month, day = map(int, value.split("-"))
     return year << 16 | month << 12 | day << 7
+
+
+def get_default_database_filepath(raise_on_error=False):
+    """Return Things 3.17.4+ path else the 3.15 path.
+
+    Optionally, raise an error if the Things 3.17.4+ path isn't found
+    and macOS can't list the files in the `Group Containers` folder.
+    """
+    filepath = next(glob.iglob(DEFAULT_FILEPATH_31704015), None)
+    if filepath:
+        return filepath
+
+    if raise_on_error:
+        # glob hides PermissionError; this raises it
+        os.listdir(THINGS_GROUP_CONTAINER)
+    # fallback to an older Things path to try
+    return DEFAULT_FILEPATH_31516502
 
 
 def list_factory(_cursor, row):
