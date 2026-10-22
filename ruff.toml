@@ -1,15 +1,12 @@
 # Ruff-Konfiguration: Ziel ist die älteste unterstützte Version
-# (setup.py: python_requires >= 3.7, CI testet ab 3.8).
-# Damit werden keine Syntax-Rewrites verlangt, die Python < 3.10 brechen.
-target-version = "py38"
+# (setup.py: python_requires >= 3.11, CI testet 3.11+).
+# Damit sind moderne Annotations-Syntaxen (PEP 585/604) ok.
+target-version = "py311"
 
 [lint]
-# FA100 schlägt `from __future__ import annotations` vor, um moderne
-# Annotations-Syntax zu ermöglichen. Wir behalten Runtime-Annotations
-# und alte Python-Versionen ohne Future-Import.
 # TRY004 will TypeError statt ValueError bei falschem Typ. ValueError ist
 # hier API-Vertrag: things/api.get() fängt ValueError, Tests erwarten ihn.
-ignore = ["FA100", "TRY004"]
+ignore = ["TRY004"]
 # C901 kennt nur flake8 (max-complexity = 10 in setup.cfg). Die noqa dafür
 # in things/api.py muss bleiben; Ruff soll sie als verwendet werten.
 external = ["C901"]
