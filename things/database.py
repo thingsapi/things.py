@@ -474,7 +474,7 @@ class Database:
         )
         return rows[0]
 
-    # TODO: add type hinting for result (List[Tuple[str, Any]]?)
+    # TODO: add type hinting for result (List[Tuple[str, Any]]?)  # pylint: disable=fixme
     def execute_query(self, sql_query, parameters=(), row_factory=None):
         """Run the actual SQL query."""
         if self.print_sql or self.debug:
@@ -874,7 +874,7 @@ def make_search_filter(query: Optional[str]) -> str:
 
     query = escape_string(query)
 
-    # TODO: 'TMChecklistItem.title'
+    # TODO: 'TMChecklistItem.title'  # pylint: disable=fixme
     columns = ["TASK.title", "TASK.notes", "AREA.title"]
 
     sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)
