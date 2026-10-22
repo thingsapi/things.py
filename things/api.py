@@ -14,7 +14,6 @@ from typing import Dict, List, Union
 
 from things.database import Database
 
-
 # --------------------------------------------------
 # Core functions
 # --------------------------------------------------
@@ -724,14 +723,14 @@ def url(uuid=None, command="show", **query_parameters) -> str:
         query_parameters, quote_via=urllib.parse.quote
     )
 
-    return f"things:///{command}?{query_string}"  # noqa
+    return f"things:///{command}?{query_string}"
 
 
 # Alias for backwards compatiblity
 link = url
 
 
-def show(uuid):  # noqa
+def show(uuid):
     """
     Show a certain uuid in the Things app.
 
@@ -749,7 +748,7 @@ def show(uuid):  # noqa
     os.system(f"open {quote(uri)}")
 
 
-def complete(uuid):  # noqa
+def complete(uuid):
     """
     Set the status of a certain uuid to complete.
 

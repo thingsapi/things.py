@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Module documentation goes here."""
 
 import contextlib
@@ -13,7 +11,6 @@ import unittest.mock
 
 import things
 import things.database
-
 
 tracemalloc.start()
 

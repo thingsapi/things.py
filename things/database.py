@@ -8,10 +8,9 @@ import os
 import plistlib
 import re
 import sqlite3
+import weakref
 from textwrap import dedent
 from typing import Optional, Union
-import weakref
-
 
 # --------------------------------------------------
 # Core constants
@@ -185,7 +184,7 @@ class Database:
 
         # "ro" means read-only
         # See: https://sqlite.org/uri.html#recognized_query_parameters
-        uri = f"file:{self.filepath}?mode=ro"  # noqa
+        uri = f"file:{self.filepath}?mode=ro"
         self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
         # Close the underlying SQLite connection when this Database object is garbage collected
         weakref.finalize(self, sqlite3.Connection.close, self.connection)
@@ -278,7 +277,7 @@ class Database:
             {type_filter and f"AND TASK.{type_filter}"}
             {start_filter and f"AND TASK.{start_filter}"}
             {status_filter and f"AND TASK.{status_filter}"}
-            {make_filter('TASK.uuid', uuid)}
+            {make_filter("TASK.uuid", uuid)}
             {make_filter("TASK.area", area)}
             {project_filter}
             {make_filter("TASK.heading", heading)}
@@ -345,8 +344,8 @@ class Database:
                 {TABLE_TAG} TAG ON TAG.uuid = AREA_TAG.tags
             WHERE
                 TRUE
-                {make_filter('TAG.title', tag)}
-                {make_filter('AREA.uuid', uuid)}
+                {make_filter("TAG.title", tag)}
+                {make_filter("AREA.uuid", uuid)}
             ORDER BY AREA."index"
             """
 
@@ -406,7 +405,7 @@ class Database:
                 {TABLE_TAG}
             WHERE
                 TRUE
-                {make_filter('title', title)}
+                {make_filter("title", title)}
             ORDER BY "index"
             """
 
@@ -475,7 +474,7 @@ class Database:
         )
         return rows[0]
 
-    # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
+    # TODO: add type hinting for result (List[Tuple[str, Any]]?)
     def execute_query(self, sql_query, parameters=(), row_factory=None):
         """Run the actual SQL query."""
         if self.print_sql or self.debug:
@@ -734,7 +733,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     hours = f"({thingstime} & {h_mask}) >> 26"
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
-    isotime = f"printf('%02d:%02d', {hours}, {minutes})"  # noqa
+    isotime = f"printf('%02d:%02d', {hours}, {minutes})"
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
@@ -875,7 +874,7 @@ def make_search_filter(query: Optional[str]) -> str:
 
     query = escape_string(query)
 
-    # noqa todo 'TMChecklistItem.title'
+    # TODO: 'TMChecklistItem.title'
     columns = ["TASK.title", "TASK.notes", "AREA.title"]
 
     sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)

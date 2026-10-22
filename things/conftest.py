@@ -6,6 +6,6 @@ import things
 
 
 @pytest.fixture(autouse=True)
-def add_imports(doctest_namespace):  # noqa
+def add_imports(doctest_namespace):
     """Import default modules."""
     doctest_namespace["things"] = things
