@@ -8,10 +8,8 @@ import os
 import plistlib
 import re
 import sqlite3
-from textwrap import dedent
-from typing import Optional, Union
 import weakref
-
+from textwrap import dedent
 
 # --------------------------------------------------
 # Core constants
@@ -185,7 +183,7 @@ class Database:
 
         # "ro" means read-only
         # See: https://sqlite.org/uri.html#recognized_query_parameters
-        uri = f"file:{self.filepath}?mode=ro"  # noqa
+        uri = f"file:{self.filepath}?mode=ro"
         self.connection = sqlite3.connect(uri, uri=True)  # pylint: disable=E1101
         # Close the underlying SQLite connection when this Database object is garbage collected
         weakref.finalize(self, sqlite3.Connection.close, self.connection)
@@ -201,22 +199,22 @@ class Database:
 
     def get_tasks(  # pylint: disable=R0914,R0913,R0917
         self,
-        uuid: Optional[str] = None,
-        type: Optional[str] = None,  # pylint: disable=W0622
-        status: Optional[str] = None,
-        start: Optional[str] = None,
-        area: Optional[Union[str, bool]] = None,
-        project: Optional[Union[str, bool]] = None,
-        heading: Optional[str] = None,
-        tag: Optional[Union[str, bool]] = None,
-        start_date: Optional[Union[str, bool]] = None,
-        stop_date: Optional[Union[str, bool]] = None,
-        deadline: Optional[Union[str, bool]] = None,
-        deadline_suppressed: Optional[bool] = None,
-        trashed: Optional[bool] = False,
-        context_trashed: Optional[bool] = False,
-        last: Optional[str] = None,
-        search_query: Optional[str] = None,
+        uuid: str | None = None,
+        type: str | None = None,  # pylint: disable=W0622
+        status: str | None = None,
+        start: str | None = None,
+        area: str | bool | None = None,
+        project: str | bool | None = None,
+        heading: str | None = None,
+        tag: str | bool | None = None,
+        start_date: str | bool | None = None,
+        stop_date: str | bool | None = None,
+        deadline: str | bool | None = None,
+        deadline_suppressed: bool | None = None,
+        trashed: bool | None = False,
+        context_trashed: bool | None = False,
+        last: str | None = None,
+        search_query: str | None = None,
         index: str = "index",
         count_only: bool = False,
     ):
@@ -278,7 +276,7 @@ class Database:
             {type_filter and f"AND TASK.{type_filter}"}
             {start_filter and f"AND TASK.{start_filter}"}
             {status_filter and f"AND TASK.{status_filter}"}
-            {make_filter('TASK.uuid', uuid)}
+            {make_filter("TASK.uuid", uuid)}
             {make_filter("TASK.area", area)}
             {project_filter}
             {make_filter("TASK.heading", heading)}
@@ -345,8 +343,8 @@ class Database:
                 {TABLE_TAG} TAG ON TAG.uuid = AREA_TAG.tags
             WHERE
                 TRUE
-                {make_filter('TAG.title', tag)}
-                {make_filter('AREA.uuid', uuid)}
+                {make_filter("TAG.title", tag)}
+                {make_filter("AREA.uuid", uuid)}
             ORDER BY AREA."index"
             """
 
@@ -406,7 +404,7 @@ class Database:
                 {TABLE_TAG}
             WHERE
                 TRUE
-                {make_filter('title', title)}
+                {make_filter("title", title)}
             ORDER BY "index"
             """
 
@@ -475,7 +473,7 @@ class Database:
         )
         return rows[0]
 
-    # noqa todo: add type hinting for resutl (List[Tuple[str, Any]]?)
+    # TODO: add type hinting for result (List[Tuple[str, Any]]?)  # pylint: disable=fixme
     def execute_query(self, sql_query, parameters=(), row_factory=None):
         """Run the actual SQL query."""
         if self.print_sql or self.debug:
@@ -734,7 +732,7 @@ def convert_thingstime_sql_expression_to_isotime(sql_expression: str) -> str:
     hours = f"({thingstime} & {h_mask}) >> 26"
     minutes = f"({thingstime} & {m_mask}) >> 20"
 
-    isotime = f"printf('%02d:%02d', {hours}, {minutes})"  # noqa
+    isotime = f"printf('%02d:%02d', {hours}, {minutes})"
     # when thingstime is NULL, return thingstime as-is
     return f"CASE WHEN {thingstime} THEN {isotime} ELSE {thingstime} END"
 
@@ -860,7 +858,7 @@ def make_or_filter(*filters):
     return f"AND ({filters})" if filters else ""
 
 
-def make_search_filter(query: Optional[str]) -> str:
+def make_search_filter(query: str | None) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 
@@ -875,7 +873,7 @@ def make_search_filter(query: Optional[str]) -> str:
 
     query = escape_string(query)
 
-    # noqa todo 'TMChecklistItem.title'
+    # TODO: 'TMChecklistItem.title'  # pylint: disable=fixme
     columns = ["TASK.title", "TASK.notes", "AREA.title"]
 
     sub_searches = (f"{column} LIKE '%{query}%'" for column in columns)
