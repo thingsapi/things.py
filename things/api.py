@@ -10,7 +10,6 @@ data structures. Whenever that happens, we define the new term here.
 import os  # pylint: disable=C0412
 import urllib.parse
 from shlex import quote
-from typing import Dict, List, Union
 
 from things.database import Database
 
@@ -401,7 +400,7 @@ def checklist_items(todo_uuid, **kwargs):
 # --------------------------------------------------
 
 
-def search(query: str, **kwargs) -> List[Dict]:
+def search(query: str, **kwargs) -> list[dict]:
     """
     Search tasks in the database.
 
@@ -665,7 +664,7 @@ def last(offset, **kwargs):
 # Interact with Things app
 
 
-def token(**kwargs) -> Union[str, None]:
+def token(**kwargs) -> str | None:
     """
     Read the Things URL scheme authentication token.
 

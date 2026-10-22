@@ -382,9 +382,10 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         get_default_database_filepath = things.database.get_default_database_filepath
         with unittest.mock.patch("glob.iglob", return_value=iter(["filepath"])):
             self.assertEqual("filepath", get_default_database_filepath())
-        with unittest.mock.patch(
-            "glob.iglob", return_value=iter([])
-        ), unittest.mock.patch("os.listdir"):
+        with (
+            unittest.mock.patch("glob.iglob", return_value=iter([])),
+            unittest.mock.patch("os.listdir"),
+        ):
             self.assertEqual(
                 things.database.DEFAULT_FILEPATH_31516502,
                 get_default_database_filepath(raise_on_error=True),
@@ -392,9 +393,10 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
 
     def test_default_database_filepath_permission_denied(self):
         get_default_database_filepath = things.database.get_default_database_filepath
-        with unittest.mock.patch(
-            "glob.iglob", return_value=iter([])
-        ), unittest.mock.patch("os.listdir", side_effect=PermissionError):
+        with (
+            unittest.mock.patch("glob.iglob", return_value=iter([])),
+            unittest.mock.patch("os.listdir", side_effect=PermissionError),
+        ):
             with self.assertRaises(PermissionError):
                 get_default_database_filepath(raise_on_error=True)
             self.assertTrue(

@@ -10,7 +10,6 @@ import re
 import sqlite3
 import weakref
 from textwrap import dedent
-from typing import Optional, Union
 
 # --------------------------------------------------
 # Core constants
@@ -200,22 +199,22 @@ class Database:
 
     def get_tasks(  # pylint: disable=R0914,R0913,R0917
         self,
-        uuid: Optional[str] = None,
-        type: Optional[str] = None,  # pylint: disable=W0622
-        status: Optional[str] = None,
-        start: Optional[str] = None,
-        area: Optional[Union[str, bool]] = None,
-        project: Optional[Union[str, bool]] = None,
-        heading: Optional[str] = None,
-        tag: Optional[Union[str, bool]] = None,
-        start_date: Optional[Union[str, bool]] = None,
-        stop_date: Optional[Union[str, bool]] = None,
-        deadline: Optional[Union[str, bool]] = None,
-        deadline_suppressed: Optional[bool] = None,
-        trashed: Optional[bool] = False,
-        context_trashed: Optional[bool] = False,
-        last: Optional[str] = None,
-        search_query: Optional[str] = None,
+        uuid: str | None = None,
+        type: str | None = None,  # pylint: disable=W0622
+        status: str | None = None,
+        start: str | None = None,
+        area: str | bool | None = None,
+        project: str | bool | None = None,
+        heading: str | None = None,
+        tag: str | bool | None = None,
+        start_date: str | bool | None = None,
+        stop_date: str | bool | None = None,
+        deadline: str | bool | None = None,
+        deadline_suppressed: bool | None = None,
+        trashed: bool | None = False,
+        context_trashed: bool | None = False,
+        last: str | None = None,
+        search_query: str | None = None,
         index: str = "index",
         count_only: bool = False,
     ):
@@ -859,7 +858,7 @@ def make_or_filter(*filters):
     return f"AND ({filters})" if filters else ""
 
 
-def make_search_filter(query: Optional[str]) -> str:
+def make_search_filter(query: str | None) -> str:
     """
     Return a SQL filter to search tasks by a string query.
 
