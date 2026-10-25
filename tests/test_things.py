@@ -352,6 +352,29 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
 
+    def test_repeating_templates(self):
+        # Templates are excluded by default, as before.
+        todos = things.todos()
+        self.assertFalse(any("next_instance_start_date" in todo for todo in todos))
+
+        templates = things.todos(is_repeating_template=True)
+        self.assertEqual(1, len(templates))
+        template = templates[0]
+        self.assertEqual("Repeating To-Do", template["title"])
+        self.assertEqual("2030-01-01", template["next_instance_start_date"])
+        self.assertIsNone(template["start_date"])
+
+        both = things.todos(is_repeating_template=None)
+        self.assertEqual(len(todos) + 1, len(both))
+
+        # The instance Things created from the template is a regular to-do.
+        instance = things.get("K9bx7h1xCJdevvyWardZDq")
+        self.assertNotIn("next_instance_start_date", instance)
+        self.assertIn("next_instance_start_date", things.get(template["uuid"]))
+
+        with self.assertRaises(ValueError):
+            things.tasks(is_repeating_template="invalid_value")
+
     def test_tasks_stopdate_timezones(self):
         # see https://github.com/thingsapi/things.py/issues/117
         # this test looks at changes to two tasks based on timezone, on either side of midnight UTC

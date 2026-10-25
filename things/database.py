@@ -48,6 +48,14 @@ STATUS_TO_FILTER = {
 
 TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
+# A repeating to-do is stored as a template row carrying a recurrence rule;
+# Things creates each instance from it. See `things.api.tasks`.
+# Code written by Claude Fable 5.1 (Anthropic), reviewed by Chad Timblin.
+REPEATING_TEMPLATE_TO_FILTER = {
+    True: "rt1_recurrenceRule IS NOT NULL",
+    False: "rt1_recurrenceRule IS NULL",
+}
+
 TYPE_TO_FILTER = {
     "to-do": "type = 0",
     "project": "type = 1",
@@ -70,6 +78,7 @@ COLUMNS_TO_OMIT_IF_NONE = (
     "checklist",
     "heading",
     "heading_title",
+    "next_instance_start_date",
     "project",
     "project_title",
     "reminder_time",
@@ -105,6 +114,8 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
+# Set on repeating templates only: the date Things creates the next instance.
+DATE_NEXT_INSTANCE_START = "rt1_nextInstanceStartDate"  # INTEGER: Things date
 # See 'convert_thingstime_sql_expression_to_isotime' for details.
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
@@ -127,9 +138,6 @@ IS_INBOX = START_TO_FILTER["Inbox"]
 IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
-# Repeats
-IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
-
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
 
@@ -142,8 +150,6 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
 # RECURRING_IS_NOT_PAUSED = "rt1_instanceCreationPaused = 0"
-# IS_RECURRING = "rt1_recurrenceRule IS NOT NULL"
-# RECURRING_HAS_NEXT_STARTDATE = ("rt1_nextInstanceStartDate IS NOT NULL")
 # IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
@@ -215,6 +221,7 @@ class Database:
         deadline_suppressed: Optional[bool] = None,
         trashed: Optional[bool] = False,
         context_trashed: Optional[bool] = False,
+        is_repeating_template: Optional[bool] = False,
         last: Optional[str] = None,
         search_query: Optional[str] = None,
         index: str = "index",
@@ -237,6 +244,7 @@ class Database:
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
         validate("type", type, [None] + list(TYPE_TO_FILTER))
         validate("context_trashed", context_trashed, [None, True, False])
+        validate("is_repeating_template", is_repeating_template, [None, True, False])
         validate("index", index, list(INDICES))
         validate_offset("last", last)
 
@@ -252,6 +260,9 @@ class Database:
         status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
         trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
         type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
+        repeating_template_filter: str = REPEATING_TEMPLATE_TO_FILTER.get(
+            is_repeating_template, ""  # type: ignore
+        )
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -271,7 +282,8 @@ class Database:
         )
 
         where_predicate = f"""
-            TASK.{IS_NOT_RECURRING}
+            TRUE
+            {repeating_template_filter and f"AND TASK.{repeating_template_filter}"}
             {trashed_filter and f"AND TASK.{trashed_filter}"}
             {project_trashed_filter}
             {project_of_heading_trashed_filter}
@@ -520,6 +532,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     reminder_time_expression = convert_thingstime_sql_expression_to_isotime(
         f"TASK.{REMINDER_TIME}"
     )
+    next_instance_start_date_expression = convert_thingsdate_sql_expression_to_isodate(
+        f"TASK.{DATE_NEXT_INSTANCE_START}"
+    )
 
     return f"""
             SELECT DISTINCT
@@ -569,6 +584,10 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
                 {start_date_expression} AS start_date,
+                CASE
+                    WHEN TASK.{DATE_NEXT_INSTANCE_START} >> 16 > 1
+                    THEN {next_instance_start_date_expression}
+                END AS next_instance_start_date,
                 {deadline_expression} AS deadline,
                 {reminder_time_expression} AS "reminder_time",
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",

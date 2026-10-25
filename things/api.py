@@ -128,6 +128,15 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
            only return tasks whose context has been trashed.
         - `context_trashed == None`, include both kind of tasks.
 
+    is_repeating_template : bool or None, optional, default False
+        A repeating to-do is stored as a template, from which Things
+        creates each instance. A template has no start date; instead it
+        carries `next_instance_start_date`, the date Things will create
+        the next instance. Only templates have that field.
+        - `is_repeating_template == False` (default), exclude templates.
+        - `is_repeating_template == True`, only include templates.
+        - `is_repeating_template == None`, include both kind of tasks.
+
     last : str, optional
         Limit returned tasks to tasks created within the last X days,
         weeks, or years. For example: '3d', '5w', or '1y'.
@@ -184,6 +193,8 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     12
     >>> things.tasks(status='completed', last='1w', count_only=True)
     0
+    >>> things.tasks(is_repeating_template=True)
+    [{'uuid': 'N1PJHsbjct4mb1bhcs7aHa', 'type': 'to-do', 'title': 'Repeating To-Do', ...
 
     """
     database = pop_database(kwargs)
