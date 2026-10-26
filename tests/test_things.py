@@ -8,6 +8,7 @@ import time
 import tracemalloc
 import unittest
 import unittest.mock
+from typing import cast
 
 import things
 import things.database
@@ -453,7 +454,7 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         self.assertEqual("AND stopDate IS NULL", sqlfilter)
 
     def test_thingstime(self):
-        test_task = things.tasks("7F4vqUNiTvGKaCUfv5pqYG")
+        test_task = cast(dict, things.tasks("7F4vqUNiTvGKaCUfv5pqYG"))
         self.assertEqual(test_task.get("reminder_time"), "12:34")
 
 

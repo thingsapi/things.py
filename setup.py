@@ -23,6 +23,6 @@ setup(
     app=[""],
     packages=find_packages(),
     data_files=package_files(""),
-    options={"py2app": {"argv_emulation": False}},
+    options={"py2app": {"argv_emulation": False}},  # pyright: ignore[reportArgumentType]
     setup_requires=["py2app"],
 )
