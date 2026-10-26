@@ -156,6 +156,3 @@ The following open-source projects make use of this library:
 - [MCP Server for Things (excelsier)](https://github.com/excelsier/things-fastmcp)
 - [Pomodoro timer for Things (walteh fork)](https://github.com/walteh/timebox)
 - [ThingsStats (lmgibson)](https://github.com/lmgibson/ThingsStats)
-
-
-
