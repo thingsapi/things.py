@@ -20,9 +20,6 @@ help: ## Print help for each target
 	@grep '^[[:alnum:]_-]*:.* ##' $(MAKEFILE_LIST) \
 		| sort | awk 'BEGIN {FS=":.* ## "}; {printf "%-25s %s\n", $$1, $$2};'
 
-run: ## Run the code
-	@$(PYTHON) -m $(SRC_CORE).$(MAIN)
-
 install: ## Install the code
 	@$(PIP) install .
 
