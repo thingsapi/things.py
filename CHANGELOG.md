@@ -64,6 +64,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-26
+
+### Changed
+
+- Require Python 3.11 as minimum version (dropped 3.8-3.10, CI tests 3.11+) (#151)
+- Rework how the Things database location is determined (#149)
+  - Permission errors for the Things app Group Container are now surfaced instead of silently falling back
+  - Setting `THINGSDB` (or passing `filepath` to `Database()`) never looks into the Group Container anymore
+  - `things.database.DEFAULT_FILEPATH` was removed, use `things.database.get_default_database_filepath()` instead
+  - Default path constant renamed for the Things 3.17.4 data folder; obsolete database-move migration code removed
+- Consolidate packaging and lint config in `pyproject.toml` (`ruff.toml` and empty `requirements.txt` removed, `setup.py`/`setup.cfg` slimmed) (#151)
+
+## [1.0.1] - 2026-02-28
+
+### Fixed
+
+- `today()` no longer crashes on tasks without a start date
+- Deploy workflow installs `setuptools` so the build works
+
 ## [0.0.15] - 2023-05-22
 
 ### Added
@@ -153,7 +172,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/thingsapi/things.py/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/thingsapi/things.py/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/thingsapi/things.py/releases/tag/v1.1.0
+[1.0.1]: https://github.com/thingsapi/things.py/releases/tag/v1.0.1
 [1.0.0]: https://github.com/thingsapi/things.py/releases/tag/v1.0.0
 [0.0.15]: https://github.com/thingsapi/things.py/releases/tag/v0.0.15
 [0.0.14]: https://github.com/thingsapi/things.py/releases/tag/v0.0.14
