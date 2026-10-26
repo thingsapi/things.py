@@ -10,10 +10,8 @@ data structures. Whenever that happens, we define the new term here.
 import os  # pylint: disable=C0412
 import urllib.parse
 from shlex import quote
-from typing import Dict, List, Union
 
 from things.database import Database
-
 
 # --------------------------------------------------
 # Core functions
@@ -413,7 +411,7 @@ def checklist_items(todo_uuid, **kwargs):
 # --------------------------------------------------
 
 
-def search(query: str, **kwargs) -> List[Dict]:
+def search(query: str, **kwargs) -> list[dict]:
     """
     Search tasks in the database.
 
@@ -677,7 +675,7 @@ def last(offset, **kwargs):
 # Interact with Things app
 
 
-def token(**kwargs) -> Union[str, None]:
+def token(**kwargs) -> str | None:
     """
     Read the Things URL scheme authentication token.
 
@@ -735,14 +733,14 @@ def url(uuid=None, command="show", **query_parameters) -> str:
         query_parameters, quote_via=urllib.parse.quote
     )
 
-    return f"things:///{command}?{query_string}"  # noqa
+    return f"things:///{command}?{query_string}"
 
 
 # Alias for backwards compatiblity
 link = url
 
 
-def show(uuid):  # noqa
+def show(uuid):
     """
     Show a certain uuid in the Things app.
 
@@ -760,7 +758,7 @@ def show(uuid):  # noqa
     os.system(f"open {quote(uri)}")
 
 
-def complete(uuid):  # noqa
+def complete(uuid):
     """
     Set the status of a certain uuid to complete.
 

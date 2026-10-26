@@ -95,8 +95,8 @@ code-lint: code-style ## Lint the code
 
 code-check-types: ## Check the code types
 	@echo Pyright...
-	@if type pyright >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
-	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
+	@if type $(PIPENV) >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest $(PIPENV) run pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
+	 else echo "SKIPPED. Run '$(PIP) install pyright' or 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
 	@if type mypy >/dev/null 2>&1 ; then mypy --check-untyped-defs --no-error-summary --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
