@@ -22,6 +22,10 @@ dynamic = ["version"]
 [tool.setuptools.dynamic]
 version = { attr = "things.__version__" }
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["things*", "tests*"]
+
 # Ruff configuration: target the oldest supported version
 # (pyproject.toml: requires-python >= 3.11, CI tests 3.11+).
 # This allows modern annotation syntax (PEP 585/604).

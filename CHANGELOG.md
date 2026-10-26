@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Setting `THINGSDB` (or passing `filepath` to `Database()`) never looks into the Group Container anymore
   - `things.database.DEFAULT_FILEPATH` was removed, use `things.database.get_default_database_filepath()` instead
   - Default path constant renamed for the Things 3.17.4 data folder; obsolete database-move migration code removed
-- Consolidate packaging and lint config in `pyproject.toml` (`ruff.toml` and empty `requirements.txt` removed, `setup.py`/`setup.cfg` slimmed) (#151)
+- Consolidate packaging and lint config in `pyproject.toml` (`setup.py`, `setup.cfg`, `ruff.toml`, empty `requirements.txt` and `.pylintrc` removed; flake8/pycodestyle/pydocstyle/isort checks now handled by ruff) (#151)
 
 ## [1.0.1] - 2026-02-28
 

@@ -24,7 +24,7 @@ run: ## Run the code
 	@$(PYTHON) -m $(SRC_CORE).$(MAIN)
 
 install: ## Install the code
-	@$(PYTHON) setup.py install
+	@$(PIP) install .
 
 uninstall: ## Uninstall the code
 	@$(PIP) uninstall -y things
@@ -81,7 +81,7 @@ code-count: ## Count the code
 
 code-lint: code-style ## Lint the code
 	@echo Pylint...
-	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Ruff...
 	@if type ruff >/dev/null 2>&1 ; then ruff check . ; \
@@ -89,13 +89,13 @@ code-lint: code-style ## Lint the code
 
 code-check-types: ## Check the code types
 	@echo Pyright...
-	@if type $(PIPENV) >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest $(PIPENV) run pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type $(PIPENV) >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest $(PIPENV) run pyright $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pyright' or 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
-	@if type mypy >/dev/null 2>&1 ; then mypy --check-untyped-defs --no-error-summary --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type mypy >/dev/null 2>&1 ; then mypy --check-untyped-defs --no-error-summary --ignore-missing-imports $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
 	@echo Vulture...
-	@if type vulture >/dev/null 2>&1 ; then vulture *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py --exclude conftest.py; \
+	@if type vulture >/dev/null 2>&1 ; then vulture $(SRC_CORE)/*.py $(SRC_TEST)/*.py --exclude conftest.py; \
 	 else echo "SKIPPED. Run '$(PIP) install vulture' first." >&2 ; fi
 
 lint: code-style code-lint  ## Lint everything
@@ -121,10 +121,10 @@ release: build ## Create a new release
 	@echo Making release for version "$(VERSION)". Press ENTER to continue...
 	@echo "########################"
 	@read
-	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN).py-$(VERSION).tar.gz'
+	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN)_py-$(VERSION).tar.gz'
 
 build: clean ## Build the code
-	@$(PYTHON) setup.py sdist bdist_wheel
+	@$(PYTHON) -c "import build" 2>/dev/null && $(PYTHON) -m build || (echo "Run '$(PIP) install build' first." >&2 ; exit 1)
 
 upload: build ## Upload the code
 	@type twine >/dev/null 2>&1 || (echo "Run e.g. 'pip install twine' first." >&2 ; exit 1)
@@ -132,7 +132,7 @@ upload: build ## Upload the code
 	@echo "Using ~/.pypirc or environment variables TWINE_USERNAME and TWINE_PASSWORD"
 	@echo "See: https://packaging.python.org/specifications/pypirc/#using-a-pypi-token"
 	@echo "########################"
-	@twine upload dist/things.py*
+	@twine upload dist/things_py*
 
 db-to-things:
 	@cp tests/main.sqlite* ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/ThingsData-*/Things\ Database.thingsdatabase/
