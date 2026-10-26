@@ -1,4 +1,4 @@
-"""A simple Python 3 library to read your Things app data."""
+"""Packaging shim (py2app): metadata lives in pyproject.toml."""
 
 import os
 
@@ -15,38 +15,14 @@ def package_files(directory):
     return paths
 
 
-APP = [""]
-AUTHOR = "Alexander Willner, Michael B."
-AUTHOR_MAIL = "alex@willner.ws"
-DESCRIPTON = "A simple Python 3 library to read your Things app data."
-URL = "https://github.com/thingsapi/things.py"
-DATA_FILES = package_files("")
-OPTIONS = {
-    "argv_emulation": False,
-}
-
-with open("README.md", "r", encoding="utf-8") as fh:
-    LONG_DESRIPTION = fh.read()
-
 setup(
-    app=APP,
-    author=AUTHOR,
-    author_email=AUTHOR_MAIL,
+    # name stays here (not only in pyproject.toml): py2app's finalize hook
+    # reads it before pyproject metadata is merged; without it every
+    # setup.py invocation fails with "no script, modules or dest_base specified".
     name="things.py",
-    description=DESCRIPTON,
-    long_description=LONG_DESRIPTION,
-    long_description_content_type="text/markdown",
-    url=URL,
+    app=[""],
     packages=find_packages(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache Software License",
-        "Operating System :: MacOS :: MacOS X",
-        "Natural Language :: English",
-    ],
-    python_requires=">=3.11",
-    data_files=DATA_FILES,
-    options={"py2app": OPTIONS},
+    data_files=package_files(""),
+    options={"py2app": {"argv_emulation": False}},
     setup_requires=["py2app"],
 )

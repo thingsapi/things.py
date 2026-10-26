@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "things.py"
+description = "A simple Python 3 library to read your Things app data."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Alexander Willner, Michael B.", email = "alex@willner.ws" }]
+urls = { Homepage = "https://github.com/thingsapi/things.py" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: MacOS :: MacOS X",
+    "Natural Language :: English",
+]
+dependencies = []
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { attr = "things.__version__" }
+
+# Ruff-Konfiguration: Ziel ist die älteste unterstützte Version
+# (pyproject.toml: requires-python >= 3.11, CI testet 3.11+).
+# Damit sind moderne Annotations-Syntaxen (PEP 585/604) ok.
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+# TRY004 will TypeError statt ValueError bei falschem Typ. ValueError ist
+# hier API-Vertrag: things/api.get() fängt ValueError, Tests erwarten ihn.
+ignore = ["TRY004"]
+# C901 kennt nur flake8 (max-complexity = 10 in setup.cfg). Die noqa dafür
+# in things/api.py muss bleiben; Ruff soll sie als verwendet werten.
+external = ["C901"]
+
+[tool.pytest.ini_options]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]
