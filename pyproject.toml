@@ -22,19 +22,40 @@ dynamic = ["version"]
 [tool.setuptools.dynamic]
 version = { attr = "things.__version__" }
 
-# Ruff-Konfiguration: Ziel ist die älteste unterstützte Version
-# (pyproject.toml: requires-python >= 3.11, CI testet 3.11+).
-# Damit sind moderne Annotations-Syntaxen (PEP 585/604) ok.
+# Ruff configuration: target the oldest supported version
+# (pyproject.toml: requires-python >= 3.11, CI tests 3.11+).
+# This allows modern annotation syntax (PEP 585/604).
 [tool.ruff]
 target-version = "py311"
+line-length = 88
 
 [tool.ruff.lint]
-# TRY004 will TypeError statt ValueError bei falschem Typ. ValueError ist
-# hier API-Vertrag: things/api.get() fängt ValueError, Tests erwarten ihn.
-ignore = ["TRY004"]
-# C901 kennt nur flake8 (max-complexity = 10 in setup.cfg). Die noqa dafür
-# in things/api.py muss bleiben; Ruff soll sie als verwendet werten.
-external = ["C901"]
+# E/W mirror the old flake8/pycodestyle setup (E501 and friends stay ignored:
+# layout is owned by `ruff format`). I/D take over isort/pydocstyle, C901
+# takes over flake8 max-complexity, UP keeps the annotations modern.
+select = ["E", "W", "F", "I", "D", "UP", "C901", "TRY"]
+# TRY004 wants TypeError instead of ValueError for wrong types. ValueError
+# is part of the API contract here: things/api.get() catches ValueError
+# and the tests expect it.
+# The D-ignores mirror the old pydocstyle section from setup.cfg. D417 and
+# TRY003 are new: ruff is stricter than the tools it replaces here, and both
+# touch the public API shape (docstring/kwargs style, exception classes),
+# so they stay off instead of churning user-visible code.
+ignore = ["TRY004", "TRY003", "E501", "E203", "E231", "E241", "E202", "D102", "D212", "D213", "D413", "D203", "D409", "D405", "D406", "D407", "D417"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.isort]
+force_sort_within_sections = true
+lines_after_imports = 2
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["missing-function-docstring", "C0412"]
 
 [tool.pytest.ini_options]
 doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]

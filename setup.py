@@ -2,7 +2,7 @@
 
 import os
 
-from setuptools import find_packages, setup  # type: ignore # pylint: disable=import-error
+import setuptools  # type: ignore # pylint: disable=import-error
 
 
 def package_files(directory):
@@ -15,13 +15,13 @@ def package_files(directory):
     return paths
 
 
-setup(
+setuptools.setup(
     # name stays here (not only in pyproject.toml): py2app's finalize hook
     # reads it before pyproject metadata is merged; without it every
     # setup.py invocation fails with "no script, modules or dest_base specified".
     name="things.py",
     app=[""],
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     data_files=package_files(""),
     options={"py2app": {"argv_emulation": False}},  # pyright: ignore[reportArgumentType]
     setup_requires=["py2app"],

@@ -8,8 +8,9 @@ import os
 import plistlib
 import re
 import sqlite3
-import weakref
 from textwrap import dedent
+import weakref
+
 
 # --------------------------------------------------
 # Core constants

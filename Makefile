@@ -71,12 +71,9 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@echo Pycodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
-	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
-	@echo Pydocstyle...
-	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
-	 else echo "SKIPPED. Run '$(PIP) install pydocstyle' first." >&2 ; fi
+	@echo Ruff format...
+	@if type ruff >/dev/null 2>&1 ; then ruff format --check . ; \
+	 else echo "SKIPPED. Run '$(PIP) install ruff' first." >&2 ; fi
 
 code-count: ## Count the code
 	@if type cloc >/dev/null 2>&1 ; then cloc $(SRC_CORE) ; \
@@ -89,9 +86,6 @@ code-lint: code-style ## Lint the code
 	@echo Ruff...
 	@if type ruff >/dev/null 2>&1 ; then ruff check . ; \
 	 else echo "SKIPPED. Run '$(PIP) install ruff' first." >&2 ; fi
-	@echo Flake...
-	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
-	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 
 code-check-types: ## Check the code types
 	@echo Pyright...
