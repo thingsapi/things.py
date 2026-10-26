@@ -27,7 +27,7 @@ install: ## Install the code
 	@$(PIP) install .
 
 uninstall: ## Uninstall the code
-	@$(PIP) uninstall -y things
+	@$(PIP) uninstall -y things.py
 
 test: ## Test the code
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
