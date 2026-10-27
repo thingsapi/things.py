@@ -39,6 +39,7 @@ TRASHED = (
 )
 PROJECTS = 4
 UPCOMING = 1
+UPCOMING_REPEATING = 1
 DEADLINE_PAST = 3
 DEADLINE_FUTURE = 1
 DEADLINE = DEADLINE_PAST + DEADLINE_FUTURE
@@ -128,7 +129,11 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
 
     def test_upcoming(self):
         tasks = things.upcoming()
-        self.assertEqual(UPCOMING, len(tasks))
+        self.assertEqual(UPCOMING + UPCOMING_REPEATING, len(tasks))
+        self.assertEqual("2030-01-01", tasks[-1]["next_instance_start_date"])
+        self.assertEqual(
+            UPCOMING + UPCOMING_REPEATING, things.upcoming(count_only=True)
+        )
 
     def test_deadlines(self):
         tasks = things.tasks(deadline="past")
@@ -350,6 +355,38 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
 
         with self.assertRaises((sqlite3.ProgrammingError, ValueError)):
             things.tasks(area="\0")
+
+    def test_repeating_templates(self):
+        # Templates are excluded by default, as before.
+        todos = things.todos()
+        self.assertFalse(any("next_instance_start_date" in todo for todo in todos))
+
+        templates = things.todos(is_repeating_template=True)
+        self.assertEqual(1, len(templates))
+        template = templates[0]
+        self.assertEqual("Repeating To-Do", template["title"])
+        self.assertEqual("2030-01-01", template["next_instance_start_date"])
+        self.assertIsNone(template["start_date"])
+
+        both = things.todos(is_repeating_template=None)
+        self.assertEqual(len(todos) + 1, len(both))
+
+        # The instance Things created from the template is a regular to-do.
+        instance = things.get("K9bx7h1xCJdevvyWardZDq")
+        self.assertNotIn("next_instance_start_date", instance)
+        self.assertIn("next_instance_start_date", things.get(template["uuid"]))
+
+        # The next-instance date filters like a start date.
+        for value, expected in (("future", 1), ("past", 0), (False, 0)):
+            templates = things.todos(
+                is_repeating_template=True, next_instance_start_date=value
+            )
+            self.assertEqual(expected, len(templates))
+
+        with self.assertRaises(ValueError):
+            things.tasks(is_repeating_template="invalid_value")
+        with self.assertRaises(ValueError):
+            things.tasks(next_instance_start_date="invalid_value")
 
     def test_tasks_stopdate_timezones(self):
         # see https://github.com/thingsapi/things.py/issues/117
