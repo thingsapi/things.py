@@ -48,7 +48,7 @@ TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
 # A repeating to-do is stored as a template row carrying a recurrence rule;
 # Things creates each instance from it. See `things.api.tasks`.
-# Code written by Claude Fable 5.1 (Anthropic), reviewed by Chad Timblin.
+# Code written by Claude Fable 5.1 (Anthropic).
 REPEATING_TEMPLATE_TO_FILTER: dict[bool | None, str] = {
     True: "rt1_recurrenceRule IS NOT NULL",
     False: "rt1_recurrenceRule IS NULL",
@@ -113,7 +113,10 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 # Set on repeating templates only: the date Things creates the next instance.
+# Things stores 0001-01-01 instead of NULL when there is none; no real Things
+# date is below year 2, so anything under THINGSDATE_YEAR_2 is that placeholder.
 DATE_NEXT_INSTANCE_START = "rt1_nextInstanceStartDate"  # INTEGER: Things date
+THINGSDATE_YEAR_2 = 2 << 16
 # See 'convert_thingstime_sql_expression_to_isotime' for details.
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
@@ -220,6 +223,7 @@ class Database:
         trashed: bool | None = False,
         context_trashed: bool | None = False,
         is_repeating_template: bool | None = False,
+        next_instance_start_date: str | bool | None = None,
         last: str | None = None,
         search_query: str | None = None,
         index: str = "index",
@@ -237,6 +241,7 @@ class Database:
         validate("deadline_suppressed", deadline_suppressed, [None, True, False])
         validate("start", start, [None] + list(START_TO_FILTER))
         validate_date("start_date", start_date)
+        validate_date("next_instance_start_date", next_instance_start_date)
         validate_date("stop_date", stop_date)
         validate("status", status, [None] + list(STATUS_TO_FILTER))
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
@@ -295,6 +300,7 @@ class Database:
             {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_thingsdate_filter(f"TASK.{DATE_START}", start_date)}
+            {make_thingsdate_filter(f"TASK.{DATE_NEXT_INSTANCE_START}", next_instance_start_date)}
             {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
@@ -530,8 +536,10 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     reminder_time_expression = convert_thingstime_sql_expression_to_isotime(
         f"TASK.{REMINDER_TIME}"
     )
+    next_instance_start_date = f"TASK.{DATE_NEXT_INSTANCE_START}"
     next_instance_start_date_expression = convert_thingsdate_sql_expression_to_isodate(
-        f"TASK.{DATE_NEXT_INSTANCE_START}"
+        f"CASE WHEN {next_instance_start_date} >= {THINGSDATE_YEAR_2}"
+        f" THEN {next_instance_start_date} END"
     )
 
     return f"""
@@ -582,10 +590,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
                 {start_date_expression} AS start_date,
-                CASE
-                    WHEN TASK.{DATE_NEXT_INSTANCE_START} >> 16 > 1
-                    THEN {next_instance_start_date_expression}
-                END AS next_instance_start_date,
+                {next_instance_start_date_expression} AS next_instance_start_date,
                 {deadline_expression} AS deadline,
                 {reminder_time_expression} AS "reminder_time",
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",

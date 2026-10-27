@@ -38,6 +38,7 @@ TRASHED = (
 )
 PROJECTS = 4
 UPCOMING = 1
+UPCOMING_REPEATING = 1
 DEADLINE_PAST = 3
 DEADLINE_FUTURE = 1
 DEADLINE = DEADLINE_PAST + DEADLINE_FUTURE
@@ -127,7 +128,11 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
 
     def test_upcoming(self):
         tasks = things.upcoming()
-        self.assertEqual(UPCOMING, len(tasks))
+        self.assertEqual(UPCOMING + UPCOMING_REPEATING, len(tasks))
+        self.assertEqual("2030-01-01", tasks[-1]["next_instance_start_date"])
+        self.assertEqual(
+            UPCOMING + UPCOMING_REPEATING, things.upcoming(count_only=True)
+        )
 
     def test_deadlines(self):
         tasks = things.tasks(deadline="past")
@@ -370,8 +375,17 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         self.assertNotIn("next_instance_start_date", instance)
         self.assertIn("next_instance_start_date", things.get(template["uuid"]))
 
+        # The next-instance date filters like a start date.
+        for value, expected in (("future", 1), ("past", 0), (False, 0)):
+            templates = things.todos(
+                is_repeating_template=True, next_instance_start_date=value
+            )
+            self.assertEqual(expected, len(templates))
+
         with self.assertRaises(ValueError):
             things.tasks(is_repeating_template="invalid_value")
+        with self.assertRaises(ValueError):
+            things.tasks(next_instance_start_date="invalid_value")
 
     def test_tasks_stopdate_timezones(self):
         # see https://github.com/thingsapi/things.py/issues/117
