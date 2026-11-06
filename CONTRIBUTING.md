@@ -121,5 +121,5 @@ Make sure to include the updated `.thingsdatabase` file in your PR.
 Once your PR has been submitted, you should be able to restore your personal Things database simply by:
 
 1. Closing the Things app.
-2. Copy the `Things Database.thingsdatabase` folder you backed up into your local Library folder. 
+2. Copy the `Things Database.thingsdatabase` folder you backed up into your local Library folder.
 3. If required, you may have to log back into Things Cloud, as todos may have changed on other devices during development, and to make sure you're back in sync.

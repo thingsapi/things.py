@@ -20,14 +20,11 @@ help: ## Print help for each target
 	@grep '^[[:alnum:]_-]*:.* ##' $(MAKEFILE_LIST) \
 		| sort | awk 'BEGIN {FS=":.* ## "}; {printf "%-25s %s\n", $$1, $$2};'
 
-run: ## Run the code
-	@$(PYTHON) -m $(SRC_CORE).$(MAIN)
-
 install: ## Install the code
-	@$(PYTHON) setup.py install
+	@$(PIP) install .
 
 uninstall: ## Uninstall the code
-	@$(PIP) uninstall -y things
+	@$(PIP) uninstall -y things.py
 
 test: ## Test the code
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
@@ -71,12 +68,9 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install black' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@echo Pycodestyle...
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
-	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
-	@echo Pydocstyle...
-	@if type pydocstyle >/dev/null 2>&1 ; then pydocstyle $(SRC_CORE)/*.py $(SRC_TEST)/*.py ; \
-	 else echo "SKIPPED. Run '$(PIP) install pydocstyle' first." >&2 ; fi
+	@echo Ruff format...
+	@if type ruff >/dev/null 2>&1 ; then ruff format --check . ; \
+	 else echo "SKIPPED. Run '$(PIP) install ruff' first." >&2 ; fi
 
 code-count: ## Count the code
 	@if type cloc >/dev/null 2>&1 ; then cloc $(SRC_CORE) ; \
@@ -84,24 +78,21 @@ code-count: ## Count the code
 
 code-lint: code-style ## Lint the code
 	@echo Pylint...
-	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type $(PIPENV) >/dev/null 2>&1 ; then $(PIPENV) run pylint -sn $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pylint' first." >&2 ; fi
 	@echo Ruff...
 	@if type ruff >/dev/null 2>&1 ; then ruff check . ; \
 	 else echo "SKIPPED. Run '$(PIP) install ruff' first." >&2 ; fi
-	@echo Flake...
-	@if type flake8 >/dev/null 2>&1 ; then flake8 . ; \
-	 else echo "SKIPPED. Run '$(PIP) install flake8' first." >&2 ; fi
 
 code-check-types: ## Check the code types
 	@echo Pyright...
-	@if type $(PIPENV) >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest $(PIPENV) run pyright *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type $(PIPENV) >/dev/null 2>&1 ; then PYRIGHT_PYTHON_FORCE_VERSION=latest $(PIPENV) run pyright $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pyright' or 'npm install -f pyright' first." >&2 ; fi
 	@echo MyPy...
-	@if type mypy >/dev/null 2>&1 ; then mypy --check-untyped-defs --no-error-summary --ignore-missing-imports *.py $(SRC_CORE) $(SRC_TEST) ; \
+	@if type mypy >/dev/null 2>&1 ; then mypy --check-untyped-defs --no-error-summary --ignore-missing-imports $(SRC_CORE) $(SRC_TEST) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
 	@echo Vulture...
-	@if type vulture >/dev/null 2>&1 ; then vulture *.py $(SRC_CORE)/*.py $(SRC_TEST)/*.py --exclude conftest.py; \
+	@if type vulture >/dev/null 2>&1 ; then vulture $(SRC_CORE)/*.py $(SRC_TEST)/*.py --exclude conftest.py; \
 	 else echo "SKIPPED. Run '$(PIP) install vulture' first." >&2 ; fi
 
 lint: code-style code-lint  ## Lint everything
@@ -127,10 +118,10 @@ release: build ## Create a new release
 	@echo Making release for version "$(VERSION)". Press ENTER to continue...
 	@echo "########################"
 	@read
-	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN).py-$(VERSION).tar.gz'
+	@gh release create "v$(VERSION)" -t "Release $(VERSION) ($(DATE))" 'dist/$(MAIN)_py-$(VERSION).tar.gz'
 
 build: clean ## Build the code
-	@$(PYTHON) setup.py sdist bdist_wheel
+	@$(PYTHON) -c "import build" 2>/dev/null && $(PYTHON) -m build || (echo "Run '$(PIP) install build' first." >&2 ; exit 1)
 
 upload: build ## Upload the code
 	@type twine >/dev/null 2>&1 || (echo "Run e.g. 'pip install twine' first." >&2 ; exit 1)
@@ -138,7 +129,7 @@ upload: build ## Upload the code
 	@echo "Using ~/.pypirc or environment variables TWINE_USERNAME and TWINE_PASSWORD"
 	@echo "See: https://packaging.python.org/specifications/pypirc/#using-a-pypi-token"
 	@echo "########################"
-	@twine upload dist/things.py*
+	@twine upload dist/things_py*
 
 db-to-things:
 	@cp tests/main.sqlite* ~/Library/Group\ Containers/JLMPQHK86H.com.culturedcode.ThingsMac/ThingsData-*/Things\ Database.thingsdatabase/

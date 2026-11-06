@@ -8,10 +8,11 @@ data structures. Whenever that happens, we define the new term here.
 """
 
 import os  # pylint: disable=C0412
-import urllib.parse
 from shlex import quote
+import urllib.parse
 
 from things.database import Database
+
 
 # --------------------------------------------------
 # Core functions

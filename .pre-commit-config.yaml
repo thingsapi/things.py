@@ -2,24 +2,28 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
     -   id: check-added-large-files
 -   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 9.0.2
     hooks:
     - id: isort
--   repo: https://github.com/psf/black
-    rev: 23.3.0
+-   repo: local
     hooks:
-    -   id: black
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-    - id: flake8
+    -   id: ruff-check
+        name: ruff check
+        entry: ruff check --force-exclude
+        language: system
+        'types': [python]
+    -   id: ruff-format
+        name: ruff format
+        entry: ruff format --force-exclude
+        language: system
+        'types': [python]
 -   repo: local
     hooks:
     - id: unittest
@@ -28,4 +32,4 @@ repos:
       language: python
       'types': [python]
       pass_filenames: false
-      stages: [commit]
+      stages: [pre-commit]

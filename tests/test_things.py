@@ -6,12 +6,13 @@ import os
 import sqlite3
 import time
 import tracemalloc
+from typing import cast
 import unittest
 import unittest.mock
-from typing import cast
 
 import things
 import things.database
+
 
 tracemalloc.start()
 
