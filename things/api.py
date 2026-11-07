@@ -127,6 +127,18 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
            only return tasks whose context has been trashed.
         - `context_trashed == None`, include both kind of tasks.
 
+    is_repeating_template : bool or None, optional, default False
+        A repeating to-do is stored as a template, from which Things
+        creates each instance. A template has no start date; instead it
+        carries `next_instance_start_date`, the date Things will create
+        the next instance. Only templates have that field.
+        - `is_repeating_template == False` (default), exclude templates.
+        - `is_repeating_template == True`, only include templates.
+        - `is_repeating_template == None`, include both kind of tasks.
+
+    next_instance_start_date : same options as start_date, signifies the date
+        Things will create the next instance of a repeating to-do (templates only)
+
     last : str, optional
         Limit returned tasks to tasks created within the last X days,
         weeks, or years. For example: '3d', '5w', or '1y'.
@@ -183,6 +195,8 @@ def tasks(uuid=None, include_items=False, **kwargs):  # noqa: C901
     12
     >>> things.tasks(status='completed', last='1w', count_only=True)
     0
+    >>> things.tasks(is_repeating_template=True)
+    [{'uuid': 'N1PJHsbjct4mb1bhcs7aHa', 'type': 'to-do', 'title': 'Repeating To-Do', ...
 
     """
     database = pop_database(kwargs)
@@ -532,12 +546,36 @@ def upcoming(**kwargs):
     """
     Read Upcoming tasks into dicts.
 
+    The output aims to be in the same order as Upcoming in Things.app.
+    Repeating to-dos use `next_instance_start_date` instead of `start_date`.
+
     Note: unscheduled tasks with a deadline are not included here.
-    See the `things.api.deadline` function instead.
+    See the `things.api.deadlines` function instead.
 
     For details on parameters, see `things.api.tasks`.
     """
-    return tasks(start_date="future", start="Someday", **kwargs)
+    database = pop_database(kwargs)
+    kwargs["database"] = database
+
+    scheduled = tasks(start_date="future", start="Someday", **kwargs)
+    repeating = tasks(
+        is_repeating_template=True,
+        next_instance_start_date="future",
+        start="Someday",
+        **kwargs,
+    )
+    if kwargs.get("count_only"):
+        return scheduled + repeating
+
+    result = [*scheduled, *repeating]
+    result.sort(
+        key=lambda task: (
+            task["start_date"] or task["next_instance_start_date"],
+            task["today_index"],
+            task["index"],
+        )
+    )
+    return result
 
 
 def anytime(**kwargs):

@@ -47,6 +47,13 @@ STATUS_TO_FILTER = {
 
 TRASHED_TO_FILTER = {True: "trashed = 1", False: "trashed = 0"}
 
+# A repeating to-do is stored as a template row carrying a recurrence rule;
+# Things creates each instance from it. See `things.api.tasks`.
+REPEATING_TEMPLATE_TO_FILTER = {
+    True: "rt1_recurrenceRule IS NOT NULL",
+    False: "rt1_recurrenceRule IS NULL",
+}
+
 TYPE_TO_FILTER = {
     "to-do": "type = 0",
     "project": "type = 1",
@@ -69,6 +76,7 @@ COLUMNS_TO_OMIT_IF_NONE = (
     "checklist",
     "heading",
     "heading_title",
+    "next_instance_start_date",
     "project",
     "project_title",
     "reminder_time",
@@ -104,6 +112,8 @@ DATE_STOP = "stopDate"  # REAL: Unix date & time, UTC
 # See `convert_isodate_sql_expression_to_thingsdate` for details.
 DATE_DEADLINE = "deadline"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
 DATE_START = "startDate"  # INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary
+# INTEGER: YYYYYYYYYYYMMMMDDDDD0000000, in binary; set on repeating templates only
+DATE_NEXT_INSTANCE_START = "rt1_nextInstanceStartDate"
 # See 'convert_thingstime_sql_expression_to_isotime' for details.
 REMINDER_TIME = "reminderTime"  # INTEGER: hhhhhmmmmmm00000000000000000000, in binary
 
@@ -126,9 +136,6 @@ IS_INBOX = START_TO_FILTER["Inbox"]
 IS_ANYTIME = START_TO_FILTER["Anytime"]
 IS_SOMEDAY = START_TO_FILTER["Someday"]
 
-# Repeats
-IS_NOT_RECURRING = "rt1_recurrenceRule IS NULL"
-
 # Trash
 IS_TRASHED = TRASHED_TO_FILTER[True]
 
@@ -141,8 +148,6 @@ IS_TRASHED = TRASHED_TO_FILTER[True]
 # IS_NOT_SCHEDULED = f"{DATE_START} IS NULL"
 # IS_DEADLINE = f"{DATE_DEADLINE} IS NOT NULL"
 # RECURRING_IS_NOT_PAUSED = "rt1_instanceCreationPaused = 0"
-# IS_RECURRING = "rt1_recurrenceRule IS NOT NULL"
-# RECURRING_HAS_NEXT_STARTDATE = ("rt1_nextInstanceStartDate IS NOT NULL")
 # IS_NOT_TRASHED = TRASHED_TO_FILTER[False]
 
 # pylint: disable=R0904,R0902
@@ -214,6 +219,8 @@ class Database:
         deadline_suppressed: bool | None = None,
         trashed: bool | None = False,
         context_trashed: bool | None = False,
+        is_repeating_template: bool | None = False,
+        next_instance_start_date: str | bool | None = None,
         last: str | None = None,
         search_query: str | None = None,
         index: str = "index",
@@ -231,11 +238,17 @@ class Database:
         validate("deadline_suppressed", deadline_suppressed, [None, True, False])
         validate("start", start, [None] + list(START_TO_FILTER))
         validate_date("start_date", start_date)
+        validate_date("next_instance_start_date", next_instance_start_date)
         validate_date("stop_date", stop_date)
         validate("status", status, [None] + list(STATUS_TO_FILTER))
         validate("trashed", trashed, [None] + list(TRASHED_TO_FILTER))
         validate("type", type, [None] + list(TYPE_TO_FILTER))
         validate("context_trashed", context_trashed, [None, True, False])
+        validate(
+            "is_repeating_template",
+            is_repeating_template,
+            [None] + list(REPEATING_TEMPLATE_TO_FILTER),
+        )
         validate("index", index, list(INDICES))
         validate_offset("last", last)
 
@@ -251,6 +264,13 @@ class Database:
         status_filter: str = STATUS_TO_FILTER.get(status, "")  # type: ignore
         trashed_filter: str = TRASHED_TO_FILTER.get(trashed, "")  # type: ignore
         type_filter: str = TYPE_TO_FILTER.get(type, "")  # type: ignore
+        repeating_template_filter: str = REPEATING_TEMPLATE_TO_FILTER.get(
+            is_repeating_template,  # type: ignore
+            "",
+        )
+        next_instance_start_date_filter = make_thingsdate_filter(
+            f"TASK.{DATE_NEXT_INSTANCE_START}", next_instance_start_date
+        )
 
         # Sometimes a task is _not_ set to trashed, but its context
         # (project or heading it is contained within) is set to trashed.
@@ -270,7 +290,8 @@ class Database:
         )
 
         where_predicate = f"""
-            TASK.{IS_NOT_RECURRING}
+            TRUE
+            {repeating_template_filter and f"AND TASK.{repeating_template_filter}"}
             {trashed_filter and f"AND TASK.{trashed_filter}"}
             {project_trashed_filter}
             {project_of_heading_trashed_filter}
@@ -284,6 +305,7 @@ class Database:
             {make_filter("TASK.deadlineSuppressionDate", deadline_suppressed)}
             {make_filter("TAG.title", tag)}
             {make_thingsdate_filter(f"TASK.{DATE_START}", start_date)}
+            {next_instance_start_date_filter}
             {make_unixtime_filter(f"TASK.{DATE_STOP}", stop_date)}
             {make_thingsdate_filter(f"TASK.{DATE_DEADLINE}", deadline)}
             {make_unixtime_range_filter(f"TASK.{DATE_CREATED}", last)}
@@ -519,6 +541,9 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
     reminder_time_expression = convert_thingstime_sql_expression_to_isotime(
         f"TASK.{REMINDER_TIME}"
     )
+    next_instance_start_date_expression = convert_thingsdate_sql_expression_to_isodate(
+        null_if_unset_thingsdate(f"TASK.{DATE_NEXT_INSTANCE_START}")
+    )
 
     return f"""
             SELECT DISTINCT
@@ -568,6 +593,7 @@ def make_tasks_sql_query(where_predicate=None, order_predicate=None):
                     WHEN CHECKLIST_ITEM.uuid IS NOT NULL THEN 1
                 END AS checklist,
                 {start_date_expression} AS start_date,
+                {next_instance_start_date_expression} AS next_instance_start_date,
                 {deadline_expression} AS deadline,
                 {reminder_time_expression} AS "reminder_time",
                 datetime(TASK.{DATE_STOP}, "unixepoch", "localtime") AS "stop_date",
@@ -1116,6 +1142,36 @@ def make_unixtime_range_filter(date_column: str, offset) -> str:
 def match_date(value):
     """Return a match object if value is an ISO 8601 date str."""
     return re.fullmatch(r"(=|==|<|<=|>|>=)?(\d{4}-\d{2}-\d{2})", value)
+
+
+def null_if_unset_thingsdate(sql_expression: str) -> str:
+    """
+    Return SQL expression as string.
+
+    It is NULL when the "Things date" is unset, else the Things date itself.
+    Things stores 0001-01-01 instead of NULL in some date columns, such as
+    `rt1_nextInstanceStartDate` when a repeating to-do has no next instance.
+    Sometimes bits below the day field are set as well (69769 rather than
+    69760), so any date in year 1 counts as unset.
+
+    Parameters
+    ----------
+    sql_expression : str
+        A sql expression pointing to a "Things date" integer in
+        format YYYYYYYYYYYMMMMDDDDD0000000, in binary.
+        See: `convert_isodate_sql_expression_to_thingsdate` for details.
+
+    Example
+    -------
+    >>> null_if_unset_thingsdate('rt1_nextInstanceStartDate')
+    'CASE WHEN rt1_nextInstanceStartDate >= 135296 \
+    THEN rt1_nextInstanceStartDate END'
+    """
+    first_real_thingsdate = isodate_to_yyyyyyyyyyymmmmddddd("0002-01-01")
+    return (
+        f"CASE WHEN {sql_expression} >= {first_real_thingsdate}"
+        f" THEN {sql_expression} END"
+    )
 
 
 def prettify_sql(sql_query):
