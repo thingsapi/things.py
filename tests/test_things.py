@@ -372,9 +372,11 @@ class ThingsCase(unittest.TestCase):  # pylint: disable=R0904
         self.assertEqual(len(todos) + 1, len(both))
 
         # The instance Things created from the template is a regular to-do.
-        instance = things.get("K9bx7h1xCJdevvyWardZDq")
+        instance = cast(dict, things.get("K9bx7h1xCJdevvyWardZDq"))
         self.assertNotIn("next_instance_start_date", instance)
-        self.assertIn("next_instance_start_date", things.get(template["uuid"]))
+        self.assertIn(
+            "next_instance_start_date", cast(dict, things.get(template["uuid"]))
+        )
 
         # The next-instance date filters like a start date.
         for value, expected in (("future", 1), ("past", 0), (False, 0)):

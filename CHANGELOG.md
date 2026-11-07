@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.1.0] - 2026-11-07
+
+### Added
+
+- Repeating to-dos in `upcoming()` and task output (#122, #152)
+  - New `is_repeating_template` filter on `tasks()` (`False` excludes templates as before, `True` returns only templates, `None` returns both)
+  - New `next_instance_start_date` field on templates, plus matching filter with the same options as `start_date`
+  - `upcoming()` also returns repeating templates with a future next instance, in the app's order
+
+### Changed
+
+- Require Python 3.11 as minimum version (dropped 3.8-3.10, CI tests 3.11+) (#151)
+- Rework how the Things database location is determined (#149)
+  - Permission errors for the Things app Group Container are now surfaced instead of silently falling back
+  - Setting `THINGSDB` (or passing `filepath` to `Database()`) never looks into the Group Container anymore
+  - `things.database.DEFAULT_FILEPATH` was removed, use `things.database.get_default_database_filepath()` instead
+  - Default path constant renamed for the Things 3.17.4 data folder; obsolete database-move migration code removed
+- Consolidate packaging and lint config in `pyproject.toml` (`setup.py`, `setup.cfg`, `ruff.toml`, empty `requirements.txt` and `.pylintrc` removed; flake8/pycodestyle/pydocstyle/isort checks now handled by ruff) (#151)
+
+## [1.0.1] - 2026-02-28
+
+### Fixed
+
+- `today()` no longer crashes on tasks without a start date
+- Deploy workflow installs `setuptools` so the build works
+
 ## [1.0.0] - 2026-02-10
 
 ### Added
@@ -61,27 +89,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - @cato447 (#121)
 - @chrisgurney (#117, #118, #123, #124)
 - @minthemiddle (#116)
-
-## [Unreleased]
-
-## [1.1.0] - 2026-10-26
-
-### Changed
-
-- Require Python 3.11 as minimum version (dropped 3.8-3.10, CI tests 3.11+) (#151)
-- Rework how the Things database location is determined (#149)
-  - Permission errors for the Things app Group Container are now surfaced instead of silently falling back
-  - Setting `THINGSDB` (or passing `filepath` to `Database()`) never looks into the Group Container anymore
-  - `things.database.DEFAULT_FILEPATH` was removed, use `things.database.get_default_database_filepath()` instead
-  - Default path constant renamed for the Things 3.17.4 data folder; obsolete database-move migration code removed
-- Consolidate packaging and lint config in `pyproject.toml` (`setup.py`, `setup.cfg`, `ruff.toml`, empty `requirements.txt` and `.pylintrc` removed; flake8/pycodestyle/pydocstyle/isort checks now handled by ruff) (#151)
-
-## [1.0.1] - 2026-02-28
-
-### Fixed
-
-- `today()` no longer crashes on tasks without a start date
-- Deploy workflow installs `setuptools` so the build works
 
 ## [0.0.15] - 2023-05-22
 
@@ -153,6 +160,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.8] - 2021-04-12
 
 ## [0.0.7] - 2021-04-08
+
+### Documentation
+
+- Updated docs
 
 ### Documentation
 
